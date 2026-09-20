@@ -31,6 +31,31 @@ src/
 │   ├── Fine
 │   └── Notification
 │
+├── storage/
+│   ├── repositories/
+│   │   ├── UserRepository
+│   │   ├── MemberRepository
+│   │   ├── LibrarianRepository
+│   │   ├── BookRepository
+│   │   ├── BookCopyRepository
+│   │   ├── LoanRepository
+│   │   ├── ReservationRepository
+│   │   ├── FineRepository
+│   │   └── NotificationRepository
+│   │
+│   ├── file/
+│   │   ├── FileUserRepository
+│   │   ├── FileMemberRepository
+│   │   ├── FileLibrarianRepository
+│   │   ├── FileBookRepository
+│   │   ├── FileBookCopyRepository
+│   │   ├── FileLoanRepository
+│   │   ├── FileReservationRepository
+│   │   ├── FileFineRepository
+│   │   └── FileNotificationRepository
+│   │
+│   └── StorageManager
+│
 ├── services/
 │   ├── AuthenticationService
 │   ├── CatalogueService
@@ -46,6 +71,63 @@ src/
 └── librarian/
     ├── LibrarianController
     └── LibrarianView
+
+data/
+├── users.json
+├── members.json
+├── librarians.json
+├── books.json
+├── book-copies.json
+├── loans.json
+├── reservations.json
+├── fines.json
+└── notifications.json
+
+#### Storage architecture
+
+The application uses file-backed persistence with one data file for each unique
+model type. The storage layer is separated from the domain models and services
+using repository interfaces.
+
+- `Repository` interfaces define persistence operations such as `findById`,
+  `findAll`, `save`, and `delete` for a specific model type.
+- `File...Repository` classes implement those interfaces and translate model
+  objects to and from their corresponding files in `data/`.
+- `StorageManager` provides shared file-system responsibilities, including the
+  data directory, file paths, reading, writing, missing-file initialization, and
+  safe replacement of files after an update.
+- Services depend on repository interfaces, not on file repositories or file
+  formats. Services remain responsible for business rules and for coordinating
+  updates across multiple repositories.
+- Models represent domain data and do not read from or write to files directly.
+
+The `storage/repositories/` and `storage/file/` directories contain Java source
+code, while the `data/` directory contains the persisted application records.
+Repository interfaces in `storage/repositories/` define persistence operations,
+and the corresponding `File...Repository` classes in `storage/file/` implement
+those operations using the files in `data/` through `StorageManager`. This
+separation allows the file-backed implementations to be replaced by other
+implementations, such as in-memory or database repositories, without changing
+the services.
+
+Entity relationships are persisted using stable IDs rather than duplicated
+nested objects. For example, a `Loan` stores a member ID and book-copy ID. A
+borrowing operation is coordinated by `LoanService`, which updates both the
+loan repository and the relevant book-copy repository.
+
+The initial implementation assumes a single active application instance. File
+updates should still be written safely, preferably by writing to a temporary
+file and replacing the original only after the write succeeds. A repository
+operation should only report success after its corresponding file has been
+updated successfully; repositories should not retain independent long-lived
+copies of the records that could become stale.
+
+Some operations, such as borrowing a book, require updates to multiple files.
+These operations are coordinated by the relevant service. If one file update
+fails, the service must either roll back the updates that have already
+succeeded or use a transaction or journaling mechanism to prevent the files
+from becoming inconsistent. Cross-file transaction support can be added inside
+the storage layer without changing the service interfaces.
 
 #### Class Diagram - just for reference, list out so later easier do integration
 ```mermaid
