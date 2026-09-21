@@ -11,25 +11,23 @@ public class Member extends User {
     private final LocalDate registrationDate;
 
     /**
-     * Creates an active library member account.
+     * Creates an active library member account with today's date as the registration date.
      *
      * @param userId the stable identifier for the user.
      * @param name the member's display name.
      * @param email the member's email address.
      * @param passwordHash the hash of the member's password.
      * @param membershipId the stable identifier for the membership.
-     * @param registrationDate the date on which the membership was registered.
      * @throws IllegalArgumentException if a required value is invalid.
-     * @throws NullPointerException if the registration date is null.
      */
     public Member(String userId, String name, String email, String passwordHash,
-                  String membershipId, LocalDate registrationDate) {
+                  String membershipId) {
         super(userId, name, email, passwordHash);
         if (membershipId == null || membershipId.isBlank()) {
             throw new IllegalArgumentException("membershipId cannot be blank");
         }
         this.membershipId = membershipId.trim();
-        this.registrationDate = Objects.requireNonNull(registrationDate, "registrationDate cannot be null");
+        this.registrationDate = LocalDate.now();
     }
 
     /**

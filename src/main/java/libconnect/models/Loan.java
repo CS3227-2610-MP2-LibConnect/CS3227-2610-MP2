@@ -8,6 +8,7 @@ import java.util.Objects;
  * Represents a member's loan of one physical book copy.
  */
 public class Loan {
+    private static final long LOAN_PERIOD_DAYS = 30;
     private static final long RENEWAL_PERIOD_DAYS = 30;
 
     private final String loanId;
@@ -20,19 +21,19 @@ public class Loan {
     private boolean isRenewed;
 
     /**
-     * Creates an active loan that has not been renewed.
+     * Creates an active loan that is due 30 days after the borrow date.
      *
      * @param loanId the stable identifier for the loan.
      * @param memberId the identifier of the borrowing member.
      * @param copyId the identifier of the borrowed book copy.
      * @param borrowDate the date on which the book was borrowed.
-     * @param dueDate the date on which the book is due.
-     * @throws IllegalArgumentException if an identifier is blank or the due date precedes the borrow date.
+     * @throws IllegalArgumentException if an identifier is blank.
      * @throws NullPointerException if a date is null.
      */
     public Loan(String loanId, String memberId, String copyId,
-                LocalDate borrowDate, LocalDate dueDate) {
-        this(loanId, memberId, copyId, borrowDate, dueDate,
+                LocalDate borrowDate) {
+        this(loanId, memberId, copyId, Objects.requireNonNull(borrowDate, "borrowDate cannot be null"),
+                borrowDate.plusDays(LOAN_PERIOD_DAYS),
                 null, LoanStatus.ACTIVE, false);
     }
 

@@ -117,6 +117,8 @@ public class User {
         status = AccountStatus.ACTIVE;
     }
 
+    // tests are not written for equals as it is not used in the application, 
+    // but it is implemented for potential future use cases
     @Override
     public boolean equals(Object other) {
         if (this == other) {
