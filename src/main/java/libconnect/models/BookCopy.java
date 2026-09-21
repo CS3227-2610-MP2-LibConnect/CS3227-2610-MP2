@@ -1,4 +1,4 @@
-package models;
+package libconnect.models;
 
 import java.util.Objects;
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Generate Summary"
+  short_description: "Summarize the current conversation for logging"
+  default_prompt: "Use $generate-summary to create a concise log-ready summary of this conversation."

@@ -1,4 +1,4 @@
-package models;
+package libconnect.models;
 
 /**
  * Represents the metadata for a book in the library catalogue.

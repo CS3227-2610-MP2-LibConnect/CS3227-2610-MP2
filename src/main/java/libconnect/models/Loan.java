@@ -1,4 +1,4 @@
-package models;
+package libconnect.models;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

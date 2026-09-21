@@ -1,4 +1,4 @@
-package models;
+package libconnect.models;
 
 /**
  * Represents the current status of a physical book copy.

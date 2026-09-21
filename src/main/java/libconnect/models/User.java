@@ -1,4 +1,4 @@
-package models;
+package libconnect.models;
 
 /**
  * Represents a user account in LibConnect.
