@@ -24,4 +24,4 @@ On macOS or Linux, use:
 ```
 
 The `run` task currently opens the initial LibConnect desktop window. The
-application entry point is `ui.LibConnectApplication`.
+application entry point is `libconnect.ui.LibConnectApplication`.

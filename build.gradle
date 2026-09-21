@@ -13,7 +13,7 @@ java {
 }
 
 application {
-    mainClass = 'ui.LibConnectApplication'
+    mainClass = 'libconnect.ui.LibConnectApplication'
 }
 
 dependencies {
