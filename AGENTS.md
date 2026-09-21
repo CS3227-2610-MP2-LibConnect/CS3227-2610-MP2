@@ -208,6 +208,8 @@ when its tests pass and the full existing test suite remains green.
   contracts, and authorized librarian controller boundary.
 - Completed: focused model, repository, service, controller, and persistence tests;
   the current suite must remain green after every subsequent change.
+- Completed: separate interactive CLI harness with scripted workflow tests for manual
+  librarian verification before JavaFX view integration.
 - Pending: implementation of the member-role providers behind `MemberManagement`,
   `BookManagement`, `BookCopyManagement`, and `LoanQuery`; concrete desktop view
   wiring; and any cross-file transaction/journal logic required once those providers
