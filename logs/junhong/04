@@ -1,0 +1,30 @@
+## Conversation Summary
+
+Date: 2026-09-21
+
+### Objective
+
+Implement and document LibConnect’s file-backed repository layer, including shared user storage, JSON persistence, deletion handling, and repository abstractions.
+
+### Key decisions
+
+- Chose Option A for the repository implementation.
+- Renamed `StorageManager` to `FileManager`.
+- Added `DeleteFailureException` for failed deletions.
+- Stored members and other user roles together in `users.json` to enforce globally unique normalized email addresses.
+- Made `FileMemberRepository` a view over `FileUserRepository`.
+- Required all file repositories to create configured files and parent directories when missing.
+- Kept `FileBookRepository` independent of `BookCopyRepository`.
+- Added `deleteByIsbn` to `BookCopyRepository` and `FileBookCopyRepository`.
+- Deferred controller-level validation for deleting books with associated copies.
+- Did not add tests.
+
+### Work completed
+
+- Added repository interfaces and implementations for users, members, books, book copies, and loans.
+- Added `FileManager`, `FileRepositorySupport`, `JsonReader`, `JsonWriter`, and `ValidationUtils`.
+- Extracted repeated validation, file, JSON, and collection operations.
+- Updated `PLAN.md` to reflect the current architecture and implementation status.
+- Ran the full test suite successfully: 134 tests passed.
+- Fixed JSON helper visibility and added `Loan.hashCode()` to match `equals()`.
+- Proposed commit messages for the repository implementation and documentation updates.
