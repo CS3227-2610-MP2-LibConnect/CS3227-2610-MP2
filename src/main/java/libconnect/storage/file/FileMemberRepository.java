@@ -53,7 +53,7 @@ public class FileMemberRepository implements MemberRepository {
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code membershipId} is blank.
-     * @throws IllegalStateException if the shared data file cannot be read or is invalid.
+     * @throws IllegalStateException if the shared data file cannot be read.
      */
     @Override
     public Optional<Member> findByMembershipId(String membershipId) {
@@ -68,7 +68,7 @@ public class FileMemberRepository implements MemberRepository {
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code userId} is blank.
-     * @throws IllegalStateException if the shared data file cannot be read or is invalid.
+     * @throws IllegalStateException if the shared data file cannot be read.
      */
     @Override
     public Optional<Member> findByUserId(String userId) {
@@ -83,7 +83,7 @@ public class FileMemberRepository implements MemberRepository {
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code email} is blank.
-     * @throws IllegalStateException if the shared data file cannot be read or is invalid.
+     * @throws IllegalStateException if the shared data file cannot be read.
      */
     @Override
     public Optional<Member> findByEmail(String email) {
@@ -95,7 +95,7 @@ public class FileMemberRepository implements MemberRepository {
     /**
      * {@inheritDoc}
      *
-     * @throws IllegalStateException if the shared data file cannot be read or is invalid.
+     * @throws IllegalStateException if the shared data file cannot be read.
      */
     @Override
     public List<Member> findAll() {
@@ -109,7 +109,7 @@ public class FileMemberRepository implements MemberRepository {
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code name} is blank.
-     * @throws IllegalStateException if the shared data file cannot be read or is invalid.
+     * @throws IllegalStateException if the shared data file cannot be read.
      */
     @Override
     public List<Member> findByName(String name) {
@@ -124,7 +124,7 @@ public class FileMemberRepository implements MemberRepository {
      * {@inheritDoc}
      *
      * @throws NullPointerException if {@code status} is null.
-     * @throws IllegalStateException if the shared data file cannot be read or is invalid.
+     * @throws IllegalStateException if the shared data file cannot be read.
      */
     @Override
     public List<Member> findByStatus(AccountStatus status) {

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import libconnect.models.Loan;
 import libconnect.models.LoanStatus;
@@ -20,6 +21,7 @@ import libconnect.util.ValidationUtils;
  * Provides JSON file-backed persistence for loans.
  */
 public class FileLoanRepository extends FileRepositorySupport implements LoanRepository {
+    private static final Logger LOGGER = Logger.getLogger(FileLoanRepository.class.getName());
     private static final Path DEFAULT_DATA_FILE = Path.of("data", "loans.json");
     private static final String LOAN_ID_FIELD = "loanId";
     private static final String MEMBER_ID_FIELD = "memberId";
@@ -66,7 +68,7 @@ public class FileLoanRepository extends FileRepositorySupport implements LoanRep
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code loanId} is blank.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public Optional<Loan> findById(String loanId) {
@@ -78,7 +80,7 @@ public class FileLoanRepository extends FileRepositorySupport implements LoanRep
     /**
      * {@inheritDoc}
      *
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<Loan> findAll() {
@@ -89,7 +91,7 @@ public class FileLoanRepository extends FileRepositorySupport implements LoanRep
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code memberId} is blank.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<Loan> findByMemberId(String memberId) {
@@ -102,7 +104,7 @@ public class FileLoanRepository extends FileRepositorySupport implements LoanRep
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code copyId} is blank.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<Loan> findByCopyId(String copyId) {
@@ -115,7 +117,7 @@ public class FileLoanRepository extends FileRepositorySupport implements LoanRep
      * {@inheritDoc}
      *
      * @throws NullPointerException if {@code status} is null.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<Loan> findByStatus(LoanStatus status) {
@@ -167,15 +169,18 @@ public class FileLoanRepository extends FileRepositorySupport implements LoanRep
         JsonParser parser = new JsonParser(json);
         List<Loan> loans = parser.parseLoanArray();
         Set<String> loanIds = new LinkedHashSet<>();
+        List<Loan> validLoans = new ArrayList<>();
 
         for (Loan loan : loans) {
             if (!loanIds.add(loan.getLoanId())) {
-                throw new IllegalArgumentException("Duplicate loan ID in loan data: "
-                        + loan.getLoanId());
+                logMalformedRecord(LOGGER, "loan", "Duplicate loan ID in loan data: "
+                        + loan.getLoanId(), null);
+                continue;
             }
+            validLoans.add(loan);
         }
 
-        return loans;
+        return validLoans;
     }
 
     /**
@@ -232,28 +237,9 @@ public class FileLoanRepository extends FileRepositorySupport implements LoanRep
          * @throws IllegalArgumentException if the JSON is invalid.
          */
         private List<Loan> parseLoanArray() {
-            List<Loan> loans = new ArrayList<>();
-            skipWhitespace();
-            expect('[');
-            skipWhitespace();
-
-            if (consume(']')) {
-                ensureEnd();
-                return loans;
-            }
-
-            while (true) {
-                loans.add(parseLoan());
-                skipWhitespace();
-
-                if (consume(']')) {
-                    ensureEnd();
-                    return loans;
-                }
-
-                expect(',');
-                skipWhitespace();
-            }
+            return parseArray(this::parseLoan,
+                    exception -> logMalformedRecord(LOGGER, "loan", exception.getMessage(),
+                            exception));
         }
 
         /**
@@ -273,7 +259,7 @@ public class FileLoanRepository extends FileRepositorySupport implements LoanRep
             String borrowDate = null;
             String dueDate = null;
             String returnDate = null;
-            LoanStatus status = null;
+            String status = null;
             Boolean isRenewed = null;
 
             if (!consume('}')) {
@@ -289,7 +275,7 @@ public class FileLoanRepository extends FileRepositorySupport implements LoanRep
                     case BORROW_DATE_FIELD -> borrowDate = parseString();
                     case DUE_DATE_FIELD -> dueDate = parseString();
                     case RETURN_DATE_FIELD -> returnDate = parseNullableString();
-                    case STATUS_FIELD -> status = parseStatus();
+                    case STATUS_FIELD -> status = parseString();
                     case RENEWED_FIELD -> isRenewed = parseBoolean();
                     default -> skipValue();
                     }
@@ -311,23 +297,9 @@ public class FileLoanRepository extends FileRepositorySupport implements LoanRep
             try {
                 return new Loan(loanId, memberId, copyId, LocalDate.parse(borrowDate),
                         LocalDate.parse(dueDate), returnDate == null ? null : LocalDate.parse(returnDate),
-                        status, isRenewed);
+                        LoanStatus.valueOf(status), isRenewed);
             } catch (IllegalArgumentException exception) {
                 throw new IllegalArgumentException("Invalid loan record", exception);
-            }
-        }
-
-        /**
-         * Parses a loan status string.
-         *
-         * @return the parsed loan status.
-         * @throws IllegalArgumentException if the value is not a valid loan status.
-         */
-        private LoanStatus parseStatus() {
-            try {
-                return LoanStatus.valueOf(parseString());
-            } catch (IllegalArgumentException exception) {
-                throw new IllegalArgumentException("Invalid loan status", exception);
             }
         }
 

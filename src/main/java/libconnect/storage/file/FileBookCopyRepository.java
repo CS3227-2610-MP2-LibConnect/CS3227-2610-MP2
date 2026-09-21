@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import libconnect.models.BookCopy;
 import libconnect.models.CopyStatus;
@@ -19,6 +20,7 @@ import libconnect.util.ValidationUtils;
  * Provides JSON file-backed persistence for physical book copies.
  */
 public class FileBookCopyRepository extends FileRepositorySupport implements BookCopyRepository {
+    private static final Logger LOGGER = Logger.getLogger(FileBookCopyRepository.class.getName());
     private static final Path DEFAULT_DATA_FILE = Path.of("data", "book-copies.json");
     private static final String COPY_ID_FIELD = "copyId";
     private static final String ISBN_FIELD = "isbn";
@@ -61,7 +63,7 @@ public class FileBookCopyRepository extends FileRepositorySupport implements Boo
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code copyId} is blank.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public Optional<BookCopy> findById(String copyId) {
@@ -73,7 +75,7 @@ public class FileBookCopyRepository extends FileRepositorySupport implements Boo
     /**
      * {@inheritDoc}
      *
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<BookCopy> findAll() {
@@ -84,7 +86,7 @@ public class FileBookCopyRepository extends FileRepositorySupport implements Boo
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code isbn} is blank.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<BookCopy> findByIsbn(String isbn) {
@@ -119,7 +121,7 @@ public class FileBookCopyRepository extends FileRepositorySupport implements Boo
      * {@inheritDoc}
      *
      * @throws NullPointerException if {@code status} is null.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<BookCopy> findByStatus(CopyStatus status) {
@@ -172,15 +174,18 @@ public class FileBookCopyRepository extends FileRepositorySupport implements Boo
         JsonParser parser = new JsonParser(json);
         List<BookCopy> copies = parser.parseCopyArray();
         Set<String> copyIds = new LinkedHashSet<>();
+        List<BookCopy> validCopies = new ArrayList<>();
 
         for (BookCopy copy : copies) {
             if (!copyIds.add(copy.getCopyId())) {
-                throw new IllegalArgumentException("Duplicate copyId in book-copy data: "
-                        + copy.getCopyId());
+                logMalformedRecord(LOGGER, "book-copy", "Duplicate copyId in book-copy data: "
+                        + copy.getCopyId(), null);
+                continue;
             }
+            validCopies.add(copy);
         }
 
-        return copies;
+        return validCopies;
     }
 
     /**
@@ -229,27 +234,9 @@ public class FileBookCopyRepository extends FileRepositorySupport implements Boo
          * @throws IllegalArgumentException if the JSON is invalid.
          */
         private List<BookCopy> parseCopyArray() {
-            List<BookCopy> copies = new ArrayList<>();
-            skipWhitespace();
-            expect('[');
-            skipWhitespace();
-
-            if (consume(']')) {
-                ensureEnd();
-                return copies;
-            }
-
-            while (true) {
-                copies.add(parseCopy());
-                skipWhitespace();
-
-                if (consume(']')) {
-                    ensureEnd();
-                    return copies;
-                }
-
-                expect(',');
-            }
+            return parseArray(this::parseCopy,
+                    exception -> logMalformedRecord(LOGGER, "book-copy", exception.getMessage(),
+                            exception));
         }
 
         /**

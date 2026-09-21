@@ -1,11 +1,15 @@
 package libconnect.storage.file;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Provides shared low-level parsing for the limited JSON structures used by repositories.
  */
-class JsonReader {
+public class JsonReader {
     protected final String json;
     protected int position;
     private final String documentName;
@@ -19,6 +23,9 @@ class JsonReader {
     protected JsonReader(String json, String documentName) {
         this.json = Objects.requireNonNull(json, "json cannot be null");
         this.documentName = Objects.requireNonNull(documentName, "documentName cannot be null");
+        if (documentName.isBlank()) {
+            throw new IllegalArgumentException("documentName cannot be blank");
+        }
     }
 
     /**
@@ -173,6 +180,96 @@ class JsonReader {
         } else {
             while (position < json.length() && ",}".indexOf(json.charAt(position)) < 0) {
                 position++;
+            }
+        }
+    }
+
+    /**
+     * Skips a malformed array element so parsing can continue with the next element.
+     */
+    protected void skipMalformedArrayElement() {
+        int nestingDepth = 0;
+        boolean inString = false;
+        boolean escaped = false;
+
+        while (position < json.length()) {
+            char character = json.charAt(position++);
+
+            if (inString) {
+                if (escaped) {
+                    escaped = false;
+                } else if (character == '\\') {
+                    escaped = true;
+                } else if (character == '"') {
+                    inString = false;
+                }
+                continue;
+            }
+
+            if (character == '"') {
+                inString = true;
+            } else if (character == '{' || character == '[') {
+                nestingDepth++;
+            } else if (character == '}' || character == ']') {
+                if (nestingDepth == 0) {
+                    position--;
+                    return;
+                }
+                nestingDepth--;
+                if (nestingDepth == 0) {
+                    return;
+                }
+            } else if (character == ',' && nestingDepth == 0) {
+                position--;
+                return;
+            }
+        }
+    }
+
+    /**
+     * Parses a JSON array while skipping and reporting malformed elements.
+     *
+     * @param recordParser parses one array element.
+     * @param malformedRecordHandler handles a malformed element without interrupting parsing.
+     * @param <T> the record type.
+     * @return the successfully parsed records.
+     * @throws IllegalArgumentException if the root JSON structure or separators are invalid.
+     */
+    protected <T> List<T> parseArray(Supplier<T> recordParser,
+                                     Consumer<IllegalArgumentException> malformedRecordHandler) {
+        Objects.requireNonNull(recordParser, "recordParser cannot be null");
+        Objects.requireNonNull(malformedRecordHandler, "malformedRecordHandler cannot be null");
+
+        List<T> records = new ArrayList<>();
+        skipWhitespace();
+        expect('[');
+        skipWhitespace();
+
+        if (consume(']')) {
+            ensureEnd();
+            return records;
+        }
+
+        while (true) {
+            int recordStart = position;
+            try {
+                records.add(recordParser.get());
+            } catch (IllegalArgumentException exception) {
+                position = recordStart;
+                skipMalformedArrayElement();
+                malformedRecordHandler.accept(exception);
+            }
+            skipWhitespace();
+
+            if (consume(']')) {
+                ensureEnd();
+                return records;
+            }
+
+            expect(',');
+            skipWhitespace();
+            if (position < json.length() && json.charAt(position) == ']') {
+                throw new IllegalArgumentException("Trailing comma in " + documentName + " JSON");
             }
         }
     }

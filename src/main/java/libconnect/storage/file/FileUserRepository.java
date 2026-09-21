@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import libconnect.models.AccountStatus;
 import libconnect.models.Member;
@@ -24,6 +25,7 @@ import libconnect.util.ValidationUtils;
  * uniqueness to be checked across members and future user roles in one place.</p>
  */
 public class FileUserRepository extends FileRepositorySupport implements UserRepository {
+    private static final Logger LOGGER = Logger.getLogger(FileUserRepository.class.getName());
     private static final Path DEFAULT_DATA_FILE = Path.of("data", "users.json");
     private static final String USER_ID_FIELD = "userId";
     private static final String ROLE_FIELD = "role";
@@ -72,7 +74,7 @@ public class FileUserRepository extends FileRepositorySupport implements UserRep
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code userId} is blank.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public Optional<User> findByUserId(String userId) {
@@ -85,7 +87,7 @@ public class FileUserRepository extends FileRepositorySupport implements UserRep
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code email} is blank.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public Optional<User> findByEmail(String email) {
@@ -98,7 +100,7 @@ public class FileUserRepository extends FileRepositorySupport implements UserRep
     /**
      * {@inheritDoc}
      *
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<User> findAll() {
@@ -134,9 +136,36 @@ public class FileUserRepository extends FileRepositorySupport implements UserRep
      */
     private List<User> parseUsers(String json) {
         JsonParser parser = new JsonParser(json);
-        List<User> users = parser.parseUserArray();
-        validateUsers(users);
-        return users;
+        List<User> parsedUsers = parser.parseUserArray();
+        List<User> validUsers = new ArrayList<>();
+        Set<String> userIds = new HashSet<>();
+        Set<String> emails = new HashSet<>();
+        Set<String> membershipIds = new HashSet<>();
+
+        for (User user : parsedUsers) {
+            if (!userIds.add(user.getUserId())) {
+                logMalformedRecord(LOGGER, "user", "Duplicate userId in user data: "
+                        + user.getUserId(), null);
+                continue;
+            }
+
+            String normalizedEmail = normalizeEmail(user.getEmail());
+            if (!emails.add(normalizedEmail)) {
+                logMalformedRecord(LOGGER, "user", "Duplicate email in user data: "
+                        + user.getEmail(), null);
+                continue;
+            }
+
+            if (user instanceof Member member && !membershipIds.add(member.getMembershipId())) {
+                logMalformedRecord(LOGGER, "user", "Duplicate membershipId in user data: "
+                        + member.getMembershipId(), null);
+                continue;
+            }
+
+            validUsers.add(user);
+        }
+
+        return validUsers;
     }
 
     /**
@@ -253,27 +282,9 @@ public class FileUserRepository extends FileRepositorySupport implements UserRep
          * @throws IllegalArgumentException if the JSON is invalid.
          */
         private List<User> parseUserArray() {
-            List<User> users = new ArrayList<>();
-            skipWhitespace();
-            expect('[');
-            skipWhitespace();
-
-            if (consume(']')) {
-                ensureEnd();
-                return users;
-            }
-
-            while (true) {
-                users.add(parseUser());
-                skipWhitespace();
-
-                if (consume(']')) {
-                    ensureEnd();
-                    return users;
-                }
-
-                expect(',');
-            }
+            return parseArray(this::parseUser,
+                    exception -> logMalformedRecord(LOGGER, "user", exception.getMessage(),
+                            exception));
         }
 
         /**

@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import libconnect.storage.FileManager;
 import libconnect.storage.exceptions.DeleteFailureException;
@@ -15,6 +17,7 @@ import libconnect.storage.exceptions.DeleteFailureException;
  * Provides shared file and collection operations for file-backed repositories.
  */
 abstract class FileRepositorySupport {
+    private static final Logger LOGGER = Logger.getLogger(FileRepositorySupport.class.getName());
     protected final FileManager fileManager;
     protected final Path dataFile;
     private final String entityDescription;
@@ -41,20 +44,36 @@ abstract class FileRepositorySupport {
      *
      * @param parser the parser for the stored JSON content.
      * @param <T> the record type.
-     * @return the parsed records, or an empty list when no file content exists.
+     * @return the parsed records, or an empty list when no file content exists or the stored
+     *         JSON cannot be parsed.
      * @throws IllegalStateException if the file cannot be read.
-     * @throws IllegalArgumentException if the stored data is invalid.
      */
     protected <T> List<T> readRecords(Function<String, List<T>> parser) {
         try {
             Optional<String> storedData = fileManager.read(dataFile);
             return storedData.map(parser).orElseGet(ArrayList::new);
         } catch (IllegalArgumentException exception) {
-            throw exception;
+            LOGGER.log(Level.WARNING, "Unable to parse " + entityDescription + " data from "
+                    + dataFile + "; returning no records", exception);
+            return new ArrayList<>();
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to read " + entityDescription
                     + " from " + dataFile, exception);
         }
+    }
+
+    /**
+     * Logs a malformed record without interrupting repository reads.
+     *
+     * @param logger the logger associated with the repository.
+     * @param recordType the type of record being skipped.
+     * @param message the reason the record is malformed.
+     * @param exception the parsing exception, if available.
+     */
+    protected static void logMalformedRecord(Logger logger, String recordType,
+                                             String message, Throwable exception) {
+        logger.log(Level.WARNING, "Skipping malformed " + recordType + " record: " + message,
+                exception);
     }
 
     /**

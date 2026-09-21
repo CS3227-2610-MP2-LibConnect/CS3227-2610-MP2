@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import libconnect.models.Book;
 import libconnect.storage.FileManager;
@@ -18,6 +19,7 @@ import libconnect.util.ValidationUtils;
  * Provides JSON file-backed persistence for catalogue books.
  */
 public class FileBookRepository extends FileRepositorySupport implements BookRepository {
+    private static final Logger LOGGER = Logger.getLogger(FileBookRepository.class.getName());
     private static final Path DEFAULT_DATA_FILE = Path.of("data", "books.json");
     private static final String ISBN_FIELD = "isbn";
     private static final String TITLE_FIELD = "title";
@@ -62,7 +64,7 @@ public class FileBookRepository extends FileRepositorySupport implements BookRep
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code isbn} is blank.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public Optional<Book> findByIsbn(String isbn) {
@@ -74,7 +76,7 @@ public class FileBookRepository extends FileRepositorySupport implements BookRep
     /**
      * {@inheritDoc}
      *
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<Book> findAll() {
@@ -85,7 +87,7 @@ public class FileBookRepository extends FileRepositorySupport implements BookRep
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code title} is blank.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<Book> findByTitle(String title) {
@@ -99,7 +101,7 @@ public class FileBookRepository extends FileRepositorySupport implements BookRep
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code author} is blank.
-     * @throws IllegalStateException if the data file cannot be read or is invalid.
+     * @throws IllegalStateException if the data file cannot be read.
      */
     @Override
     public List<Book> findByAuthor(String author) {
@@ -152,14 +154,18 @@ public class FileBookRepository extends FileRepositorySupport implements BookRep
         JsonParser parser = new JsonParser(json);
         List<Book> books = parser.parseBookArray();
         Set<String> isbns = new LinkedHashSet<>();
+        List<Book> validBooks = new ArrayList<>();
 
         for (Book book : books) {
             if (!isbns.add(book.getIsbn())) {
-                throw new IllegalArgumentException("Duplicate ISBN in book data: " + book.getIsbn());
+                logMalformedRecord(LOGGER, "book", "Duplicate ISBN in book data: "
+                        + book.getIsbn(), null);
+                continue;
             }
+            validBooks.add(book);
         }
 
-        return books;
+        return validBooks;
     }
 
     /**
@@ -210,27 +216,9 @@ public class FileBookRepository extends FileRepositorySupport implements BookRep
          * @throws IllegalArgumentException if the JSON is invalid.
          */
         private List<Book> parseBookArray() {
-            List<Book> books = new ArrayList<>();
-            skipWhitespace();
-            expect('[');
-            skipWhitespace();
-
-            if (consume(']')) {
-                ensureEnd();
-                return books;
-            }
-
-            while (true) {
-                books.add(parseBook());
-                skipWhitespace();
-
-                if (consume(']')) {
-                    ensureEnd();
-                    return books;
-                }
-
-                expect(',');
-            }
+            return parseArray(this::parseBook,
+                    exception -> logMalformedRecord(LOGGER, "book", exception.getMessage(),
+                            exception));
         }
 
         /**
