@@ -1,5 +1,7 @@
 package libconnect.models;
 
+import libconnect.util.ValidationUtils;
+
 /**
  * Represents the metadata for a book in the library catalogue.
  */
@@ -24,14 +26,14 @@ public class Book {
      */
     public Book(String isbn, String title, String author, String publisher,
                 String category, int publicationYear) {
-        this.isbn = requireNonBlank(isbn, "isbn");
+        this.isbn = ValidationUtils.requireNonBlank(isbn, "isbn");
         if (publicationYear <= 0) {
             throw new IllegalArgumentException("publicationYear must be positive");
         }
-        this.title = requireNonBlank(title, "title");
-        this.author = requireNonBlank(author, "author");
-        this.publisher = requireNonBlank(publisher, "publisher");
-        this.category = requireNonBlank(category, "category");
+        this.title = ValidationUtils.requireNonBlank(title, "title");
+        this.author = ValidationUtils.requireNonBlank(author, "author");
+        this.publisher = ValidationUtils.requireNonBlank(publisher, "publisher");
+        this.category = ValidationUtils.requireNonBlank(category, "category");
         this.publicationYear = publicationYear;
     }
 
@@ -107,10 +109,4 @@ public class Book {
                 + ", category='" + category + '\'' + ", publicationYear=" + publicationYear + '}';
     }
 
-    private static String requireNonBlank(String value, String fieldName) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " cannot be blank");
-        }
-        return value.trim();
-    }
 }

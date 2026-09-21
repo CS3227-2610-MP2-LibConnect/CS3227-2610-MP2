@@ -2,6 +2,8 @@ package libconnect.models;
 
 import java.util.Objects;
 
+import libconnect.util.ValidationUtils;
+
 /**
  * Represents one physical copy of a catalogue book.
  */
@@ -36,10 +38,10 @@ public class BookCopy {
      * @throws NullPointerException if the status is null.
      */
     public BookCopy(String copyId, String isbn, CopyStatus status, String shelfLocation) {
-        this.copyId = requireNonBlank(copyId, "copyId");
-        this.isbn = requireNonBlank(isbn, "isbn");
+        this.copyId = ValidationUtils.requireNonBlank(copyId, "copyId");
+        this.isbn = ValidationUtils.requireNonBlank(isbn, "isbn");
         this.status = Objects.requireNonNull(status, "status cannot be null");
-        this.shelfLocation = requireNonBlank(shelfLocation, "shelfLocation");
+        this.shelfLocation = ValidationUtils.requireNonBlank(shelfLocation, "shelfLocation");
     }
 
     /**
@@ -94,7 +96,7 @@ public class BookCopy {
      * @throws IllegalArgumentException if the shelf location is blank.
      */
     public void updateShelfLocation(String shelfLocation) {
-        this.shelfLocation = requireNonBlank(shelfLocation, "shelfLocation");
+        this.shelfLocation = ValidationUtils.requireNonBlank(shelfLocation, "shelfLocation");
     }
 
     /**
@@ -152,10 +154,4 @@ public class BookCopy {
                 + ", status=" + status + ", shelfLocation='" + shelfLocation + '\'' + '}';
     }
 
-    private static String requireNonBlank(String value, String fieldName) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " cannot be blank");
-        }
-        return value.trim();
-    }
 }

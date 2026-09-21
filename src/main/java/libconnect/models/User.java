@@ -1,5 +1,9 @@
 package libconnect.models;
 
+import java.util.Objects;
+
+import libconnect.util.ValidationUtils;
+
 /**
  * Represents a user account in LibConnect.
  */
@@ -20,11 +24,27 @@ public class User {
      * @throws IllegalArgumentException if any required value is blank or the email is invalid.
      */
     public User(String userId, String name, String email, String passwordHash) {
-        this.userId = requireNonBlank(userId, "userId");
-        this.name = requireNonBlank(name, "name");
+        this(userId, name, email, passwordHash, AccountStatus.ACTIVE);
+    }
+
+    /**
+     * Creates a user account with a supplied account status.
+     *
+     * @param userId the stable identifier for the user.
+     * @param name the user's display name.
+     * @param email the user's email address.
+     * @param passwordHash the hash of the user's password.
+     * @param status the account status to restore.
+     * @throws IllegalArgumentException if any required value is blank or the email is invalid.
+     * @throws NullPointerException if {@code status} is null.
+     */
+    public User(String userId, String name, String email, String passwordHash,
+                AccountStatus status) {
+        this.userId = ValidationUtils.requireNonBlank(userId, "userId");
+        this.name = ValidationUtils.requireNonBlank(name, "name");
         this.email = validateEmail(email);
-        this.passwordHash = requireNonBlank(passwordHash, "passwordHash");
-        this.status = AccountStatus.ACTIVE;
+        this.passwordHash = ValidationUtils.requireNonBlank(passwordHash, "passwordHash");
+        this.status = Objects.requireNonNull(status, "status cannot be null");
     }
 
     /**
@@ -89,7 +109,7 @@ public class User {
      * @throws IllegalArgumentException if either value is invalid.
      */
     public void updateProfile(String name, String email) {
-        this.name = requireNonBlank(name, "name");
+        this.name = ValidationUtils.requireNonBlank(name, "name");
         this.email = validateEmail(email);
     }
 
@@ -100,7 +120,7 @@ public class User {
      * @throws IllegalArgumentException if the hash is blank.
      */
     public void updatePasswordHash(String passwordHash) {
-        this.passwordHash = requireNonBlank(passwordHash, "passwordHash");
+        this.passwordHash = ValidationUtils.requireNonBlank(passwordHash, "passwordHash");
     }
 
     /**
@@ -136,15 +156,8 @@ public class User {
                 + ", email='" + email + '\'' + ", status=" + status + '}';
     }
 
-    private static String requireNonBlank(String value, String fieldName) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " cannot be blank");
-        }
-        return value.trim();
-    }
-
     private static String validateEmail(String email) {
-        String trimmedEmail = requireNonBlank(email, "email");
+        String trimmedEmail = ValidationUtils.requireNonBlank(email, "email");
         if (!trimmedEmail.contains("@") || trimmedEmail.startsWith("@")
                 || trimmedEmail.endsWith("@")) {
             throw new IllegalArgumentException("email must be valid");

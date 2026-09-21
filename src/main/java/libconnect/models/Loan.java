@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
+import libconnect.util.ValidationUtils;
+
 /**
  * Represents a member's loan of one physical book copy.
  */
@@ -56,9 +58,9 @@ public class Loan {
     public Loan(String loanId, String memberId, String copyId,
                 LocalDate borrowDate, LocalDate dueDate, LocalDate returnDate,
                 LoanStatus status, boolean isRenewed) {
-        this.loanId = requireNonBlank(loanId, "loanId");
-        this.memberId = requireNonBlank(memberId, "memberId");
-        this.copyId = requireNonBlank(copyId, "copyId");
+        this.loanId = ValidationUtils.requireNonBlank(loanId, "loanId");
+        this.memberId = ValidationUtils.requireNonBlank(memberId, "memberId");
+        this.copyId = ValidationUtils.requireNonBlank(copyId, "copyId");
         this.borrowDate = Objects.requireNonNull(borrowDate, "borrowDate cannot be null");
         this.dueDate = Objects.requireNonNull(dueDate, "dueDate cannot be null");
         this.status = Objects.requireNonNull(status, "status cannot be null");
@@ -220,6 +222,14 @@ public class Loan {
         return loanId.equals(otherLoan.loanId);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return loanId.hashCode();
+    }
+
     @Override
     public String toString() {
         return "Loan{" + "loanId='" + loanId + '\'' + ", memberId='" + memberId + '\''
@@ -246,10 +256,4 @@ public class Loan {
         }
     }
 
-    private static String requireNonBlank(String value, String fieldName) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " cannot be blank");
-        }
-        return value.trim();
-    }
 }
