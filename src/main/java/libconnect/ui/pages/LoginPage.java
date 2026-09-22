@@ -101,7 +101,7 @@ public final class LoginPage extends BorderPane {
                     AccountType.MEMBER, username, password);
             sessionManager.login(authenticatedUser);
             passwordField.clear();
-            sceneNavigator.showPlaceholderPage();
+            sceneNavigator.showDashboardPage();
         } catch (AuthenticationException exception) {
             passwordField.clear();
             feedbackMessage.showError(exception.getMessage());
