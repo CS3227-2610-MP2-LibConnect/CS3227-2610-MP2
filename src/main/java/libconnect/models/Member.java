@@ -1,6 +1,7 @@
 package libconnect.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -24,7 +25,6 @@ public class Member extends User {
      * @param membershipId the stable identifier for the membership.
      * @throws IllegalArgumentException if a required value is invalid.
      */
-    @JsonCreator
     public Member(String userId, String name, String email, String passwordHash,
                   String membershipId) {
         super(userId, name, email, passwordHash);
@@ -45,8 +45,14 @@ public class Member extends User {
      * @throws IllegalArgumentException if a required value is invalid.
      * @throws NullPointerException if {@code registrationDate} or {@code status} is null.
      */
-    public Member(String userId, String name, String email, String passwordHash,
-                  String membershipId, LocalDate registrationDate, AccountStatus status) {
+    @JsonCreator
+    public Member(@JsonProperty("userId") String userId,
+                  @JsonProperty("name") String name,
+                  @JsonProperty("email") String email,
+                  @JsonProperty("passwordHash") String passwordHash,
+                  @JsonProperty("membershipId") String membershipId,
+                  @JsonProperty("registrationDate") LocalDate registrationDate,
+                  @JsonProperty("status") AccountStatus status) {
         super(userId, name, email, passwordHash, status);
         this.membershipId = ValidationUtils.requireNonBlank(membershipId, "membershipId");
         this.registrationDate = Objects.requireNonNull(registrationDate,

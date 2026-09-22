@@ -1,6 +1,7 @@
 package libconnect.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -34,7 +35,6 @@ public class Loan implements libconnect.storage.repositories.Identifiable {
      * @throws IllegalArgumentException if an identifier is blank.
      * @throws NullPointerException if a date is null.
      */
-    @JsonCreator
     public Loan(String loanId, String memberId, String copyId,
                 LocalDate borrowDate) {
         this(loanId, memberId, copyId, Objects.requireNonNull(borrowDate, "borrowDate cannot be null"),
@@ -58,9 +58,15 @@ public class Loan implements libconnect.storage.repositories.Identifiable {
      * @throws IllegalArgumentException if an identifier is blank or a date relationship is invalid.
      * @throws NullPointerException if a required date or status is null.
      */
-    public Loan(String loanId, String memberId, String copyId,
-                LocalDate borrowDate, LocalDate dueDate, LocalDate returnDate,
-                LoanStatus status, boolean isRenewed) {
+    @JsonCreator
+    public Loan(@JsonProperty("loanId") String loanId,
+                @JsonProperty("memberId") String memberId,
+                @JsonProperty("copyId") String copyId,
+                @JsonProperty("borrowDate") LocalDate borrowDate,
+                @JsonProperty("dueDate") LocalDate dueDate,
+                @JsonProperty("returnDate") LocalDate returnDate,
+                @JsonProperty("status") LoanStatus status,
+                @JsonProperty("isRenewed") boolean isRenewed) {
         this.loanId = ValidationUtils.requireNonBlank(loanId, "loanId");
         this.memberId = ValidationUtils.requireNonBlank(memberId, "memberId");
         this.copyId = ValidationUtils.requireNonBlank(copyId, "copyId");
@@ -141,6 +147,7 @@ public class Loan implements libconnect.storage.repositories.Identifiable {
      *
      * @return true if the loan has been renewed.
      */
+    @JsonProperty("isRenewed")
     public boolean hasBeenRenewed() {
         return isRenewed;
     }

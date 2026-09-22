@@ -1,6 +1,7 @@
 package libconnect.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
@@ -38,9 +39,12 @@ public class BookCopy implements libconnect.storage.repositories.Identifiable {
      * @param shelfLocation the copy's shelf location.
      * @throws IllegalArgumentException if a text value is blank.
      * @throws NullPointerException if the status is null.
-     */
+    */
     @JsonCreator
-    public BookCopy(String copyId, String isbn, CopyStatus status, String shelfLocation) {
+    public BookCopy(@JsonProperty("copyId") String copyId,
+                    @JsonProperty("isbn") String isbn,
+                    @JsonProperty("status") CopyStatus status,
+                    @JsonProperty("shelfLocation") String shelfLocation) {
         this.copyId = ValidationUtils.requireNonBlank(copyId, "copyId");
         this.isbn = ValidationUtils.requireNonBlank(isbn, "isbn");
         this.status = Objects.requireNonNull(status, "status cannot be null");
