@@ -7,7 +7,9 @@ import javafx.stage.Stage;
 import libconnect.services.AuthenticationService;
 import libconnect.services.BookCopyService;
 import libconnect.services.BookService;
+import libconnect.services.BorrowService;
 import libconnect.ui.pages.BookInfoPage;
+import libconnect.ui.pages.BorrowPage;
 import libconnect.ui.pages.DashboardPage;
 import libconnect.ui.pages.LoginPage;
 import libconnect.ui.pages.RegistrationPage;
@@ -22,6 +24,7 @@ public final class SceneNavigator {
     private final AuthenticationService authenticationService;
     private final BookService bookService;
     private final BookCopyService bookCopyService;
+    private final BorrowService borrowService;
     private final SessionManager sessionManager;
     private final Scene scene;
 
@@ -35,7 +38,7 @@ public final class SceneNavigator {
     public SceneNavigator(Stage stage, AuthenticationService authenticationService,
                           SessionManager sessionManager) {
         this(stage, authenticationService, sessionManager, new BookService(),
-                new BookCopyService());
+                new BookCopyService(), new BorrowService());
     }
 
     /**
@@ -48,7 +51,8 @@ public final class SceneNavigator {
      */
     public SceneNavigator(Stage stage, AuthenticationService authenticationService,
                           SessionManager sessionManager, BookService bookService) {
-        this(stage, authenticationService, sessionManager, bookService, new BookCopyService());
+        this(stage, authenticationService, sessionManager, bookService,
+                new BookCopyService(), new BorrowService());
     }
 
     /**
@@ -63,11 +67,29 @@ public final class SceneNavigator {
     public SceneNavigator(Stage stage, AuthenticationService authenticationService,
                           SessionManager sessionManager, BookService bookService,
                           BookCopyService bookCopyService) {
+        this(stage, authenticationService, sessionManager, bookService, bookCopyService,
+                new BorrowService());
+    }
+
+    /**
+     * Creates a navigator with explicit services for authenticated pages.
+     *
+     * @param stage the application window used for navigation.
+     * @param authenticationService the service used by the login page.
+     * @param sessionManager the session shared by authenticated pages.
+     * @param bookService the service used by catalogue pages.
+     * @param bookCopyService the service used to load physical book copies.
+     * @param borrowService the service used to complete borrowing transactions.
+     */
+    public SceneNavigator(Stage stage, AuthenticationService authenticationService,
+                          SessionManager sessionManager, BookService bookService,
+                          BookCopyService bookCopyService, BorrowService borrowService) {
         this.stage = stage;
         this.authenticationService = authenticationService;
         this.sessionManager = sessionManager;
         this.bookService = bookService;
         this.bookCopyService = bookCopyService;
+        this.borrowService = borrowService;
         this.scene = new Scene(new javafx.scene.layout.StackPane(), WINDOW_WIDTH,
                 WINDOW_HEIGHT);
         this.stage.setTitle(APPLICATION_TITLE);
@@ -103,12 +125,32 @@ public final class SceneNavigator {
      * If no user is currently logged in, the navigator returns to the login page.
      */
     public void showDashboardPage() {
+        showDashboardPage(null);
+    }
+
+    /**
+     * Displays the authenticated dashboard page with an optional success message.
+     *
+     * @param successMessage the message displayed after a successful operation, or null.
+     */
+    public void showDashboardPage(String successMessage) {
         if (!sessionManager.isLoggedIn()) {
             showLoginPage();
             return;
         }
 
-        showPage(new DashboardPage(bookService, sessionManager, this));
+        showPage(new DashboardPage(bookService, sessionManager, this, successMessage));
+    }
+
+    /** Displays the authenticated borrowing page. */
+    public void showBorrowPage() {
+        if (!sessionManager.isLoggedIn()) {
+            showLoginPage();
+            return;
+        }
+
+        showPage(new BorrowPage(bookService, bookCopyService, borrowService,
+                sessionManager, this));
     }
 
     /**

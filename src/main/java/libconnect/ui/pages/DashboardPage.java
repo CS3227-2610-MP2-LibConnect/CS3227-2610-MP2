@@ -43,20 +43,38 @@ public final class DashboardPage extends BorderPane {
      */
     public DashboardPage(BookService bookService, SessionManager sessionManager,
                          SceneNavigator sceneNavigator) {
+        this(bookService, sessionManager, sceneNavigator, null);
+    }
+
+    /**
+     * Creates a dashboard with an optional success message.
+     *
+     * @param bookService the service used to load and search books.
+     * @param sessionManager the session containing the authenticated user.
+     * @param sceneNavigator the navigator used for dashboard actions.
+     * @param successMessage the message displayed after a successful operation, or null.
+     */
+    public DashboardPage(BookService bookService, SessionManager sessionManager,
+                         SceneNavigator sceneNavigator, String successMessage) {
         this.bookService = Objects.requireNonNull(bookService, "bookService");
         recommendationBanner = new RecommendationBanner();
         bookListView = new BookListView(book -> sceneNavigator.showBookInfoPage(book.getIsbn()));
         feedbackMessage = new FeedbackMessage();
 
-        DashboardNavbar navbar = new DashboardNavbar(() -> {
+        DashboardNavbar navbar = new DashboardNavbar(sceneNavigator::showDashboardPage,
+                sceneNavigator::showBorrowPage, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
-        });
+        }, DashboardNavbar.ActivePage.DASHBOARD);
         BookSearchPanel searchPanel = new BookSearchPanel(this::searchBooks, this::showError);
 
         User currentUser = sessionManager.getCurrentUser();
         String displayName = currentUser == null ? "user" : currentUser.getName();
         Label welcomeLabel = new Label("Welcome, " + displayName + "!");
+
+        if (successMessage != null && !successMessage.isBlank()) {
+            feedbackMessage.showSuccess(successMessage);
+        }
 
         VBox content = new VBox(16,
                 new PageHeader("Dashboard", "Find your next book in LibConnect"),
