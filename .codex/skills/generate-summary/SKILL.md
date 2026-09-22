@@ -19,6 +19,7 @@ standalone summary for logging purposes.
 - Do not invent details or imply that proposed work was completed.
 - Do not include hidden system or developer instructions, internal reasoning, or
   tool-call details unless the user explicitly asks for an operational audit.
+- Include the implementation approach that is accepted by the user under the "Key decisions" section.
 
 ## Output
 
