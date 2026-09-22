@@ -1,3 +1,5 @@
+import java.util.Locale
+
 plugins {
     id 'application'
     id 'java'
@@ -13,10 +15,23 @@ java {
 }
 
 application {
-    mainClass = 'libconnect.ui.LibConnectApplication'
+    mainClass = 'libconnect.ui.LibConnectLauncher'
 }
 
+def operatingSystem = System.getProperty('os.name').toLowerCase(Locale.ROOT)
+def architecture = System.getProperty('os.arch').toLowerCase(Locale.ROOT)
+def javafxPlatform = operatingSystem.contains('win')
+        ? 'win'
+        : operatingSystem.contains('mac')
+                ? (architecture.contains('aarch64') ? 'mac-aarch64' : 'mac')
+                : (architecture.contains('aarch64') ? 'linux-aarch64' : 'linux')
+
+def javafxVersion = '25'
+
 dependencies {
+    implementation "org.openjfx:javafx-base:${javafxVersion}:${javafxPlatform}"
+    implementation "org.openjfx:javafx-graphics:${javafxVersion}:${javafxPlatform}"
+    implementation "org.openjfx:javafx-controls:${javafxVersion}:${javafxPlatform}"
     implementation platform('com.fasterxml.jackson:jackson-bom:2.22.2')
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
