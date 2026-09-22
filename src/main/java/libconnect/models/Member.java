@@ -8,7 +8,7 @@ import libconnect.util.ValidationUtils;
 /**
  * Represents a library member account.
  */
-public class Member extends User {
+public class Member extends User implements libconnect.storage.repositories.Identifiable {
     private final String membershipId;
     private final LocalDate registrationDate;
 
@@ -66,5 +66,10 @@ public class Member extends User {
      */
     public LocalDate getRegistrationDate() {
         return registrationDate;
+    }
+
+    @Override 
+    public String getId() {
+        return membershipId;
     }
 }

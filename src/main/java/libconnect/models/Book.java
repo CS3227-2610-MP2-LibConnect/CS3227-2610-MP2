@@ -5,7 +5,7 @@ import libconnect.util.ValidationUtils;
 /**
  * Represents the metadata for a book in the library catalogue.
  */
-public class Book {
+public class Book implements libconnect.storage.repositories.Identifiable {
     private final String isbn;
     private final String title;
     private final String author;
@@ -107,6 +107,11 @@ public class Book {
         return "Book{" + "isbn='" + isbn + '\'' + ", title='" + title + '\''
                 + ", author='" + author + '\'' + ", publisher='" + publisher + '\''
                 + ", category='" + category + '\'' + ", publicationYear=" + publicationYear + '}';
+    }
+
+    @Override 
+    public String getId() {
+        return isbn;
     }
 
 }

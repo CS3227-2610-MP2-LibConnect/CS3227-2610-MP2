@@ -9,7 +9,7 @@ import libconnect.util.ValidationUtils;
 /**
  * Represents a member's loan of one physical book copy.
  */
-public class Loan {
+public class Loan implements libconnect.storage.repositories.Identifiable {
     private static final long LOAN_PERIOD_DAYS = 30;
     private static final long RENEWAL_PERIOD_DAYS = 30;
 
@@ -254,6 +254,11 @@ public class Loan {
         if (returnDate != null && returnDate.isBefore(borrowDate)) {
             throw new IllegalArgumentException("returnDate cannot precede borrowDate");
         }
+    }
+
+    @Override 
+    public String getId() {
+        return loanId;
     }
 
 }
