@@ -31,8 +31,8 @@ public class LoanService {
     /**
      * Returns all loans associated with a user ID.
      *
-     * <p>The repository stores this value in the loan's member ID field. The integer user ID is
-     * therefore converted to its persisted string representation before querying the repository.</p>
+     * The repository stores this value in the loan's member ID field. The integer user ID is
+     * therefore converted to its persisted string representation before querying the repository.
      *
      * @param userId the user ID to search for.
      * @return all loans associated with the user.
@@ -45,6 +45,19 @@ public class LoanService {
         }
 
         return loans;
+    }
+
+    /**
+     * Returns all loans associated with a member membership ID.
+     *
+     * <p>An empty list is returned when the member has not borrowed any books.</p>
+     *
+     * @param membershipId the membership ID to search for.
+     * @return all loans associated with the member.
+     * @throws IllegalArgumentException if {@code membershipId} is blank.
+     */
+    public List<Loan> getLoansByMemberId(String membershipId) {
+        return loanRepository.findByMemberId(membershipId);
     }
 
     /**

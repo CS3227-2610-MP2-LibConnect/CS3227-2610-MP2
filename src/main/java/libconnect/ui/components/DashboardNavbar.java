@@ -25,22 +25,27 @@ public final class DashboardNavbar extends BorderPane {
         /** Indicates that the borrowing page is the current page. */
         BORROW,
 
+        /** Indicates that the my loans page is the current page. */
+        MY_LOANS,
+
         /** Indicates that no navigation item is the current page. */
         NONE
     }
 
     /**
-     * Creates a dashboard navbar with navigation, borrowing, and logout actions.
+     * Creates a dashboard navbar with navigation, loan, borrowing, and logout actions.
      *
      * @param dashboardAction the action run when the dashboard button is selected.
      * @param borrowAction the action run when the borrow books button is selected.
+     * @param loansAction the action run when the my loans button is selected.
      * @param logoutAction the action run when the logout button is selected.
      * @param activePage the page represented by the highlighted navigation item.
      */
     public DashboardNavbar(Runnable dashboardAction, Runnable borrowAction,
-                           Runnable logoutAction, ActivePage activePage) {
+                           Runnable loansAction, Runnable logoutAction, ActivePage activePage) {
         Objects.requireNonNull(dashboardAction, "dashboardAction");
         Objects.requireNonNull(borrowAction, "borrowAction");
+        Objects.requireNonNull(loansAction, "loansAction");
         Objects.requireNonNull(logoutAction, "logoutAction");
         Objects.requireNonNull(activePage, "activePage");
         Label titleLabel = new Label("LibConnect");
@@ -52,8 +57,12 @@ public final class DashboardNavbar extends BorderPane {
         Button borrowButton = new Button("Borrow books");
         borrowButton.setOnAction(event -> borrowAction.run());
 
+        Button loansButton = new Button("My loans");
+        loansButton.setOnAction(event -> loansAction.run());
+
         applyActiveStyle(dashboardButton, activePage == ActivePage.DASHBOARD);
         applyActiveStyle(borrowButton, activePage == ActivePage.BORROW);
+        applyActiveStyle(loansButton, activePage == ActivePage.MY_LOANS);
 
         Button profileButton = new Button("Profile");
         profileButton.setDisable(true);
@@ -61,7 +70,8 @@ public final class DashboardNavbar extends BorderPane {
         Button logoutButton = new Button("Logout");
         logoutButton.setOnAction(event -> logoutAction.run());
 
-        HBox actions = new HBox(10, dashboardButton, borrowButton, profileButton, logoutButton);
+        HBox actions = new HBox(10, dashboardButton, borrowButton, loansButton,
+                profileButton, logoutButton);
         actions.setAlignment(Pos.CENTER_RIGHT);
 
         setLeft(titleLabel);

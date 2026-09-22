@@ -91,6 +91,40 @@ public final class BorrowService {
         }
     }
 
+    /**
+     * Returns one loan and makes its associated book copy available as one transaction.
+     *
+     * <p>If either persistence operation fails, the operation attempts to restore both records
+     * to their original states.</p>
+     *
+     * @param loanId the identifier of the loan to return.
+     * @throws NotFoundException if the loan or associated book copy does not exist.
+     * @throws ServiceException if the loan has already been returned or the transaction fails.
+     */
+    public void returnLoan(String loanId) {
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new NotFoundException("Loan not found: " + loanId));
+        BookCopy copy = copyRepository.findById(loan.getCopyId())
+                .orElseThrow(() -> new NotFoundException("Book copy not found: " + loan.getCopyId()));
+        Loan originalLoan = loanSnapshot(loan);
+        BookCopy originalCopy = copySnapshot(copy);
+
+        try {
+            loan.returnBook(LocalDate.now());
+            copy.markAvailable();
+            loanRepository.save(loan);
+            copyRepository.save(copy);
+        } catch (RuntimeException exception) {
+            try {
+                loanRepository.save(originalLoan);
+                copyRepository.save(originalCopy);
+            } catch (RuntimeException rollbackException) {
+                throw new ServiceException(ROLLBACK_FAILURE_MESSAGE, rollbackException);
+            }
+            throw new ServiceException("Unable to return loan: " + loanId, exception);
+        }
+    }
+
     private void validateCopyIds(List<String> copyIds) {
         if (copyIds.isEmpty()) {
             throw new IllegalArgumentException("At least one book copy is required");
@@ -125,6 +159,12 @@ public final class BorrowService {
     private BookCopy copySnapshot(BookCopy copy) {
         return new BookCopy(copy.getCopyId(), copy.getIsbn(), copy.getStatus(),
                 copy.getShelfLocation());
+    }
+
+    private Loan loanSnapshot(Loan loan) {
+        return new Loan(loan.getLoanId(), loan.getMemberId(), loan.getCopyId(),
+                loan.getBorrowDate(), loan.getDueDate(), loan.getReturnDate(),
+                loan.getStatus(), loan.hasBeenRenewed());
     }
 
     private void rollback(List<String> createdLoanIds, List<BookCopy> originalCopies) {

@@ -62,7 +62,7 @@ public final class DashboardPage extends BorderPane {
         feedbackMessage = new FeedbackMessage();
 
         DashboardNavbar navbar = new DashboardNavbar(sceneNavigator::showDashboardPage,
-                sceneNavigator::showBorrowPage, () -> {
+                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
         }, DashboardNavbar.ActivePage.DASHBOARD);
@@ -75,13 +75,13 @@ public final class DashboardPage extends BorderPane {
         if (successMessage != null && !successMessage.isBlank()) {
             feedbackMessage.showSuccess(successMessage);
         }
+        feedbackMessage.setPadding(new Insets(8, 20, 8, 20));
 
         VBox content = new VBox(16,
                 new PageHeader("Dashboard", "Find your next book in LibConnect"),
                 welcomeLabel,
                 recommendationBanner,
                 searchPanel,
-                feedbackMessage,
                 bookListView);
         content.setPadding(new Insets(20));
         VBox.setVgrow(bookListView, Priority.ALWAYS);
@@ -91,7 +91,7 @@ public final class DashboardPage extends BorderPane {
         pageScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         pageScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        setTop(navbar);
+        setTop(new VBox(navbar, feedbackMessage));
         setCenter(pageScrollPane);
         loadInitialBooks();
     }

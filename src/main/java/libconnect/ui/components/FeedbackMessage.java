@@ -5,13 +5,15 @@ import javafx.scene.control.Label;
 /** Displays a hidden feedback message that can represent either an error or a success. */
 public final class FeedbackMessage extends Label {
     private static final String ERROR_STYLE = "-fx-text-fill: #b00020;";
-    private static final String SUCCESS_STYLE = "-fx-text-fill: #1b5e20;";
+    private static final String SUCCESS_STYLE = "-fx-text-fill: #1b5e20;"
+            + "-fx-background-color: #e8f5e9;";
 
     /** Creates an initially hidden feedback message. */
     public FeedbackMessage() {
         setManaged(false);
         setVisible(false);
         setWrapText(true);
+        setMaxWidth(Double.MAX_VALUE);
     }
 
     /**
