@@ -79,13 +79,12 @@ public class LoanService {
      * @param borrowDate the date on which the book was borrowed.
      * @return true if the loan was created, or false if the ID already exists.
      */
-    public boolean createLoan(String loanId, String memberId, String copyId, LocalDate borrowDate) {
+    public void createLoan(String loanId, String memberId, String copyId, LocalDate borrowDate) {
         if (loanRepository.findById(loanId).isPresent()) {
-            return false;
+            throw new ServiceException("Loan with ID already exists: " + loanId);
         }
 
         loanRepository.save(new Loan(loanId, memberId, copyId, borrowDate));
-        return true;
     }
 
     /**

@@ -77,6 +77,19 @@ public class BookService {
     }
 
     /**
+     * Returns books published in a specific year.
+     *
+     * @param publicationYear the publication year to search for.
+     * @return all books published in the specified year.
+     * @throws IllegalArgumentException if {@code publicationYear} is not a valid year.
+     */
+    public List<Book> getBooksByPublicationYear(int publicationYear) {
+        return bookRepository.findAll().stream()
+                .filter(book -> book.getPublicationYear() == publicationYear)
+                .toList();
+    }
+
+    /**
      * Returns books whose titles contain the supplied text.
      *
      * @param title the title text to search for.
@@ -118,14 +131,13 @@ public class BookService {
      * @param publicationYear the publication year of the new book.
      * @return true if the book was created, or false if the ISBN already exists.
      */
-    public boolean createBook(String isbn, String title, String author, String publisher,
+    public void createBook(String isbn, String title, String author, String publisher,
                               String category, int publicationYear) {
         if (bookRepository.findByIsbn(isbn).isPresent()) {
-            return false;
+            throw new ServiceException("Book with ISBN already exists: " + isbn);
         }
 
         bookRepository.save(new Book(isbn, title, author, publisher, category, publicationYear));
-        return true;
     }
 
     /**

@@ -91,13 +91,12 @@ public class BookCopyService {
      * @throws IllegalArgumentException if a text argument is blank.
      * @throws NullPointerException if {@code status} is null.
      */
-    public boolean createCopy(String copyId, String isbn, CopyStatus status, String shelfLocation) {
+    public void createCopy(String copyId, String isbn, CopyStatus status, String shelfLocation) {
         if (copyRepository.findById(copyId).isPresent()) {
-            return false;
+            throw new ServiceException("Copy with ID already exists: " + copyId);
         }
 
         copyRepository.save(new BookCopy(copyId, isbn, status, shelfLocation));
-        return true;
     }
 
     /**
