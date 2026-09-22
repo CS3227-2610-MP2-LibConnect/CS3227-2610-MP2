@@ -1,27 +1,16 @@
 package libconnect.services;
 
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-
 import libconnect.models.Member;
 import libconnect.storage.file.FileMemberRepository;
-import libconnect.util.ValidationUtils;
 
 /** Provides member registration, profile, password, and account-status operations. */
 public class MemberService {
-    private static final int PASSWORD_ITERATIONS = 210_000;
-    private static final int PASSWORD_SALT_LENGTH = 16;
-    private static final int PASSWORD_KEY_LENGTH = 256;
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-
     private final FileMemberRepository memberRepository;
+    private final LibrarianService librarianService;
+    private final UserIdGenerator userIdGenerator;
 
     /** Creates a service backed by the default member data file. */
     public MemberService() {
@@ -35,7 +24,20 @@ public class MemberService {
      * @throws NullPointerException if {@code memberRepository} is null.
      */
     public MemberService(FileMemberRepository memberRepository) {
+        this(memberRepository, new LibrarianService());
+    }
+
+    /**
+     * Creates a service backed by the supplied member repository and librarian lookup service.
+     *
+     * @param memberRepository the repository used to persist members.
+     * @param librarianService the service used to enforce cross-role uniqueness.
+     * @throws NullPointerException if either dependency is null.
+     */
+    public MemberService(FileMemberRepository memberRepository, LibrarianService librarianService) {
         this.memberRepository = Objects.requireNonNull(memberRepository, "memberRepository");
+        this.librarianService = Objects.requireNonNull(librarianService, "librarianService");
+        this.userIdGenerator = new UserIdGenerator(memberRepository, librarianService);
     }
 
     /**
@@ -50,13 +52,14 @@ public class MemberService {
      * @throws IllegalArgumentException if a supplied value is invalid.
      */
     public void registerMember(String name, String email, String password) {
-        if (memberRepository.findByEmail(email).isPresent()) {
+        if (memberRepository.findByEmail(email).isPresent()
+                || librarianService.findByEmail(email).isPresent()) {
             throw new ServiceException("Email is already in use: " + email);
         }
 
-        String userId = generateUniqueUserId();
+        String userId = userIdGenerator.generate();
         String membershipId = generateUniqueMembershipId();
-        String passwordHash = hashPassword(password);
+        String passwordHash = PasswordHasher.hash(password);
         Member member = new Member(userId, name, email, passwordHash, membershipId);
         memberRepository.save(member);
     }
@@ -106,7 +109,7 @@ public class MemberService {
      */
     public void updatePassword(String membershipId, String newPassword) {
         Member member = findMember(membershipId);
-        member.updatePasswordHash(hashPassword(newPassword));
+        member.updatePasswordHash(PasswordHasher.hash(newPassword));
         memberRepository.save(member);
     }
 
@@ -139,15 +142,6 @@ public class MemberService {
                 .orElseThrow(() -> new NotFoundException("Member not found: " + membershipId));
     }
 
-    private String generateUniqueUserId() {
-        String userId;
-        do {
-            userId = "USER-" + UUID.randomUUID();
-        } while (memberRepository.findByUserId(userId).isPresent());
-
-        return userId;
-    }
-
     private String generateUniqueMembershipId() {
         String membershipId;
         do {
@@ -155,28 +149,5 @@ public class MemberService {
         } while (memberRepository.findByMembershipId(membershipId).isPresent());
 
         return membershipId;
-    }
-
-    private static String hashPassword(String password) {
-        String requiredPassword = ValidationUtils.requireNonBlank(password, "password");
-        byte[] salt = new byte[PASSWORD_SALT_LENGTH];
-        SECURE_RANDOM.nextBytes(salt);
-        char[] passwordCharacters = requiredPassword.toCharArray();
-        PBEKeySpec keySpec = new PBEKeySpec(passwordCharacters, salt,
-                PASSWORD_ITERATIONS, PASSWORD_KEY_LENGTH);
-
-        try {
-            byte[] hash = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-                    .generateSecret(keySpec)
-                    .getEncoded();
-            return "PBKDF2WithHmacSHA256$" + PASSWORD_ITERATIONS + "$"
-                    + Base64.getEncoder().encodeToString(salt) + "$"
-                    + Base64.getEncoder().encodeToString(hash);
-        } catch (GeneralSecurityException exception) {
-            throw new ServiceException("Unable to hash password", exception);
-        } finally {
-            keySpec.clearPassword();
-            Arrays.fill(passwordCharacters, '\0');
-        }
     }
 }
