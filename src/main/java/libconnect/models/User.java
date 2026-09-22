@@ -7,7 +7,7 @@ import libconnect.util.ValidationUtils;
 /**
  * Represents a user account in LibConnect.
  */
-public class User implements libconnect.storage.repositories.Identifiable {
+public abstract class User implements libconnect.storage.repositories.Identifiable {
     private final String userId;
     private String name;
     private String email;

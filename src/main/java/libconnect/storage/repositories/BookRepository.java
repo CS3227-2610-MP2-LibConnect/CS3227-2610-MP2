@@ -4,17 +4,17 @@ import java.util.List;
 import java.util.Optional;
 
 import libconnect.models.Book;
-import libconnect.storage.exceptions.DeleteFailureException;
 
 /**
  * Defines persistence operations for catalogue books.
  */
-public interface BookRepository {
+public interface BookRepository extends Repository<Book> {
     /**
      * Finds a book by its stable ISBN.
      *
      * @param isbn the ISBN to find.
      * @return the matching book, or an empty optional if no book exists.
+     * @throws IllegalArgumentException if {@code isbn} is null or blank.
      */
     Optional<Book> findByIsbn(String isbn);
 
@@ -30,6 +30,7 @@ public interface BookRepository {
      *
      * @param title the title text to search for.
      * @return all books with a matching title.
+     * @throws IllegalArgumentException if {@code title} is null or blank.
      */
     List<Book> findByTitle(String title);
 
@@ -38,6 +39,7 @@ public interface BookRepository {
      *
      * @param author the author text to search for.
      * @return all books with a matching author.
+     * @throws IllegalArgumentException if {@code author} is null or blank.
      */
     List<Book> findByAuthor(String author);
 
@@ -45,6 +47,7 @@ public interface BookRepository {
      * Inserts a new book or replaces the existing book with the same ISBN.
      *
      * @param book the book to persist.
+     * @throws NullPointerException if {@code book} is null.
      */
     void save(Book book);
 
@@ -52,7 +55,8 @@ public interface BookRepository {
      * Deletes a book by its stable ISBN.
      *
      * @param isbn the ISBN of the book to delete.
-     * @throws DeleteFailureException if no book with the supplied ISBN can be deleted.
+     * @return true if the book was deleted, false otherwise.
+     * @throws IllegalArgumentException if {@code isbn} is null or blank.
      */
-    void deleteByIsbn(String isbn) throws DeleteFailureException;
+    boolean deleteByIsbn(String isbn);
 }
