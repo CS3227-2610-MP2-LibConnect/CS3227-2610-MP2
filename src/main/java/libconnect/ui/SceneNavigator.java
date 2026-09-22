@@ -5,7 +5,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import libconnect.services.AuthenticationService;
+import libconnect.services.BookCopyService;
 import libconnect.services.BookService;
+import libconnect.ui.pages.BookInfoPage;
 import libconnect.ui.pages.DashboardPage;
 import libconnect.ui.pages.LoginPage;
 import libconnect.ui.pages.RegistrationPage;
@@ -19,6 +21,7 @@ public final class SceneNavigator {
     private final Stage stage;
     private final AuthenticationService authenticationService;
     private final BookService bookService;
+    private final BookCopyService bookCopyService;
     private final SessionManager sessionManager;
     private final Scene scene;
 
@@ -31,7 +34,8 @@ public final class SceneNavigator {
      */
     public SceneNavigator(Stage stage, AuthenticationService authenticationService,
                           SessionManager sessionManager) {
-        this(stage, authenticationService, sessionManager, new BookService());
+        this(stage, authenticationService, sessionManager, new BookService(),
+                new BookCopyService());
     }
 
     /**
@@ -44,10 +48,26 @@ public final class SceneNavigator {
      */
     public SceneNavigator(Stage stage, AuthenticationService authenticationService,
                           SessionManager sessionManager, BookService bookService) {
+        this(stage, authenticationService, sessionManager, bookService, new BookCopyService());
+    }
+
+    /**
+     * Creates a navigator with explicit authentication, catalogue, copy, and session dependencies.
+     *
+     * @param stage the application window used for navigation.
+     * @param authenticationService the service used by the login page.
+     * @param sessionManager the session shared by authenticated pages.
+     * @param bookService the service used by catalogue pages.
+     * @param bookCopyService the service used to load physical book copies.
+     */
+    public SceneNavigator(Stage stage, AuthenticationService authenticationService,
+                          SessionManager sessionManager, BookService bookService,
+                          BookCopyService bookCopyService) {
         this.stage = stage;
         this.authenticationService = authenticationService;
         this.sessionManager = sessionManager;
         this.bookService = bookService;
+        this.bookCopyService = bookCopyService;
         this.scene = new Scene(new javafx.scene.layout.StackPane(), WINDOW_WIDTH,
                 WINDOW_HEIGHT);
         this.stage.setTitle(APPLICATION_TITLE);
@@ -89,6 +109,20 @@ public final class SceneNavigator {
         }
 
         showPage(new DashboardPage(bookService, sessionManager, this));
+    }
+
+    /**
+     * Displays the details page for a book in the catalogue.
+     *
+     * @param isbn the ISBN of the book whose details should be displayed.
+     */
+    public void showBookInfoPage(String isbn) {
+        if (!sessionManager.isLoggedIn()) {
+            showLoginPage();
+            return;
+        }
+
+        showPage(new BookInfoPage(bookService, bookCopyService, sessionManager, isbn, this));
     }
 
     /**

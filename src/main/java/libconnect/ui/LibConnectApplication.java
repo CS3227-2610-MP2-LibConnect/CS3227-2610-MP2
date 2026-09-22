@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 
 import libconnect.services.AuthenticationService;
+import libconnect.services.BookCopyService;
 import libconnect.services.BookService;
 
 /**
@@ -18,10 +19,11 @@ public final class LibConnectApplication extends Application {
     @Override
     public void start(Stage stage) {
         AuthenticationService authenticationService = new AuthenticationService();
+        BookCopyService bookCopyService = new BookCopyService();
         BookService bookService = new BookService();
         SessionManager sessionManager = new SessionManager();
         SceneNavigator sceneNavigator = new SceneNavigator(stage, authenticationService,
-                sessionManager, bookService);
+                sessionManager, bookService, bookCopyService);
 
         sceneNavigator.showLoginPage();
     }

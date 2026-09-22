@@ -45,7 +45,7 @@ public final class DashboardPage extends BorderPane {
                          SceneNavigator sceneNavigator) {
         this.bookService = Objects.requireNonNull(bookService, "bookService");
         recommendationBanner = new RecommendationBanner();
-        bookListView = new BookListView();
+        bookListView = new BookListView(book -> sceneNavigator.showBookInfoPage(book.getIsbn()));
         feedbackMessage = new FeedbackMessage();
 
         DashboardNavbar navbar = new DashboardNavbar(() -> {

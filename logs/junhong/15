@@ -1,0 +1,37 @@
+## Conversation Summary
+
+Date: 2026-09-23
+
+### Objective
+
+Implement a book details page for LibConnect showing book information, valid copy statuses, and navigation controls.
+
+### Key decisions
+
+- Use Option A: compose the page with existing `BookService` and `BookCopyService`.
+- Clicking a book card navigates directly to its details page.
+- Keep the navbar visible on the details page.
+- Include a back-to-dashboard button.
+- Do not create or run tests.
+
+### Work completed
+
+- Added `BookInfoPage`.
+- Displays title, author, ISBN, publication year, publisher, and category.
+- Displays available copies with shelf locations.
+- Displays borrowed copies as “Borrowed”.
+- Hides lost and damaged copies.
+- Added book-card click navigation.
+- Added `SceneNavigator.showBookInfoPage(...)`.
+- Wired `BookCopyService` through `LibConnectApplication`.
+- Preserved the dashboard navbar and logout behavior on the details page.
+- `git diff --check` passed.
+
+### Open items / blockers
+
+- No tests were created or run, as requested.
+
+### Next steps
+
+- Retry compilation when dependency access is available.
+- Review the UI manually if needed.

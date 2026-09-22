@@ -2,10 +2,13 @@ package libconnect.ui.components;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 
 import libconnect.models.Book;
@@ -13,9 +16,22 @@ import libconnect.models.Book;
 /** Displays catalogue search results in a scrollable list of book cards. */
 public final class BookListView extends ScrollPane {
     private final VBox bookCards;
+    private final Consumer<Book> bookSelectionHandler;
 
     /** Creates an empty scrollable book list. */
     public BookListView() {
+        this(book -> {
+        });
+    }
+
+    /**
+     * Creates an empty scrollable book list with a handler for book selections.
+     *
+     * @param bookSelectionHandler the action invoked when a book's details are requested.
+     */
+    public BookListView(Consumer<Book> bookSelectionHandler) {
+        this.bookSelectionHandler = Objects.requireNonNull(bookSelectionHandler,
+                "bookSelectionHandler");
         bookCards = new VBox(10);
         bookCards.setPadding(new Insets(4));
         setContent(bookCards);
@@ -58,6 +74,12 @@ public final class BookListView extends ScrollPane {
         card.setPadding(new Insets(10));
         card.setStyle("-fx-background-color: #f5f5f5; -fx-border-color: #dddddd;"
                 + " -fx-border-radius: 4; -fx-background-radius: 4;");
+        card.setCursor(Cursor.HAND);
+        card.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                bookSelectionHandler.accept(book);
+            }
+        });
         return card;
     }
 }
