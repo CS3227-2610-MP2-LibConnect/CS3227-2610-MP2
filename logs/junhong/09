@@ -1,0 +1,18 @@
+## Conversation Summary
+
+Date: 2026-09-22
+
+Objective: Update `FileMemberRepositoryTest`, ensure lazy file creation, remove checked deletion failures, and verify all tests pass.
+
+Key decisions:
+- Do not use `DeleteFailureException`.
+- Allow `StorageManager` to lazily create data files.
+- Use `@JsonCreator` for model constructors to support Jackson deserialization.
+
+Work completed:
+- Updated `FileMemberRepositoryTest` for file-backed persistence and member queries.
+- Updated related repositories and tests.
+- Added Jackson deserialization configuration and malformed-record tests.
+- Verified no `DeleteFailureException` references remain.
+- Full test suite passed: **205 tests, 0 failures/errors**.
+- Proposed commit message: `storage: Fix file-backed repository persistence`.

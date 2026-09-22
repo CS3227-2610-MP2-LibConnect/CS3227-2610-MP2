@@ -1,5 +1,7 @@
 package libconnect.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
@@ -9,7 +11,7 @@ import libconnect.util.ValidationUtils;
 /**
  * Represents a member's loan of one physical book copy.
  */
-public class Loan {
+public class Loan implements libconnect.storage.repositories.Identifiable {
     private static final long LOAN_PERIOD_DAYS = 30;
     private static final long RENEWAL_PERIOD_DAYS = 30;
 
@@ -32,6 +34,7 @@ public class Loan {
      * @throws IllegalArgumentException if an identifier is blank.
      * @throws NullPointerException if a date is null.
      */
+    @JsonCreator
     public Loan(String loanId, String memberId, String copyId,
                 LocalDate borrowDate) {
         this(loanId, memberId, copyId, Objects.requireNonNull(borrowDate, "borrowDate cannot be null"),
@@ -254,6 +257,11 @@ public class Loan {
         if (returnDate != null && returnDate.isBefore(borrowDate)) {
             throw new IllegalArgumentException("returnDate cannot precede borrowDate");
         }
+    }
+
+    @Override 
+    public String getId() {
+        return loanId;
     }
 
 }

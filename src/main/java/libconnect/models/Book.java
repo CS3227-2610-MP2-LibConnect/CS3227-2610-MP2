@@ -1,11 +1,13 @@
 package libconnect.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import libconnect.util.ValidationUtils;
 
 /**
  * Represents the metadata for a book in the library catalogue.
  */
-public class Book {
+public class Book implements libconnect.storage.repositories.Identifiable {
     private final String isbn;
     private final String title;
     private final String author;
@@ -24,6 +26,7 @@ public class Book {
      * @param publicationYear the year in which the book was published.
      * @throws IllegalArgumentException if a text value is blank or the publication year is invalid.
      */
+    @JsonCreator
     public Book(String isbn, String title, String author, String publisher,
                 String category, int publicationYear) {
         this.isbn = ValidationUtils.requireNonBlank(isbn, "isbn");
@@ -107,6 +110,11 @@ public class Book {
         return "Book{" + "isbn='" + isbn + '\'' + ", title='" + title + '\''
                 + ", author='" + author + '\'' + ", publisher='" + publisher + '\''
                 + ", category='" + category + '\'' + ", publicationYear=" + publicationYear + '}';
+    }
+
+    @Override 
+    public String getId() {
+        return isbn;
     }
 
 }

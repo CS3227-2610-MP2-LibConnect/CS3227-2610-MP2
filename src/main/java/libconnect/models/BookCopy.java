@@ -1,5 +1,7 @@
 package libconnect.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.util.Objects;
 
 import libconnect.util.ValidationUtils;
@@ -7,7 +9,7 @@ import libconnect.util.ValidationUtils;
 /**
  * Represents one physical copy of a catalogue book.
  */
-public class BookCopy {
+public class BookCopy implements libconnect.storage.repositories.Identifiable {
     private final String copyId;
     private final String isbn;
     private CopyStatus status;
@@ -37,6 +39,7 @@ public class BookCopy {
      * @throws IllegalArgumentException if a text value is blank.
      * @throws NullPointerException if the status is null.
      */
+    @JsonCreator
     public BookCopy(String copyId, String isbn, CopyStatus status, String shelfLocation) {
         this.copyId = ValidationUtils.requireNonBlank(copyId, "copyId");
         this.isbn = ValidationUtils.requireNonBlank(isbn, "isbn");
@@ -152,6 +155,11 @@ public class BookCopy {
     public String toString() {
         return "BookCopy{" + "copyId='" + copyId + '\'' + ", isbn='" + isbn + '\''
                 + ", status=" + status + ", shelfLocation='" + shelfLocation + '\'' + '}';
+    }
+
+    @Override 
+    public String getId() {
+        return copyId;
     }
 
 }

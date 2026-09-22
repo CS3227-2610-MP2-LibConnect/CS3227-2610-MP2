@@ -2,6 +2,7 @@ package libconnect.storage.file.unit;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,7 +22,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import libconnect.models.BookCopy;
 import libconnect.models.CopyStatus;
 import libconnect.storage.file.FileBookCopyRepository;
-import libconnect.storage.exceptions.DeleteFailureException;
 
 /**
  * Tests unit-level JSON persistence for physical book copies.
@@ -159,7 +159,7 @@ class FileBookCopyRepositoryTest extends AbstractFileRepositoryTest<BookCopy,
     }
 
     @Test
-    void deleteById_existingId_removesOnlyMatchingCopy() throws DeleteFailureException {
+    void deleteById_existingId_removesOnlyMatchingCopy() {
         FileBookCopyRepository repository = createRepository(
                 temporaryDirectory.resolve("book-copies.json"));
         repository.save(new BookCopy("COPY-1", "ISBN-1", "A1-01"));
@@ -171,13 +171,13 @@ class FileBookCopyRepositoryTest extends AbstractFileRepositoryTest<BookCopy,
     }
 
     @Test
-    void deleteById_unknownId_throwsDeleteFailureExceptionAndPreservesData() {
+    void deleteById_unknownId_returnsFalseAndPreservesData() {
         FileBookCopyRepository repository = createRepository(
                 temporaryDirectory.resolve("book-copies.json"));
         BookCopy existingCopy = new BookCopy("COPY-1", "ISBN-1", "A1-01");
         repository.save(existingCopy);
 
-        assertThrows(DeleteFailureException.class, () -> repository.deleteById("COPY-2"));
+        assertFalse(repository.deleteById("COPY-2"));
         assertEquals(List.of(existingCopy), repository.findAll());
     }
 
@@ -236,10 +236,10 @@ class FileBookCopyRepositoryTest extends AbstractFileRepositoryTest<BookCopy,
         Files.writeString(dataFile, copies);
 
         try (WarningCapture warnings = captureWarnings(
-                Logger.getLogger(FileBookCopyRepository.class.getName()))) {
+                Logger.getLogger("libconnect.storage.StorageManager"))) {
             assertEquals(List.of(new BookCopy("COPY-2", "ISBN-2", "A1-02")),
                     repository.findAll());
-            assertTrue(warnings.containsMessage("Skipping malformed book-copy record"));
+            assertTrue(warnings.containsMessage("Skipped malformed BookCopy record"));
         }
     }
 
@@ -254,10 +254,10 @@ class FileBookCopyRepositoryTest extends AbstractFileRepositoryTest<BookCopy,
         Files.writeString(dataFile, copies);
 
         try (WarningCapture warnings = captureWarnings(
-                Logger.getLogger(FileBookCopyRepository.class.getName()))) {
+                Logger.getLogger("libconnect.storage.StorageManager"))) {
             assertEquals(List.of(new BookCopy("COPY-2", "ISBN-2", "A1-02")),
                     repository.findAll());
-            assertTrue(warnings.containsMessage("Skipping malformed book-copy record"));
+            assertTrue(warnings.containsMessage("Skipped malformed BookCopy record"));
         }
     }
 
@@ -272,10 +272,10 @@ class FileBookCopyRepositoryTest extends AbstractFileRepositoryTest<BookCopy,
         Files.writeString(dataFile, duplicateCopies);
 
         try (WarningCapture warnings = captureWarnings(
-                Logger.getLogger(FileBookCopyRepository.class.getName()))) {
+                Logger.getLogger("libconnect.storage.StorageManager"))) {
             assertEquals(List.of(new BookCopy("COPY-1", "ISBN-1", "A1-01")),
                     repository.findAll());
-            assertTrue(warnings.containsMessage("Skipping malformed book-copy record"));
+            assertTrue(warnings.containsMessage("Skipped malformed BookCopy record"));
         }
     }
 

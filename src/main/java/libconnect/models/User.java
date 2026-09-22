@@ -7,7 +7,7 @@ import libconnect.util.ValidationUtils;
 /**
  * Represents a user account in LibConnect.
  */
-public class User {
+public abstract class User implements libconnect.storage.repositories.Identifiable {
     private final String userId;
     private String name;
     private String email;
@@ -163,5 +163,10 @@ public class User {
             throw new IllegalArgumentException("email must be valid");
         }
         return trimmedEmail;
+    }
+
+    @Override 
+    public String getId() {
+        return userId;
     }
 }

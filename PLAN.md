@@ -17,43 +17,8 @@
 - View current loans, due dates, reservations, fines, and borrowing history.
 - Receive in-app overdue and reservation notifications.
 
-### Architecture and implementation status
-#### Current project structure
-src/main/java/libconnect/
-├── models/
-│   ├── User
-│   ├── Member
-│   ├── Book
-│   ├── BookCopy
-│   ├── Loan
-│   └── supporting enums
-│
-├── storage/
-│   ├── repositories/
-│   │   ├── UserRepository
-│   │   ├── MemberRepository
-│   │   ├── BookRepository
-│   │   ├── BookCopyRepository
-│   │   └── LoanRepository
-│   │
-│   ├── file/
-│   │   ├── FileUserRepository
-│   │   ├── FileMemberRepository
-│   │   ├── FileBookRepository
-│   │   ├── FileBookCopyRepository
-│   │   ├── FileLoanRepository
-│   │   ├── FileRepositorySupport
-│   │   ├── JsonReader
-│   │   └── JsonWriter
-│   │
-│   ├── exceptions/
-│   │   └── DeleteFailureException
-│   └── FileManager
-│
-└── util/
-    └── ValidationUtils
-
-#### Planned application structure
+### Possible Architecture
+#### Project structure
 src/
 ├── models/
 │   ├── User
@@ -89,7 +54,7 @@ src/
 │   │   ├── FileFineRepository
 │   │   └── FileNotificationRepository
 │   │
-│   └── FileManager
+│   └── StorageManager
 │
 ├── services/
 │   ├── AuthenticationService
@@ -109,6 +74,8 @@ src/
 
 data/
 ├── users.json
+├── members.json
+├── librarians.json
 ├── books.json
 ├── book-copies.json
 ├── loans.json
@@ -116,44 +83,32 @@ data/
 ├── fines.json
 └── notifications.json
 
-The repositories will use the above runtime-created files.
-
-Reservation, fine, and notification files will be added when their
-repositories are implemented.
-
 #### Storage architecture
 
-The application currently uses JSON file-backed persistence with one data file
-for each implemented repository. User accounts are stored together in
-`users.json` so that account identifiers and email addresses can be validated
-globally, even when additional user roles are introduced. The storage layer is
-separated from the domain models and future services using repository
-interfaces.
+The application uses file-backed persistence with one data file for each unique
+model type. The storage layer is separated from the domain models and services
+using repository interfaces.
 
-- Repository interfaces define persistence operations for users, members,
-  books, book copies, and loans. They expose entity-specific lookups such as
-  `findByIsbn`, `findByMembershipId`, and `findByMemberId`.
-- `File...Repository` classes translate model objects to and from JSON files.
-  `FileUserRepository` owns `users.json`, while `FileMemberRepository` is a
-  member-specific view over that shared user repository.
-- `FileRepositorySupport` centralizes file-backed repository behavior,
-  including reading, writing, upserting, matching, and deletion handling.
-- `FileManager` provides UTF-8 file reads, missing-file initialization, parent
-  directory creation, and atomic replacement after an update.
-- `JsonReader` and `JsonWriter` provide shared low-level JSON parsing and
-  serialization support for the file repositories.
+- `Repository` interfaces define persistence operations such as `findById`,
+  `findAll`, `save`, and `delete` for a specific model type.
+- `File...Repository` classes implement those interfaces and translate model
+  objects to and from their corresponding files in `data/`.
+- `StorageManager` provides shared file-system responsibilities, including the
+  data directory, file paths, reading, writing, missing-file initialization, and
+  safe replacement of files after an update.
 - Services depend on repository interfaces, not on file repositories or file
   formats. Services remain responsible for business rules and for coordinating
   updates across multiple repositories.
 - Models represent domain data and do not read from or write to files directly.
 
-Each file-backed repository can be constructed with a custom file path. The
-repository ensures that the configured file and its parent directories exist,
-initializing a new file as an empty JSON array. The default paths are under
-`data/`, but that directory is created at runtime and is not required to be
-checked into the repository. This separation allows the file-backed
-implementations to be replaced by other implementations, such as in-memory or
-database repositories, without changing the services.
+The `storage/repositories/` and `storage/file/` directories contain Java source
+code, while the `data/` directory contains the persisted application records.
+Repository interfaces in `storage/repositories/` define persistence operations,
+and the corresponding `File...Repository` classes in `storage/file/` implement
+those operations using the files in `data/` through `StorageManager`. This
+separation allows the file-backed implementations to be replaced by other
+implementations, such as in-memory or database repositories, without changing
+the services.
 
 Entity relationships are persisted using stable IDs rather than duplicated
 nested objects. For example, a `Loan` stores a member ID and book-copy ID. A
@@ -161,23 +116,11 @@ borrowing operation is coordinated by `LoanService`, which updates both the
 loan repository and the relevant book-copy repository.
 
 The initial implementation assumes a single active application instance. File
-updates are written to a temporary file and the destination is replaced only
-after the write succeeds. Repository operations report success only after
-their corresponding file has been updated successfully; repositories do not
-retain independent long-lived copies of records that could become stale.
-
-`save` operations insert or replace records with the same stable identifier.
-Delete operations for books, book copies, and loans throw
-`DeleteFailureException` when no matching record is removed. Deleting a book
-does not directly depend on `BookCopyRepository`; controller-level validation
-is responsible for any required coordination. `BookCopyRepository` provides
-`deleteByIsbn` so that this coordination can remove copies explicitly when
-needed.
-
-`FileUserRepository` validates supported user records and enforces unique user
-IDs, membership IDs, and normalized email addresses across the shared user
-file. This prevents a member and a future librarian account from sharing an
-email address and causing ambiguous authentication.
+updates should still be written safely, preferably by writing to a temporary
+file and replacing the original only after the write succeeds. A repository
+operation should only report success after its corresponding file has been
+updated successfully; repositories should not retain independent long-lived
+copies of the records that could become stale.
 
 Some operations, such as borrowing a book, require updates to multiple files.
 These operations are coordinated by the relevant service. If one file update
