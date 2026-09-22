@@ -88,7 +88,8 @@ public final class BorrowPage extends BorderPane {
 
     private DashboardNavbar createNavbar() {
         return new DashboardNavbar(sceneNavigator::showDashboardPage,
-                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage, () -> {
+                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
+                sceneNavigator::showProfilePage, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
         }, DashboardNavbar.ActivePage.BORROW);

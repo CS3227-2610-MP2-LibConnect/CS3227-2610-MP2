@@ -28,24 +28,30 @@ public final class DashboardNavbar extends BorderPane {
         /** Indicates that the my loans page is the current page. */
         MY_LOANS,
 
+        /** Indicates that the profile page is the current page. */
+        PROFILE,
+
         /** Indicates that no navigation item is the current page. */
         NONE
     }
 
     /**
-     * Creates a dashboard navbar with navigation, loan, borrowing, and logout actions.
+     * Creates a dashboard navbar with navigation, profile, and logout actions.
      *
      * @param dashboardAction the action run when the dashboard button is selected.
      * @param borrowAction the action run when the borrow books button is selected.
      * @param loansAction the action run when the my loans button is selected.
+     * @param profileAction the action run when the profile button is selected.
      * @param logoutAction the action run when the logout button is selected.
      * @param activePage the page represented by the highlighted navigation item.
      */
     public DashboardNavbar(Runnable dashboardAction, Runnable borrowAction,
-                           Runnable loansAction, Runnable logoutAction, ActivePage activePage) {
+                           Runnable loansAction, Runnable profileAction, Runnable logoutAction,
+                           ActivePage activePage) {
         Objects.requireNonNull(dashboardAction, "dashboardAction");
         Objects.requireNonNull(borrowAction, "borrowAction");
         Objects.requireNonNull(loansAction, "loansAction");
+        Objects.requireNonNull(profileAction, "profileAction");
         Objects.requireNonNull(logoutAction, "logoutAction");
         Objects.requireNonNull(activePage, "activePage");
         Label titleLabel = new Label("LibConnect");
@@ -65,7 +71,8 @@ public final class DashboardNavbar extends BorderPane {
         applyActiveStyle(loansButton, activePage == ActivePage.MY_LOANS);
 
         Button profileButton = new Button("Profile");
-        profileButton.setDisable(true);
+        profileButton.setOnAction(event -> profileAction.run());
+        applyActiveStyle(profileButton, activePage == ActivePage.PROFILE);
 
         Button logoutButton = new Button("Logout");
         logoutButton.setOnAction(event -> logoutAction.run());

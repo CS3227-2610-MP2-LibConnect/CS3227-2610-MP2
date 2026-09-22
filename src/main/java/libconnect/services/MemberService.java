@@ -82,11 +82,12 @@ public class MemberService {
      * @param membershipId the membership ID of the member to update.
      * @param name the member's new display name.
      * @param email the member's new email address.
+     * @return the updated member.
      * @throws NotFoundException if the member does not exist.
      * @throws ServiceException if the email belongs to another member.
      * @throws IllegalArgumentException if a supplied value is invalid.
      */
-    public void updateMemberProfile(String membershipId, String name, String email) {
+    public Member updateMemberProfile(String membershipId, String name, String email) {
         Member member = findMember(membershipId);
         memberRepository.findByEmail(email).ifPresent(existingMember -> {
             if (!existingMember.getMembershipId().equals(member.getMembershipId())) {
@@ -96,6 +97,7 @@ public class MemberService {
 
         member.updateProfile(name, email);
         memberRepository.save(member);
+        return member;
     }
 
     /**
@@ -103,14 +105,16 @@ public class MemberService {
      *
      * @param membershipId the membership ID of the member to update.
      * @param newPassword the member's new plaintext password.
+     * @return the updated member containing the new password hash.
      * @throws NotFoundException if the member does not exist.
      * @throws ServiceException if password hashing fails.
      * @throws IllegalArgumentException if {@code newPassword} is blank.
      */
-    public void updatePassword(String membershipId, String newPassword) {
+    public Member updatePassword(String membershipId, String newPassword) {
         Member member = findMember(membershipId);
         member.updatePasswordHash(PasswordHasher.hash(newPassword));
         memberRepository.save(member);
+        return member;
     }
 
     /**

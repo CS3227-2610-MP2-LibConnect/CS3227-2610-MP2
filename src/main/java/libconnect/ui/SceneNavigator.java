@@ -9,11 +9,13 @@ import libconnect.services.BookCopyService;
 import libconnect.services.BookService;
 import libconnect.services.BorrowService;
 import libconnect.services.LoanService;
+import libconnect.services.MemberService;
 import libconnect.ui.pages.BookInfoPage;
 import libconnect.ui.pages.BorrowPage;
 import libconnect.ui.pages.DashboardPage;
 import libconnect.ui.pages.LoginPage;
 import libconnect.ui.pages.MyLoansPage;
+import libconnect.ui.pages.ProfilePage;
 import libconnect.ui.pages.RegistrationPage;
 
 /** Coordinates page transitions within the LibConnect application window. */
@@ -28,6 +30,7 @@ public final class SceneNavigator {
     private final BookCopyService bookCopyService;
     private final BorrowService borrowService;
     private final LoanService loanService;
+    private final MemberService memberService;
     private final SessionManager sessionManager;
     private final Scene scene;
 
@@ -106,6 +109,26 @@ public final class SceneNavigator {
                           SessionManager sessionManager, BookService bookService,
                           BookCopyService bookCopyService, BorrowService borrowService,
                           LoanService loanService) {
+        this(stage, authenticationService, sessionManager, bookService, bookCopyService,
+                borrowService, loanService, new MemberService());
+    }
+
+    /**
+     * Creates a navigator with explicit services for all application pages.
+     *
+     * @param stage the application window used for navigation.
+     * @param authenticationService the service used by the login page.
+     * @param sessionManager the session shared by authenticated pages.
+     * @param bookService the service used by catalogue pages.
+     * @param bookCopyService the service used to load physical book copies.
+     * @param borrowService the service used to complete borrowing and return transactions.
+     * @param loanService the service used to load and renew loans.
+     * @param memberService the service used to update member profiles and passwords.
+     */
+    public SceneNavigator(Stage stage, AuthenticationService authenticationService,
+                          SessionManager sessionManager, BookService bookService,
+                          BookCopyService bookCopyService, BorrowService borrowService,
+                          LoanService loanService, MemberService memberService) {
         this.stage = stage;
         this.authenticationService = authenticationService;
         this.sessionManager = sessionManager;
@@ -113,6 +136,7 @@ public final class SceneNavigator {
         this.bookCopyService = bookCopyService;
         this.borrowService = borrowService;
         this.loanService = loanService;
+        this.memberService = memberService;
         this.scene = new Scene(new javafx.scene.layout.StackPane(), WINDOW_WIDTH,
                 WINDOW_HEIGHT);
         this.stage.setTitle(APPLICATION_TITLE);
@@ -185,6 +209,20 @@ public final class SceneNavigator {
 
         showPage(new MyLoansPage(loanService, bookService, bookCopyService, borrowService,
                 sessionManager, this));
+    }
+
+    /**
+     * Displays the authenticated member profile page.
+     *
+     * If no user is currently logged in, the navigator returns to the login page.
+     */
+    public void showProfilePage() {
+        if (!sessionManager.isLoggedIn()) {
+            showLoginPage();
+            return;
+        }
+
+        showPage(new ProfilePage(memberService, sessionManager, this));
     }
 
     /**

@@ -54,7 +54,8 @@ public final class BookInfoPage extends VBox {
         content.setPadding(new Insets(20));
 
         DashboardNavbar navbar = new DashboardNavbar(sceneNavigator::showDashboardPage,
-                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage, () -> {
+                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
+                sceneNavigator::showProfilePage, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
         }, DashboardNavbar.ActivePage.NONE);

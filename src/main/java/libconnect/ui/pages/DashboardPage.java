@@ -62,7 +62,8 @@ public final class DashboardPage extends BorderPane {
         feedbackMessage = new FeedbackMessage();
 
         DashboardNavbar navbar = new DashboardNavbar(sceneNavigator::showDashboardPage,
-                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage, () -> {
+                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
+                sceneNavigator::showProfilePage, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
         }, DashboardNavbar.ActivePage.DASHBOARD);

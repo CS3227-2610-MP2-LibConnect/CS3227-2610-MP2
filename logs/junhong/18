@@ -1,0 +1,28 @@
+# Conversation Summary
+
+Date: 2026-09-23
+
+## Objective
+
+Implement a LibConnect member profile page with profile-information updates and password reset functionality.
+
+## Key decisions
+
+- Adopted Approach A: reuse the existing `MemberService`.
+- Passwords must be confirmed in the UI and stored only as salted PBKDF2 hashes.
+- Use separate success/error feedback messages for each section.
+- Refresh the active session with the updated member after successful changes.
+- Do not create or run tests.
+
+## Work completed
+
+- Added `ProfilePage.java`.
+- Added profile navigation through `SceneNavigator` and `DashboardNavbar`.
+- Enabled profile navigation from authenticated pages.
+- Updated `MemberService` methods to return updated members.
+- Added validation and feedback handling for profile and password updates.
+- Cleared password fields after password update attempts.
+
+## Open items / blockers
+
+- No tests were created or run, as requested.
