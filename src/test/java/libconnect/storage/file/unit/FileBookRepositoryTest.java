@@ -2,6 +2,7 @@ package libconnect.storage.file.unit;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -19,7 +20,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import libconnect.models.Book;
 import libconnect.storage.file.FileBookRepository;
-import libconnect.storage.exceptions.DeleteFailureException;
 
 /**
  * Tests unit-level JSON persistence for catalogue books.
@@ -199,7 +199,7 @@ class FileBookRepositoryTest extends AbstractFileRepositoryTest<Book, FileBookRe
     }
 
     @Test
-    void deleteByIsbn_existingIsbn_removesMatchingBook() throws DeleteFailureException {
+    void deleteByIsbn_existingIsbn_removesMatchingBook() {
         FileBookRepository repository = createRepository(
                 temporaryDirectory.resolve("books.json"));
         Book bookToDelete = createBook("978-1", "To delete");
@@ -213,13 +213,13 @@ class FileBookRepositoryTest extends AbstractFileRepositoryTest<Book, FileBookRe
     }
 
     @Test
-    void deleteByIsbn_unknownIsbn_throwsDeleteFailureExceptionAndPreservesData() {
+    void deleteByIsbn_unknownIsbn_returnsFalseAndPreservesData() {
         FileBookRepository repository = createRepository(
                 temporaryDirectory.resolve("books.json"));
         Book existingBook = createBook("978-1", "Existing");
         repository.save(existingBook);
 
-        assertThrows(DeleteFailureException.class, () -> repository.deleteByIsbn("978-2"));
+        assertFalse(repository.deleteByIsbn("978-2"));
         assertEquals(List.of(existingBook), repository.findAll());
     }
 
@@ -244,9 +244,9 @@ class FileBookRepositoryTest extends AbstractFileRepositoryTest<Book, FileBookRe
         Files.writeString(dataFile, books);
 
         try (WarningCapture warnings = captureWarnings(
-                Logger.getLogger(FileBookRepository.class.getName()))) {
+                Logger.getLogger("libconnect.storage.StorageManager"))) {
             assertEquals(List.of(createBook("978-2", "Valid")), repository.findAll());
-            assertTrue(warnings.containsMessage("Skipping malformed book record"));
+            assertTrue(warnings.containsMessage("Skipped malformed Book record"));
         }
     }
 
@@ -263,9 +263,9 @@ class FileBookRepositoryTest extends AbstractFileRepositoryTest<Book, FileBookRe
         Files.writeString(dataFile, books);
 
         try (WarningCapture warnings = captureWarnings(
-                Logger.getLogger(FileBookRepository.class.getName()))) {
+                Logger.getLogger("libconnect.storage.StorageManager"))) {
             assertEquals(List.of(createBook("978-2", "Valid")), repository.findAll());
-            assertTrue(warnings.containsMessage("Skipping malformed book record"));
+            assertTrue(warnings.containsMessage("Skipped malformed Book record"));
         }
     }
 
@@ -282,10 +282,10 @@ class FileBookRepositoryTest extends AbstractFileRepositoryTest<Book, FileBookRe
         Files.writeString(dataFile, duplicateBooks);
 
         try (WarningCapture warnings = captureWarnings(
-                Logger.getLogger(FileBookRepository.class.getName()))) {
+                Logger.getLogger("libconnect.storage.StorageManager"))) {
             assertEquals(List.of(new Book("978-1", "Title 1", "Author 1", "Publisher",
                     "Category", 2020)), repository.findAll());
-            assertTrue(warnings.containsMessage("Skipping malformed book record"));
+            assertTrue(warnings.containsMessage("Skipped malformed Book record"));
         }
     }
 

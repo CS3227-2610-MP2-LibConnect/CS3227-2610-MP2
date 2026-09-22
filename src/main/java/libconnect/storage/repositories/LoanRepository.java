@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import libconnect.models.Loan;
 import libconnect.models.LoanStatus;
-import libconnect.storage.exceptions.DeleteFailureException;
 
 /** Defines persistence operations for loans. */
 public interface LoanRepository extends Repository<Loan> {
@@ -66,7 +65,6 @@ public interface LoanRepository extends Repository<Loan> {
      * @param loanId the loan identifier to delete.
      * @return true if the loan was deleted, or false if no matching loan exists.
      * @throws IllegalArgumentException if {@code loanId} is null or blank.
-     * @throws DeleteFailureException if no loan with the supplied identifier can be deleted.
      */
-    boolean deleteById(String loanId) throws DeleteFailureException;
+    boolean deleteById(String loanId);
 }

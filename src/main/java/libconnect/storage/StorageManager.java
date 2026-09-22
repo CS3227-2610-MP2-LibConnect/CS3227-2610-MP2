@@ -1,6 +1,7 @@
 package libconnect.storage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -48,6 +49,7 @@ public final class StorageManager {
         this.objectMapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .registerModule(new ParameterNamesModule())
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .enable(SerializationFeature.INDENT_OUTPUT);
     }

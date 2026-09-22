@@ -1,6 +1,7 @@
 package libconnect.storage.file.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -14,6 +15,8 @@ import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import libconnect.storage.repositories.RepositoryException;
 
 /**
  * Defines unit-test contract cases shared by file-backed repositories.
@@ -82,8 +85,8 @@ abstract class AbstractFileRepositoryTest<T, R> {
 
         R repository = createRepository(dataFile);
 
-        assertTrue(Files.isRegularFile(dataFile));
         assertTrue(findAll(repository).isEmpty());
+        assertTrue(Files.isRegularFile(dataFile));
     }
 
     @Test
@@ -129,19 +132,15 @@ abstract class AbstractFileRepositoryTest<T, R> {
     }
 
     @Test
-    void findAll_malformedStoredData_logsAndReturnsEmptyList() throws IOException {
+    void findAll_malformedStoredData_throwsRepositoryException() throws IOException {
         Path dataFile = temporaryDirectory.resolve("records.json");
         R repository = createRepository(dataFile);
         Files.writeString(dataFile, "not valid json");
 
-        try (WarningCapture warnings = captureWarnings(
-                Logger.getLogger("libconnect.storage.file.FileRepositorySupport"))) {
-            assertTrue(findAll(repository).isEmpty());
-            assertTrue(warnings.containsMessage("Unable to parse"));
-        }
+        assertThrows(RepositoryException.class, () -> findAll(repository));
     }
 
-    /** Captures log messages from one logger and removes itself when closed. */
+    /** Captures log messages from the shared storage logger and removes itself when closed. */
     protected static final class WarningCapture extends Handler implements AutoCloseable {
         private final Logger logger;
         private final List<String> messages = new java.util.ArrayList<>();

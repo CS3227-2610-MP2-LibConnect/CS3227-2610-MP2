@@ -22,7 +22,7 @@ public class FileLoanRepository extends AbstractFileRepository<Loan> implements 
      * @throws IllegalStateException if the data file cannot be created.
      */
     public FileLoanRepository() {
-        this(new StorageManager(DEFAULT_DATA_FILE), DEFAULT_DATA_FILE);
+        this(new StorageManager(DEFAULT_DATA_FILE.getParent()), DEFAULT_DATA_FILE);
     }
 
     /**
@@ -33,7 +33,7 @@ public class FileLoanRepository extends AbstractFileRepository<Loan> implements 
      * @throws IllegalStateException if the data file cannot be created.
      */
     public FileLoanRepository(Path dataFile) {
-        this(new StorageManager(dataFile), dataFile);
+        this(new StorageManager(dataFile.getParent()), dataFile);
     }
 
     /**

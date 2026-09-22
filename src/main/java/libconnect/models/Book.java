@@ -1,5 +1,7 @@
 package libconnect.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import libconnect.util.ValidationUtils;
 
 /**
@@ -24,6 +26,7 @@ public class Book implements libconnect.storage.repositories.Identifiable {
      * @param publicationYear the year in which the book was published.
      * @throws IllegalArgumentException if a text value is blank or the publication year is invalid.
      */
+    @JsonCreator
     public Book(String isbn, String title, String author, String publisher,
                 String category, int publicationYear) {
         this.isbn = ValidationUtils.requireNonBlank(isbn, "isbn");

@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import libconnect.models.BookCopy;
 import libconnect.models.CopyStatus;
-import libconnect.storage.exceptions.DeleteFailureException;
 
 /** Defines persistence operations for physical book copies. */
 public interface BookCopyRepository extends Repository<BookCopy> {
@@ -65,7 +64,6 @@ public interface BookCopyRepository extends Repository<BookCopy> {
      * @param copyId the copy identifier to delete.
      * @return true if the copy was deleted, or false if no matching copy exists.
      * @throws IllegalArgumentException if {@code copyId} is null or blank.
-     * @throws DeleteFailureException if no copy with the supplied identifier can be deleted.
      */
-    boolean deleteById(String copyId) throws DeleteFailureException;
+    boolean deleteById(String copyId);
 }

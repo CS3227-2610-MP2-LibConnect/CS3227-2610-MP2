@@ -1,5 +1,7 @@
 package libconnect.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
@@ -32,6 +34,7 @@ public class Loan implements libconnect.storage.repositories.Identifiable {
      * @throws IllegalArgumentException if an identifier is blank.
      * @throws NullPointerException if a date is null.
      */
+    @JsonCreator
     public Loan(String loanId, String memberId, String copyId,
                 LocalDate borrowDate) {
         this(loanId, memberId, copyId, Objects.requireNonNull(borrowDate, "borrowDate cannot be null"),

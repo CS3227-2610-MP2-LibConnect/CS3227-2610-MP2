@@ -15,7 +15,6 @@ import libconnect.util.ValidationUtils;
  */
 public class FileBookCopyRepository extends AbstractFileRepository<BookCopy> implements BookCopyRepository {
     private static final Path DEFAULT_DATA_FILE = Path.of("data", "book-copies.json");
-    private static final String ISBN_FIELD = "isbn";
 
     /**
      * Creates a repository backed by {@code data/book-copies.json}.
@@ -57,7 +56,7 @@ public class FileBookCopyRepository extends AbstractFileRepository<BookCopy> imp
      */
     @Override
     public List<BookCopy> findByIsbn(String isbn) {
-        String requiredIsbn = ValidationUtils.requireNonBlank(isbn, ISBN_FIELD);
+        String requiredIsbn = ValidationUtils.requireNonBlank(isbn, "isbn");
 
         return readAll().stream()
                 .filter(copy -> copy.getIsbn().equals(requiredIsbn))
@@ -67,20 +66,17 @@ public class FileBookCopyRepository extends AbstractFileRepository<BookCopy> imp
     /**
      * {@inheritDoc}
      *
-     * Not required to throw DeleteFailureException if no copies are found with the
-     * given ISBN, as this is to delete all copies with the given ISBN prior to
-     * deleting the book with the given ISBN.
-     * If no copies are found, it is still valid to delete the book.
-     *
      * @throws IllegalArgumentException if {@code isbn} is blank.
      * @throws IllegalStateException if the data file cannot be read or written.
      */
     @Override
     public void deleteByIsbn(String isbn) {
-        String requiredIsbn = ValidationUtils.requireNonBlank(isbn, ISBN_FIELD);
+        String requiredIsbn = ValidationUtils.requireNonBlank(isbn, "isbn");
         List<BookCopy> copies = readAll().stream()
-                .filter(copy -> copy.getIsbn() == requiredIsbn).toList();
-        copies.forEach(copy -> deleteById(copy.getId()));
+                .filter(copy -> copy.getIsbn().equals(requiredIsbn)).toList();
+        for (BookCopy copy : copies) {
+            deleteById(copy.getId());
+        }
     }
 
     /**

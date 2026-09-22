@@ -1,12 +1,12 @@
 package libconnect.storage.file.unit;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,52 +18,78 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import libconnect.models.AccountStatus;
 import libconnect.models.Member;
-import libconnect.models.User;
 import libconnect.storage.file.FileMemberRepository;
-import libconnect.storage.repositories.UserRepository;
 
-/** Tests unit-level member filtering, searching, validation, and delegation. */
-class FileMemberRepositoryTest {
+/** Tests unit-level JSON persistence and member-specific queries. */
+class FileMemberRepositoryTest extends AbstractFileRepositoryTest<Member, FileMemberRepository> {
 
-    @Test
-    void constructor_nullUserRepository_throwsNullPointerException() {
-        assertThrows(NullPointerException.class,
-                () -> new FileMemberRepository((UserRepository) null));
+    @Override
+    protected FileMemberRepository createRepository(Path dataFile) {
+        return new FileMemberRepository(dataFile);
+    }
+
+    @Override
+    protected void save(FileMemberRepository repository, Member member) {
+        repository.save(member);
+    }
+
+    @Override
+    protected List<Member> findAll(FileMemberRepository repository) {
+        return repository.findAll();
+    }
+
+    @Override
+    protected String getIdentifier(Member member) {
+        return member.getMembershipId();
+    }
+
+    @Override
+    protected Member createEntity(String identifier, String variant) {
+        return createMember("USER-" + variant, "Member " + variant,
+                "member-" + variant.toLowerCase() + "@example.com", identifier,
+                AccountStatus.ACTIVE, LocalDate.of(2026, 1, 1));
     }
 
     @Test
-    void findAll_mixedUsers_returnsOnlyMembers() {
-        User regularUser = createUser("USER-1", "user@example.com");
-        Member firstMember = createMember("MEMBER-1", "first@example.com", "MEM-1",
-                AccountStatus.ACTIVE);
-        Member secondMember = createMember("MEMBER-2", "second@example.com", "MEM-2",
-                AccountStatus.DEACTIVATED);
-        FileMemberRepository repository = createRepository(regularUser, firstMember, secondMember);
-
-        assertEquals(List.of(firstMember, secondMember), repository.findAll());
+    void constructor_nullDataFile_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new FileMemberRepository(null));
     }
 
     @Test
-    void findAll_noMembers_returnsEmptyList() {
+    void save_preservesAllMemberFieldsAfterReload() {
         FileMemberRepository repository = createRepository(
-                createUser("USER-1", "user@example.com"));
+                temporaryDirectory.resolve("members.json"));
+        Member member = createMember("USER-1", "Alice Tan", "alice@example.com", "MEM-1",
+                AccountStatus.DEACTIVATED, LocalDate.of(2025, 12, 31));
 
-        assertTrue(repository.findAll().isEmpty());
+        repository.save(member);
+
+        Member savedMember = repository.findByMembershipId("MEM-1").orElseThrow();
+        assertAll(
+                () -> assertEquals("USER-1", savedMember.getUserId()),
+                () -> assertEquals("Alice Tan", savedMember.getName()),
+                () -> assertEquals("alice@example.com", savedMember.getEmail()),
+                () -> assertEquals("password-hash", savedMember.getPasswordHash()),
+                () -> assertEquals("MEM-1", savedMember.getMembershipId()),
+                () -> assertEquals(LocalDate.of(2025, 12, 31), savedMember.getRegistrationDate()),
+                () -> assertEquals(AccountStatus.DEACTIVATED, savedMember.getStatus()));
     }
 
     @Test
     void findByMembershipId_matchingId_returnsMember() {
-        Member expectedMember = createMember("USER-1", "member@example.com", "MEM-1",
-                AccountStatus.ACTIVE);
-        FileMemberRepository repository = createRepository(expectedMember);
+        Member expectedMember = createMember("USER-1", "Alice Tan", "alice@example.com", "MEM-1",
+                AccountStatus.ACTIVE, LocalDate.of(2026, 1, 1));
+        FileMemberRepository repository = createRepository(
+                temporaryDirectory.resolve("members.json"));
+        repository.save(expectedMember);
 
-        assertEquals(Optional.of(expectedMember), repository.findByMembershipId("MEM-1"));
+        assertEquals(Optional.of(expectedMember), repository.findByMembershipId(" MEM-1 "));
     }
 
     @Test
-    void findByMembershipId_unknownId_returnsEmpty() {
+    void findByMembershipId_unknownId_returnsEmptyOptional() {
         FileMemberRepository repository = createRepository(
-                createMember("USER-1", "member@example.com", "MEM-1", AccountStatus.ACTIVE));
+                temporaryDirectory.resolve("members.json"));
 
         assertTrue(repository.findByMembershipId("MEM-2").isEmpty());
     }
@@ -72,33 +98,28 @@ class FileMemberRepositoryTest {
     @NullAndEmptySource
     @ValueSource(strings = "   ")
     void findByMembershipId_blankId_throwsIllegalArgumentException(String membershipId) {
-        FileMemberRepository repository = createRepository();
+        FileMemberRepository repository = createRepository(
+                temporaryDirectory.resolve("members.json"));
 
         assertThrows(IllegalArgumentException.class,
                 () -> repository.findByMembershipId(membershipId));
     }
 
     @Test
-    void findByUserId_matchingMemberId_returnsMember() {
-        Member expectedMember = createMember("USER-1", "member@example.com", "MEM-1",
-                AccountStatus.ACTIVE);
-        FileMemberRepository repository = createRepository(expectedMember);
+    void findByUserId_matchingUserId_returnsMember() {
+        Member expectedMember = createMember("USER-1", "Alice Tan", "alice@example.com", "MEM-1",
+                AccountStatus.ACTIVE, LocalDate.of(2026, 1, 1));
+        FileMemberRepository repository = createRepository(
+                temporaryDirectory.resolve("members.json"));
+        repository.save(expectedMember);
 
         assertEquals(Optional.of(expectedMember), repository.findByUserId("USER-1"));
     }
 
     @Test
-    void findByUserId_regularUserId_returnsEmpty() {
+    void findByUserId_unknownId_returnsEmptyOptional() {
         FileMemberRepository repository = createRepository(
-                createUser("USER-1", "user@example.com"));
-
-        assertTrue(repository.findByUserId("USER-1").isEmpty());
-    }
-
-    @Test
-    void findByUserId_unknownId_returnsEmpty() {
-        FileMemberRepository repository = createRepository(
-                createMember("USER-1", "member@example.com", "MEM-1", AccountStatus.ACTIVE));
+                temporaryDirectory.resolve("members.json"));
 
         assertTrue(repository.findByUserId("USER-2").isEmpty());
     }
@@ -107,47 +128,54 @@ class FileMemberRepositoryTest {
     @NullAndEmptySource
     @ValueSource(strings = "   ")
     void findByUserId_blankId_throwsIllegalArgumentException(String userId) {
-        FileMemberRepository repository = createRepository();
+        FileMemberRepository repository = createRepository(
+                temporaryDirectory.resolve("members.json"));
 
         assertThrows(IllegalArgumentException.class, () -> repository.findByUserId(userId));
     }
 
     @Test
-    void findByEmail_matchingMemberEmail_returnsMemberAndDelegatesLookup() {
-        Member expectedMember = createMember("USER-1", "member@example.com", "MEM-1",
-                AccountStatus.ACTIVE);
-        InMemoryUserRepository userRepository = new InMemoryUserRepository(expectedMember);
-        FileMemberRepository repository = new FileMemberRepository(userRepository);
-
-        assertEquals(Optional.of(expectedMember), repository.findByEmail("member@example.com"));
-        assertEquals("member@example.com", userRepository.lastRequestedEmail);
-    }
-
-    @Test
-    void findByEmail_regularUserEmail_returnsEmpty() {
-        User regularUser = createUser("USER-1", "user@example.com");
-        FileMemberRepository repository = createRepository(regularUser);
-
-        assertTrue(repository.findByEmail("user@example.com").isEmpty());
-    }
-
-    @Test
-    void findByEmail_unknownEmail_returnsEmpty() {
+    void findByEmail_matchingEmailIgnoringCaseAndWhitespace_returnsMember() {
+        Member expectedMember = createMember("USER-1", "Alice Tan", "alice@example.com", "MEM-1",
+                AccountStatus.ACTIVE, LocalDate.of(2026, 1, 1));
         FileMemberRepository repository = createRepository(
-                createMember("USER-1", "member@example.com", "MEM-1", AccountStatus.ACTIVE));
+                temporaryDirectory.resolve("members.json"));
+        repository.save(expectedMember);
+
+        assertEquals(Optional.of(expectedMember), repository.findByEmail(" ALICE@EXAMPLE.COM "));
+    }
+
+    @Test
+    void findByEmail_unknownEmail_returnsEmptyOptional() {
+        FileMemberRepository repository = createRepository(
+                temporaryDirectory.resolve("members.json"));
 
         assertTrue(repository.findByEmail("unknown@example.com").isEmpty());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = "   ")
+    void findByEmail_blankEmail_throwsIllegalArgumentException(String email) {
+        FileMemberRepository repository = createRepository(
+                temporaryDirectory.resolve("members.json"));
+
+        assertThrows(IllegalArgumentException.class, () -> repository.findByEmail(email));
     }
 
     @Test
     void findByName_caseInsensitivePartialMatch_returnsMatchingMembers() {
         Member firstMatch = createMember("USER-1", "Alice Tan", "alice@example.com", "MEM-1",
-                AccountStatus.ACTIVE);
+                AccountStatus.ACTIVE, LocalDate.of(2026, 1, 1));
         Member secondMatch = createMember("USER-2", "Malice Lim", "malice@example.com", "MEM-2",
-                AccountStatus.ACTIVE);
+                AccountStatus.ACTIVE, LocalDate.of(2026, 1, 1));
         Member nonMatch = createMember("USER-3", "Bob Tan", "bob@example.com", "MEM-3",
-                AccountStatus.ACTIVE);
-        FileMemberRepository repository = createRepository(firstMatch, secondMatch, nonMatch);
+                AccountStatus.ACTIVE, LocalDate.of(2026, 1, 1));
+        FileMemberRepository repository = createRepository(
+                temporaryDirectory.resolve("members.json"));
+        repository.save(firstMatch);
+        repository.save(secondMatch);
+        repository.save(nonMatch);
 
         assertEquals(List.of(firstMatch, secondMatch), repository.findByName(" ALI "));
     }
@@ -155,8 +183,9 @@ class FileMemberRepositoryTest {
     @Test
     void findByName_noMatch_returnsEmptyList() {
         FileMemberRepository repository = createRepository(
-                createMember("USER-1", "Alice Tan", "alice@example.com", "MEM-1",
-                        AccountStatus.ACTIVE));
+                temporaryDirectory.resolve("members.json"));
+        repository.save(createMember("USER-1", "Alice Tan", "alice@example.com", "MEM-1",
+                AccountStatus.ACTIVE, LocalDate.of(2026, 1, 1)));
 
         assertTrue(repository.findByName("Bob").isEmpty());
     }
@@ -165,7 +194,8 @@ class FileMemberRepositoryTest {
     @NullAndEmptySource
     @ValueSource(strings = "   ")
     void findByName_blankName_throwsIllegalArgumentException(String name) {
-        FileMemberRepository repository = createRepository();
+        FileMemberRepository repository = createRepository(
+                temporaryDirectory.resolve("members.json"));
 
         assertThrows(IllegalArgumentException.class, () -> repository.findByName(name));
     }
@@ -175,91 +205,30 @@ class FileMemberRepositoryTest {
     void findByStatus_status_returnsMatchingMembers(AccountStatus status) {
         AccountStatus otherStatus = status == AccountStatus.ACTIVE
                 ? AccountStatus.DEACTIVATED : AccountStatus.ACTIVE;
-        Member matchingMember = createMember("USER-1", "matching@example.com", "MEM-1", status);
-        Member otherMember = createMember("USER-2", "other@example.com", "MEM-2", otherStatus);
-        FileMemberRepository repository = createRepository(matchingMember, otherMember);
+        Member matchingMember = createMember("USER-1", "Matching Member", "matching@example.com",
+                "MEM-1", status, LocalDate.of(2026, 1, 1));
+        Member otherMember = createMember("USER-2", "Other Member", "other@example.com", "MEM-2",
+                otherStatus, LocalDate.of(2026, 1, 1));
+        FileMemberRepository repository = createRepository(
+                temporaryDirectory.resolve("members.json"));
+        repository.save(matchingMember);
+        repository.save(otherMember);
 
         assertEquals(List.of(matchingMember), repository.findByStatus(status));
     }
 
     @Test
     void findByStatus_nullStatus_throwsNullPointerException() {
-        FileMemberRepository repository = createRepository();
+        FileMemberRepository repository = createRepository(
+                temporaryDirectory.resolve("members.json"));
 
         assertThrows(NullPointerException.class, () -> repository.findByStatus(null));
     }
 
-    @Test
-    void save_member_delegatesToUserRepository() {
-        InMemoryUserRepository userRepository = new InMemoryUserRepository();
-        FileMemberRepository repository = new FileMemberRepository(userRepository);
-        Member member = createMember("USER-1", "member@example.com", "MEM-1",
-                AccountStatus.ACTIVE);
-
-        repository.save(member);
-
-        assertSame(member, userRepository.lastSavedUser);
-    }
-
-    @Test
-    void save_nullMember_throwsNullPointerException() {
-        FileMemberRepository repository = createRepository();
-
-        assertThrows(NullPointerException.class, () -> repository.save(null));
-    }
-
-    private static FileMemberRepository createRepository(User... users) {
-        return new FileMemberRepository(new InMemoryUserRepository(users));
-    }
-
-    private static User createUser(String userId, String email) {
-        return new User(userId, "Regular User", email, "password-hash");
-    }
-
-    private static Member createMember(String userId, String email, String membershipId,
-                                       AccountStatus status) {
-        return createMember(userId, "Member User", email, membershipId, status);
-    }
-
     private static Member createMember(String userId, String name, String email,
-                                       String membershipId, AccountStatus status) {
+                                       String membershipId, AccountStatus status,
+                                       LocalDate registrationDate) {
         return new Member(userId, name, email, "password-hash", membershipId,
-                LocalDate.of(2026, 1, 1), status);
-    }
-
-    /** Provides an in-memory user repository for isolated adapter tests. */
-    private static final class InMemoryUserRepository implements UserRepository {
-        private final List<User> users;
-        private String lastRequestedEmail;
-        private User lastSavedUser;
-
-        private InMemoryUserRepository(User... users) {
-            this.users = new ArrayList<>(List.of(users));
-        }
-
-        @Override
-        public Optional<User> findByUserId(String userId) {
-            return users.stream()
-                    .filter(user -> user.getUserId().equals(userId))
-                    .findFirst();
-        }
-
-        @Override
-        public Optional<User> findByEmail(String email) {
-            lastRequestedEmail = email;
-            return users.stream()
-                    .filter(user -> user.getEmail().equals(email))
-                    .findFirst();
-        }
-
-        @Override
-        public List<User> findAll() {
-            return List.copyOf(users);
-        }
-
-        @Override
-        public void save(User user) {
-            lastSavedUser = user;
-        }
+                registrationDate, status);
     }
 }

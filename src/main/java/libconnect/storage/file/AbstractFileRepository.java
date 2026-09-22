@@ -36,8 +36,8 @@ public abstract class AbstractFileRepository<T extends Identifiable> implements 
     /** Returns the entity with the supplied identifier, if present. */
     @Override
     public final Optional<T> findById(String id) {
-        requireId(id);
-        return readAll().stream().filter(entity -> entity.getId().equals(id)).findFirst();
+        String requiredId = requireId(id);
+        return readAll().stream().filter(entity -> entity.getId().equals(requiredId)).findFirst();
     }
 
     /** Returns a fresh snapshot of all entities. */
@@ -63,9 +63,9 @@ public abstract class AbstractFileRepository<T extends Identifiable> implements 
     /** Deletes an entity by identifier and reports whether it existed. */
     @Override
     public final boolean deleteById(String id) {
-        requireId(id);
+        String requiredId = requireId(id);
         List<T> entities = new ArrayList<>(readAll());
-        boolean removed = entities.removeIf(entity -> entity.getId().equals(id));
+        boolean removed = entities.removeIf(entity -> entity.getId().equals(requiredId));
         if (removed) {
             storageManager.writeList(file, entities);
         }
@@ -81,9 +81,11 @@ public abstract class AbstractFileRepository<T extends Identifiable> implements 
         return -1;
     }
 
-    private static void requireId(String id) {
+    private static String requireId(String id) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("id must not be blank");
         }
+
+        return id.trim();
     }
 }

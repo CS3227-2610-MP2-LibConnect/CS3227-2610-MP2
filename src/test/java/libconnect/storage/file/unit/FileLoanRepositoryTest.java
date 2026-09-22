@@ -37,10 +37,10 @@ class FileLoanRepositoryTest {
 
         try (AbstractFileRepositoryTest.WarningCapture warnings =
                 AbstractFileRepositoryTest.captureWarnings(
-                        Logger.getLogger(FileLoanRepository.class.getName()))) {
+                        Logger.getLogger("libconnect.storage.StorageManager"))) {
             assertEquals(List.of(new Loan("LOAN-2", "MEMBER-2", "COPY-2",
                     LocalDate.of(2025, 2, 1))), repository.findAll());
-            assertTrue(warnings.containsMessage("Skipping malformed loan record"));
+            assertTrue(warnings.containsMessage("Skipped malformed Loan record"));
         }
     }
 }

@@ -1,5 +1,7 @@
 package libconnect.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -22,6 +24,7 @@ public class Member extends User {
      * @param membershipId the stable identifier for the membership.
      * @throws IllegalArgumentException if a required value is invalid.
      */
+    @JsonCreator
     public Member(String userId, String name, String email, String passwordHash,
                   String membershipId) {
         super(userId, name, email, passwordHash);
