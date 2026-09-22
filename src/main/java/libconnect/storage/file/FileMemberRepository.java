@@ -8,52 +8,52 @@ import java.util.Optional;
 
 import libconnect.models.AccountStatus;
 import libconnect.models.Member;
+import libconnect.storage.StorageManager;
 import libconnect.storage.repositories.MemberRepository;
-import libconnect.storage.repositories.UserRepository;
 import libconnect.util.ValidationUtils;
 
 /**
- * Provides member-specific access to the shared user repository.
+ * Provides JSON file-backed persistence for library members.
  */
-public class FileMemberRepository implements MemberRepository {
-    private final UserRepository userRepository;
+public class FileMemberRepository extends AbstractFileRepository<Member> implements MemberRepository {
+    private static final Path DEFAULT_DATA_FILE = Path.of("data", "members.json");
 
     /**
-     * Creates a member repository backed by {@code data/users.json}.
+     * Creates a member repository backed by {@code data/members.json}.
      *
      * @throws IllegalStateException if the data file cannot be created.
      */
     public FileMemberRepository() {
-        this(new FileUserRepository());
+        this(new StorageManager(DEFAULT_DATA_FILE.getParent()), DEFAULT_DATA_FILE);
     }
 
     /**
-     * Creates a member repository backed by the supplied user data file.
+     * Creates a member repository backed by the supplied member data file.
      *
-     * @param dataFile the JSON file used for shared user persistence.
+     * @param dataFile the JSON file used for member persistence.
      * @throws NullPointerException if {@code dataFile} is null.
      * @throws IllegalStateException if the data file cannot be created.
      */
     public FileMemberRepository(Path dataFile) {
-        this(new FileUserRepository(dataFile));
+        this(new StorageManager(dataFile.getParent()), dataFile);
     }
 
     /**
-     * Creates a member repository with an explicit user repository dependency.
+     * Creates a member repository with explicit storage dependencies.
      *
-     * @param userRepository the shared user repository.
-     * @throws NullPointerException if {@code userRepository} is null.
+     * @param storageManager the manager used for storage operations.
+     * @param dataFile the JSON file used for persistence.
+     * @throws NullPointerException if either argument is null.
      */
-    public FileMemberRepository(UserRepository userRepository) {
-        this.userRepository = Objects.requireNonNull(userRepository,
-                "userRepository cannot be null");
+    public FileMemberRepository(StorageManager storageManager, Path dataFile) {
+        super(storageManager, dataFile, Member.class);
     }
 
     /**
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code membershipId} is blank.
-     * @throws IllegalStateException if the shared data file cannot be read.
+     * @throws IllegalStateException if the member data file cannot be read.
      */
     @Override
     public Optional<Member> findByMembershipId(String membershipId) {
@@ -68,7 +68,7 @@ public class FileMemberRepository implements MemberRepository {
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code userId} is blank.
-     * @throws IllegalStateException if the shared data file cannot be read.
+     * @throws IllegalStateException if the member data file cannot be read.
      */
     @Override
     public Optional<Member> findByUserId(String userId) {
@@ -83,33 +83,22 @@ public class FileMemberRepository implements MemberRepository {
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code email} is blank.
-     * @throws IllegalStateException if the shared data file cannot be read.
+     * @throws IllegalStateException if the member data file cannot be read.
      */
     @Override
     public Optional<Member> findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .filter(Member.class::isInstance)
-                .map(Member.class::cast);
-    }
+        String requiredEmail = ValidationUtils.requireNonBlank(email, "email").toLowerCase(Locale.ROOT);
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalStateException if the shared data file cannot be read.
-     */
-    @Override
-    public List<Member> findAll() {
-        return userRepository.findAll().stream()
-                .filter(Member.class::isInstance)
-                .map(Member.class::cast)
-                .toList();
+        return findAll().stream()
+                .filter(member -> member.getEmail().toLowerCase(Locale.ROOT).equals(requiredEmail))
+                .findFirst();
     }
 
     /**
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if {@code name} is blank.
-     * @throws IllegalStateException if the shared data file cannot be read.
+     * @throws IllegalStateException if the member data file cannot be read.
      */
     @Override
     public List<Member> findByName(String name) {
@@ -124,7 +113,7 @@ public class FileMemberRepository implements MemberRepository {
      * {@inheritDoc}
      *
      * @throws NullPointerException if {@code status} is null.
-     * @throws IllegalStateException if the shared data file cannot be read.
+     * @throws IllegalStateException if the member data file cannot be read.
      */
     @Override
     public List<Member> findByStatus(AccountStatus status) {
@@ -134,17 +123,4 @@ public class FileMemberRepository implements MemberRepository {
                 .filter(member -> member.getStatus() == status)
                 .toList();
     }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws NullPointerException if {@code member} is null.
-     * @throws IllegalArgumentException if the member conflicts with another user's ID or email.
-     * @throws IllegalStateException if the shared data file cannot be read or written.
-     */
-    @Override
-    public void save(Member member) {
-        userRepository.save(Objects.requireNonNull(member, "member cannot be null"));
-    }
-
 }
