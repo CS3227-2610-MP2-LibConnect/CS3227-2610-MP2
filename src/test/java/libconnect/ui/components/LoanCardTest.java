@@ -3,12 +3,8 @@ package libconnect.ui.components;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.Test;
 
-import libconnect.models.Loan;
-import libconnect.models.LoanStatus;
 import libconnect.ui.UiTestFixtures;
 import libconnect.ui.UiTestSupport;
 
@@ -18,7 +14,7 @@ class LoanCardTest {
     void renewableLoan_isActiveIsReturnableAndRenewable() {
         UiTestSupport.runOnFxThread(() -> {
             LoanCard card = new LoanCard(UiTestFixtures.activeLoan("LOAN-1", "COPY-1"),
-                    "Title", "Author", "978-1", true, null, null);
+                    "Title", "Author", "978-1", true, () -> {}, () -> {});
             assertTrue(UiTestSupport.labelTexts(card).contains("Active"));
             assertFalse(UiTestSupport.findButton(card, "Renew").isDisable());
         });
@@ -28,7 +24,7 @@ class LoanCardTest {
     void renewedLoan_isActiveIsReturnableAndNotRenewable() {
         UiTestSupport.runOnFxThread(() -> {
             LoanCard card = new LoanCard(UiTestFixtures.renewedLoan("LOAN-1", "COPY-1"),
-                    "Title", "Author", "978-1", true, null, null);
+                    "Title", "Author", "978-1", true, () -> {}, () -> {});
             assertTrue(UiTestSupport.labelTexts(card).contains("Active"));
             assertTrue(UiTestSupport.findButton(card, "Renew").isDisable());
             assertFalse(UiTestSupport.findButton(card, "Return").isDisable());
@@ -39,7 +35,7 @@ class LoanCardTest {
     void returnedLoan_isReturnedAndHasNoActions() {
         UiTestSupport.runOnFxThread(() -> {
             LoanCard card = new LoanCard(UiTestFixtures.returnedLoan("LOAN-1", "COPY-1"),
-                    "Title", "Author", "978-1", false, null, null);
+                    "Title", "Author", "978-1", false, () -> {}, () -> {});
             assertTrue(UiTestSupport.labelTexts(card).contains("Returned"));
             assertTrue(UiTestSupport.findButtons(card).isEmpty());
         });
@@ -49,7 +45,7 @@ class LoanCardTest {
     void overdueLoan_isOverdueIsReturnableAndNotRenewable() {
         UiTestSupport.runOnFxThread(() -> {
             LoanCard card = new LoanCard(UiTestFixtures.overdueLoan("LOAN-1", "COPY-1"),
-                    "Title", "Author", "978-1", true, null, null);
+                    "Title", "Author", "978-1", true, () -> {}, () -> {});
             assertTrue(UiTestSupport.labelTexts(card).contains("Overdue"));
             assertTrue(UiTestSupport.findButton(card, "Renew").isDisable());
             assertFalse(UiTestSupport.findButton(card, "Return").isDisable());
