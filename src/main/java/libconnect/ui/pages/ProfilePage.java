@@ -17,6 +17,10 @@ import javafx.scene.layout.VBox;
 
 import libconnect.models.Member;
 import libconnect.models.User;
+import libconnect.services.BookCopyService;
+import libconnect.services.BookService;
+import libconnect.services.BorrowService;
+import libconnect.services.LoanService;
 import libconnect.services.MemberService;
 import libconnect.services.ServiceException;
 import libconnect.storage.repositories.RepositoryException;
@@ -45,6 +49,10 @@ public final class ProfilePage extends BorderPane {
             "Only an authenticated member can update profile information.";
 
     private final MemberService memberService;
+    private final LoanService loanService;
+    private final BookService bookService;
+    private final BookCopyService bookCopyService;
+    private final BorrowService borrowService;
     private final SessionManager sessionManager;
     private final TextField nameField;
     private final TextField emailField;
@@ -54,19 +62,30 @@ public final class ProfilePage extends BorderPane {
     private final FeedbackMessage passwordFeedbackMessage;
     private final StackPane subpageContent;
     private final Button editProfileButton;
+    private final Button myLoansButton;
     private final Button myFinesButton;
 
     /**
-     * Creates a profile page backed by the supplied member service and session.
+     * Creates a profile page backed by the supplied services and session.
      *
      * @param memberService the service used to update member data.
+     * @param loanService the service used to load and renew loans.
+     * @param bookService the service used to load catalogue metadata.
+     * @param bookCopyService the service used to load physical copy metadata.
+     * @param borrowService the service used to return loans and copies together.
      * @param sessionManager the session containing the authenticated member.
      * @param sceneNavigator the navigator used for page transitions.
      * @throws NullPointerException if any dependency is null.
      */
-    public ProfilePage(MemberService memberService, SessionManager sessionManager,
+    public ProfilePage(MemberService memberService, LoanService loanService,
+                       BookService bookService, BookCopyService bookCopyService,
+                       BorrowService borrowService, SessionManager sessionManager,
                        SceneNavigator sceneNavigator) {
         this.memberService = Objects.requireNonNull(memberService, "memberService");
+        this.loanService = Objects.requireNonNull(loanService, "loanService");
+        this.bookService = Objects.requireNonNull(bookService, "bookService");
+        this.bookCopyService = Objects.requireNonNull(bookCopyService, "bookCopyService");
+        this.borrowService = Objects.requireNonNull(borrowService, "borrowService");
         this.sessionManager = Objects.requireNonNull(sessionManager, "sessionManager");
         Objects.requireNonNull(sceneNavigator, "sceneNavigator");
         nameField = new TextField();
@@ -77,6 +96,7 @@ public final class ProfilePage extends BorderPane {
         passwordFeedbackMessage = new FeedbackMessage();
         subpageContent = new StackPane();
         editProfileButton = new Button("Edit Profile");
+        myLoansButton = new Button("My Loans");
         myFinesButton = new Button("My Fines");
 
         configureFields();
@@ -114,8 +134,10 @@ public final class ProfilePage extends BorderPane {
     /** Configures the navigation controls for the profile subpages. */
     private void configureSubpageNavigation() {
         editProfileButton.setMaxWidth(Double.MAX_VALUE);
+        myLoansButton.setMaxWidth(Double.MAX_VALUE);
         myFinesButton.setMaxWidth(Double.MAX_VALUE);
         editProfileButton.setOnAction(event -> showEditProfilePage());
+        myLoansButton.setOnAction(event -> showMyLoansPage());
         myFinesButton.setOnAction(event -> showMyFinesPage());
     }
 
@@ -138,7 +160,7 @@ public final class ProfilePage extends BorderPane {
      * @return the profile navigation and subpage content.
      */
     private HBox createContent() {
-        VBox subpageNavigation = new VBox(12, editProfileButton, myFinesButton);
+        VBox subpageNavigation = new VBox(12, editProfileButton, myLoansButton, myFinesButton);
         subpageNavigation.setPadding(new Insets(20));
         subpageNavigation.setPrefWidth(180);
         subpageNavigation.getStyleClass().add("profile-sidebar");
@@ -156,6 +178,16 @@ public final class ProfilePage extends BorderPane {
         setActiveSubpage(editProfileButton);
     }
 
+    /** Displays the current-loans and loan-history subpage. */
+    private void showMyLoansPage() {
+        MyLoansPage myLoansPage = new MyLoansPage(loanService, bookService, bookCopyService,
+                borrowService, sessionManager);
+        myLoansPage.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        VBox.setVgrow(myLoansPage, Priority.ALWAYS);
+        subpageContent.getChildren().setAll(myLoansPage);
+        setActiveSubpage(myLoansButton);
+    }
+
     /** Displays the placeholder fines subpage. */
     private void showMyFinesPage() {
         subpageContent.getChildren().setAll(new Label("Pay Fines"));
@@ -165,6 +197,7 @@ public final class ProfilePage extends BorderPane {
     /** Marks the selected profile subpage in the left navigation. */
     private void setActiveSubpage(Button activeButton) {
         editProfileButton.getStyleClass().remove("selected-tab");
+        myLoansButton.getStyleClass().remove("selected-tab");
         myFinesButton.getStyleClass().remove("selected-tab");
         activeButton.getStyleClass().add("selected-tab");
     }
@@ -197,6 +230,7 @@ public final class ProfilePage extends BorderPane {
     private VBox createProfileSection() {
         Button updateButton = new Button("Update information");
         updateButton.setOnAction(event -> updateProfile());
+        updateButton.getStyleClass().add("button-success");
 
         HBox buttonRow = new HBox(updateButton);
         buttonRow.setAlignment(Pos.CENTER_RIGHT);
@@ -219,6 +253,7 @@ public final class ProfilePage extends BorderPane {
     private VBox createPasswordSection() {
         Button resetPasswordButton = new Button("Reset password");
         resetPasswordButton.setOnAction(event -> resetPassword());
+        resetPasswordButton.getStyleClass().add("button-success");
 
         HBox buttonRow = new HBox(resetPasswordButton);
         buttonRow.setAlignment(Pos.CENTER_RIGHT);

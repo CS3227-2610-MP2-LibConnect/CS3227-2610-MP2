@@ -9,7 +9,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -24,15 +23,13 @@ import libconnect.services.BookService;
 import libconnect.services.BorrowService;
 import libconnect.services.LoanService;
 import libconnect.storage.repositories.RepositoryException;
-import libconnect.ui.SceneNavigator;
 import libconnect.ui.SessionManager;
-import libconnect.ui.components.Navbar;
 import libconnect.ui.components.FeedbackMessage;
 import libconnect.ui.components.LoanCard;
 import libconnect.ui.components.PageHeader;
 
-/** Provides the authenticated member's current loans and loan history. */
-public final class MyLoansPage extends BorderPane {
+/** Provides the authenticated member's current loans and loan history subpage. */
+public final class MyLoansPage extends VBox {
     private static final String STORAGE_ERROR_MESSAGE =
             "Unable to access loan data. Please try again.";
     private static final String ACTION_ERROR_MESSAGE =
@@ -61,18 +58,16 @@ public final class MyLoansPage extends BorderPane {
      * @param bookCopyService the service used to load physical copy metadata.
      * @param borrowService the service used to return loans and copies together.
      * @param sessionManager the session containing the authenticated member.
-     * @param sceneNavigator the navigator used for page transitions.
      * @throws NullPointerException if an argument is null.
      */
     public MyLoansPage(LoanService loanService, BookService bookService,
                        BookCopyService bookCopyService, BorrowService borrowService,
-                       SessionManager sessionManager, SceneNavigator sceneNavigator) {
+                       SessionManager sessionManager) {
         this.loanService = Objects.requireNonNull(loanService, "loanService");
         this.bookService = Objects.requireNonNull(bookService, "bookService");
         this.bookCopyService = Objects.requireNonNull(bookCopyService, "bookCopyService");
         this.borrowService = Objects.requireNonNull(borrowService, "borrowService");
         this.sessionManager = Objects.requireNonNull(sessionManager, "sessionManager");
-        Objects.requireNonNull(sceneNavigator, "sceneNavigator");
         loanList = new VBox(12);
         feedbackMessage = new FeedbackMessage();
         currentLoansButton = new Button("Current Loans");
@@ -80,16 +75,10 @@ public final class MyLoansPage extends BorderPane {
         selectedView = LoanView.CURRENT;
 
         configureControls();
-        setTop(createNavbar(sceneNavigator));
-        setCenter(createContent());
+        VBox content = createContent();
+        VBox.setVgrow(content, Priority.ALWAYS);
+        getChildren().add(content);
         refreshLoans();
-    }
-
-    private Navbar createNavbar(SceneNavigator sceneNavigator) {
-        return new Navbar(sceneNavigator, sessionManager.getCurrentUser(), Navbar.ActivePage.MY_LOANS, () -> {
-            sessionManager.logout();
-            sceneNavigator.showLoginPage();
-        });
     }
 
     private VBox createContent() {

@@ -26,8 +26,7 @@ class MyLoansPageTest {
                         UiTestFixtures.returnedLoan("RETURNED", "COPY-2"),
                         UiTestFixtures.activeLoan("CURRENT", "COPY-1")));
                 MyLoansPage page = new MyLoansPage(context.loanService(), context.bookService(),
-                        context.bookCopyService(), context.borrowService(), context.sessionManager(),
-                        context.navigator());
+                        context.bookCopyService(), context.borrowService(), context.sessionManager());
                 assertTrue(UiTestSupport.labelTexts(page).contains("Active"));
                 UiTestSupport.findButton(page, "Loan History").fire();
                 assertTrue(UiTestSupport.labelTexts(page).contains("Returned"));
@@ -47,8 +46,7 @@ class MyLoansPageTest {
             try {
                 context.loanService().loadFailure = UiPageTestSupport.repositoryFailure();
                 MyLoansPage page = new MyLoansPage(context.loanService(), context.bookService(),
-                        context.bookCopyService(), context.borrowService(), context.sessionManager(),
-                        context.navigator());
+                        context.bookCopyService(), context.borrowService(), context.sessionManager());
                 UiPageTestSupport.assertFeedback(page, "Unable to access loan data. Please try again.");
 
                 context.loanService().loadFailure = null;
@@ -58,8 +56,7 @@ class MyLoansPageTest {
                         "978-1", CopyStatus.BORROWED));
                 context.loanService().renewFailure = new ServiceException("Cannot renew.");
                 page = new MyLoansPage(context.loanService(), context.bookService(),
-                        context.bookCopyService(), context.borrowService(), context.sessionManager(),
-                        context.navigator());
+                        context.bookCopyService(), context.borrowService(), context.sessionManager());
                 UiTestSupport.findButton(page, "Renew").fire();
                 UiPageTestSupport.assertFeedback(page, "Cannot renew.");
             } finally {

@@ -27,6 +27,8 @@ class NavbarTest {
                 Navbar navbar = new Navbar(sceneNavigator, sessionManager.getCurrentUser(),
                         Navbar.ActivePage.BORROW, () -> {
                         });
+                assertTrue(UiTestSupport.findButtons(navbar).stream()
+                        .noneMatch(button -> "My loans".equals(button.getText())));
                 UiTestSupport.findButtons(navbar).forEach(button -> {
                     if (button.getText().equals("Borrow books")) {
                         assertTrue(button.isDisable());

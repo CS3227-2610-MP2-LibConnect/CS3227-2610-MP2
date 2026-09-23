@@ -16,7 +16,6 @@ import libconnect.ui.pages.BookInfoPage;
 import libconnect.ui.pages.BorrowPage;
 import libconnect.ui.pages.DashboardPage;
 import libconnect.ui.pages.LoginPage;
-import libconnect.ui.pages.MyLoansPage;
 import libconnect.ui.pages.ProfilePage;
 import libconnect.ui.pages.RegistrationPage;
 import libconnect.ui.pages.ReservationPage;
@@ -207,17 +206,6 @@ public final class SceneNavigator {
                 sessionManager, this));
     }
 
-    /** Displays the authenticated member's current loans and loan history. */
-    public void showMyLoansPage() {
-        if (!sessionManager.isLoggedIn()) {
-            showLoginPage();
-            return;
-        }
-
-        showPage(new MyLoansPage(loanService, bookService, bookCopyService, borrowService,
-                sessionManager, this));
-    }
-
     /** Displays the authenticated member's reservation page. */
     public void showReservationPage() {
         if (!sessionManager.isLoggedIn()) {
@@ -239,7 +227,8 @@ public final class SceneNavigator {
             return;
         }
 
-        showPage(new ProfilePage(memberService, sessionManager, this));
+        showPage(new ProfilePage(memberService, loanService, bookService, bookCopyService,
+                borrowService, sessionManager, this));
     }
 
     /**

@@ -94,3 +94,13 @@
 .registration-unavailable {
     -fx-text-fill: #888888;
 }
+
+.button-danger {
+    -fx-background-color: #d32f2f;
+    -fx-text-fill: white;
+}
+
+.button-success {
+    -fx-background-color: #4caf50;
+    -fx-text-fill: white;
+}

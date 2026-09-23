@@ -25,9 +25,6 @@ public final class Navbar extends BorderPane {
         /** Indicates that the borrowing page is the current page. */
         BORROW,
 
-        /** Indicates that the my loans page is the current page. */
-        MY_LOANS,
-
         /** Indicates that the reservation page is the current page. */
         RESERVATION,
 
@@ -62,17 +59,12 @@ public final class Navbar extends BorderPane {
         borrowButton.setOnAction(event -> sceneNavigator.showBorrowPage());
         buttons.add(borrowButton);
 
-        Button loansButton = new Button("My loans");
-        loansButton.setOnAction(event -> sceneNavigator.showMyLoansPage());
-        buttons.add(loansButton);
-
         Button reservationButton = new Button("Reservation");
         reservationButton.setOnAction(event -> sceneNavigator.showReservationPage());
         buttons.add(reservationButton);
 
         applyActiveStyle(dashboardButton, activePage == ActivePage.DASHBOARD);
         applyActiveStyle(borrowButton, activePage == ActivePage.BORROW);
-        applyActiveStyle(loansButton, activePage == ActivePage.MY_LOANS);
         applyActiveStyle(reservationButton, activePage == ActivePage.RESERVATION);
 
         Button profileButton = new Button("Profile");
@@ -81,6 +73,7 @@ public final class Navbar extends BorderPane {
         buttons.add(profileButton);
 
         Button logoutButton = new Button("Logout");
+        logoutButton.getStyleClass().add("button-danger");
         logoutButton.setOnAction(event -> logoutAction.run());
         buttons.add(logoutButton);
 

@@ -16,13 +16,16 @@ import libconnect.ui.pages.ProfilePage;
 /** Tests profile updates, password changes, validation, and failures. */
 class ProfilePageTest {
     @Test
-    void subpageNavigation_defaultsToEditProfileAndShowsFinesPlaceholder() {
+    void subpageNavigation_defaultsToEditProfileAndShowsLoansAndFines() {
         UiTestSupport.runOnFxThread(() -> {
             UiPageTestSupport.TestContext context = UiPageTestSupport.context();
             try {
-                ProfilePage page = new ProfilePage(context.memberService(), context.sessionManager(),
-                        context.navigator());
+                ProfilePage page = createProfilePage(context);
                 assertEquals(4, UiTestSupport.findTextFields(page).size());
+
+                UiTestSupport.findButton(page, "My Loans").fire();
+                assertTrue(UiTestSupport.labelTexts(page).contains("You have no current loans."));
+                assertEquals(0, UiTestSupport.findTextFields(page).size());
 
                 UiTestSupport.findButton(page, "My Fines").fire();
                 assertTrue(UiTestSupport.labelTexts(page).contains("Pay Fines"));
@@ -41,8 +44,7 @@ class ProfilePageTest {
         UiTestSupport.runOnFxThread(() -> {
             UiPageTestSupport.TestContext context = UiPageTestSupport.context();
             try {
-                ProfilePage page = new ProfilePage(context.memberService(), context.sessionManager(),
-                        context.navigator());
+                ProfilePage page = createProfilePage(context);
                 List<TextField> fields = UiTestSupport.findTextFields(page);
                 fields.get(0).setText(" ");
                 UiTestSupport.findButton(page, "Update information").fire();
@@ -76,8 +78,7 @@ class ProfilePageTest {
         UiTestSupport.runOnFxThread(() -> {
             UiPageTestSupport.TestContext context = UiPageTestSupport.context();
             try {
-                ProfilePage page = new ProfilePage(context.memberService(), context.sessionManager(),
-                        context.navigator());
+                ProfilePage page = createProfilePage(context);
                 List<TextField> fields = UiTestSupport.findTextFields(page);
                 context.memberService().profileFailure = new ServiceException("");
                 fields.get(0).setText("Updated");
@@ -94,5 +95,11 @@ class ProfilePageTest {
                 context.close();
             }
         });
+    }
+
+    private ProfilePage createProfilePage(UiPageTestSupport.TestContext context) {
+        return new ProfilePage(context.memberService(), context.loanService(), context.bookService(),
+                context.bookCopyService(), context.borrowService(), context.sessionManager(),
+                context.navigator());
     }
 }
