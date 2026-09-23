@@ -16,12 +16,10 @@ public final class ReservationPage extends BorderPane {
      * @param sceneNavigator the navigator used by the navbar actions.
      */
     public ReservationPage(SessionManager sessionManager, SceneNavigator sceneNavigator) {
-        Navbar navbar = new Navbar(sceneNavigator::showDashboardPage,
-                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
-                sceneNavigator::showReservationPage, sceneNavigator::showProfilePage, () -> {
+        Navbar navbar = new Navbar(sceneNavigator, sessionManager.getCurrentUser(), Navbar.ActivePage.RESERVATION, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
-        }, Navbar.ActivePage.RESERVATION);
+        });
         setTop(navbar);
         setCenter(new Label("reservation page"));
     }

@@ -53,13 +53,11 @@ public final class BookInfoPage extends VBox {
         content = new VBox(16);
         content.setPadding(new Insets(20));
 
-        Navbar navbar = new Navbar(sceneNavigator::showDashboardPage,
-                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
-                sceneNavigator::showReservationPage,
-                sceneNavigator::showProfilePage, () -> {
+        Navbar navbar = new Navbar(sceneNavigator, sessionManager.getCurrentUser(),
+                Navbar.ActivePage.NONE, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
-        }, Navbar.ActivePage.NONE);
+        });
         Button backButton = new Button("Back to Dashboard");
         backButton.setOnAction(event -> sceneNavigator.showDashboardPage());
         HBox navigation = new HBox(backButton);

@@ -87,13 +87,10 @@ public final class BorrowPage extends BorderPane {
     }
 
     private Navbar createNavbar() {
-        return new Navbar(sceneNavigator::showDashboardPage,
-                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
-                sceneNavigator::showReservationPage,
-                sceneNavigator::showProfilePage, () -> {
+        return new Navbar(sceneNavigator, sessionManager.getCurrentUser(), Navbar.ActivePage.BORROW, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
-        }, Navbar.ActivePage.BORROW);
+        });
     }
 
     private VBox createContent() {
