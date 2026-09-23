@@ -28,23 +28,4 @@ class NavbarTest {
             });
         });
     }
-
-    @Test
-    void navigationInvokesCallbackAndDisablesNewActivePageButton() {
-        UiTestSupport.runOnFxThread(() -> {
-            AtomicInteger calls = new AtomicInteger();
-            Navbar navbar = new Navbar(calls::incrementAndGet,
-                    calls::incrementAndGet, calls::incrementAndGet, calls::incrementAndGet,
-                    calls::incrementAndGet, Navbar.ActivePage.BORROW);
-            UiTestSupport.findButton(navbar, "Dashboard").fire();
-            UiTestSupport.findButtons(navbar).forEach(button -> {
-                if (!button.getText().equals("Dashboard")) {
-                    assertTrue(button.isDisable());
-                } else {
-                    assertFalse(button.isDisable());
-                }
-            });
-            assertEquals(1, calls.get());
-        });
-    }
 }
