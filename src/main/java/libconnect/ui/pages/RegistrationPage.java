@@ -145,14 +145,18 @@ public final class RegistrationPage extends BorderPane {
             if (empty || accountType == null) {
                 setText(null);
                 setDisable(false);
-                setStyle("");
+                getStyleClass().remove("registration-unavailable");
                 return;
             }
 
             boolean isLibrarian = accountType == AccountType.LIBRARIAN;
             setText(isLibrarian ? "Librarian (unavailable)" : "Member");
             setDisable(isLibrarian);
-            setStyle(isLibrarian ? "-fx-text-fill: #888888;" : "");
+            if (isLibrarian) {
+                getStyleClass().add("registration-unavailable");
+            } else {
+                getStyleClass().remove("registration-unavailable");
+            }
         }
     }
 }

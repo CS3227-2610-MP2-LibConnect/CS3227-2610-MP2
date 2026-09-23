@@ -11,12 +11,6 @@ import javafx.scene.layout.HBox;
 
 /** Displays the navigation bar for authenticated dashboard pages. */
 public final class DashboardNavbar extends BorderPane {
-    private static final String NAVBAR_STYLE = "-fx-background-color: #1f3a5f;";
-    private static final String TITLE_STYLE = "-fx-text-fill: white; -fx-font-size: 20px;"
-            + " -fx-font-weight: bold;";
-    private static final String ACTIVE_NAVIGATION_STYLE = "-fx-background-color: #5b8db8;"
-            + " -fx-text-fill: white; -fx-opacity: 1.0;";
-
     /** Identifies which navigation item represents the current page. */
     public enum ActivePage {
         /** Indicates that the dashboard is the current page. */
@@ -55,7 +49,7 @@ public final class DashboardNavbar extends BorderPane {
         Objects.requireNonNull(logoutAction, "logoutAction");
         Objects.requireNonNull(activePage, "activePage");
         Label titleLabel = new Label("LibConnect");
-        titleLabel.setStyle(TITLE_STYLE);
+        titleLabel.getStyleClass().add("navbar-title");
 
         Button dashboardButton = new Button("Dashboard");
         dashboardButton.setOnAction(event -> dashboardAction.run());
@@ -84,7 +78,7 @@ public final class DashboardNavbar extends BorderPane {
         setLeft(titleLabel);
         setRight(actions);
         setPadding(new Insets(12, 20, 12, 20));
-        setStyle(NAVBAR_STYLE);
+        getStyleClass().add("navbar");
     }
 
     /**
@@ -96,7 +90,7 @@ public final class DashboardNavbar extends BorderPane {
     private void applyActiveStyle(Button button, boolean isActive) {
         if (isActive) {
             button.setDisable(true);
-            button.setStyle(ACTIVE_NAVIGATION_STYLE);
+            button.getStyleClass().add("navbar-active");
         }
     }
 }

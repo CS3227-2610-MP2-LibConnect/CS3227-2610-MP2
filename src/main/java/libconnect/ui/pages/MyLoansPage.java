@@ -37,9 +37,6 @@ public final class MyLoansPage extends BorderPane {
             "Unable to access loan data. Please try again.";
     private static final String ACTION_ERROR_MESSAGE =
             "Unable to update the loan. Please try again.";
-    private static final String SELECTED_TAB_STYLE =
-            "-fx-background-color: #1f3a5f; -fx-text-fill: white;";
-
     private final LoanService loanService;
     private final BookService bookService;
     private final BookCopyService bookCopyService;
@@ -134,8 +131,18 @@ public final class MyLoansPage extends BorderPane {
     private void updateTabStyles() {
         currentLoansButton.setDisable(selectedView == LoanView.CURRENT);
         loanHistoryButton.setDisable(selectedView == LoanView.HISTORY);
-        currentLoansButton.setStyle(selectedView == LoanView.CURRENT ? SELECTED_TAB_STYLE : "");
-        loanHistoryButton.setStyle(selectedView == LoanView.HISTORY ? SELECTED_TAB_STYLE : "");
+        updateTabStyle(currentLoansButton, selectedView == LoanView.CURRENT);
+        updateTabStyle(loanHistoryButton, selectedView == LoanView.HISTORY);
+    }
+
+    private void updateTabStyle(Button button, boolean isSelected) {
+        if (isSelected) {
+            if (!button.getStyleClass().contains("selected-tab")) {
+                button.getStyleClass().add("selected-tab");
+            }
+        } else {
+            button.getStyleClass().remove("selected-tab");
+        }
     }
 
     private void refreshLoans() {

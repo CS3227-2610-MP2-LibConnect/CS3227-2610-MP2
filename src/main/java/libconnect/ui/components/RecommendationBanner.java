@@ -13,21 +13,18 @@ import libconnect.models.Book;
 /** Displays a randomly selected book recommendation from the catalogue. */
 public final class RecommendationBanner extends VBox {
     private static final String EMPTY_CATALOGUE_MESSAGE = "no books in database";
-    private static final String BANNER_STYLE = "-fx-background-color: #e8f1fb;"
-            + " -fx-border-color: #b7cde5; -fx-border-radius: 6; -fx-background-radius: 6;";
-
     private final Label recommendationLabel;
 
     /** Creates an empty recommendation banner. */
     public RecommendationBanner() {
         Label heading = new Label("Book recommendation");
-        heading.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        heading.getStyleClass().add("banner-heading");
         recommendationLabel = new Label();
         recommendationLabel.setWrapText(true);
 
         setSpacing(6);
         setPadding(new Insets(14));
-        setStyle(BANNER_STYLE);
+        getStyleClass().add("recommendation-banner");
         getChildren().addAll(heading, recommendationLabel);
     }
 

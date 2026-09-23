@@ -64,7 +64,7 @@ public final class BookListView extends ScrollPane {
      */
     private VBox createBookCard(Book book) {
         Label titleLabel = new Label(book.getTitle());
-        titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        titleLabel.getStyleClass().add("book-list-title");
         Label detailsLabel = new Label("Author: " + book.getAuthor() + " | ISBN: "
                 + book.getIsbn() + " | Published: " + book.getPublicationYear());
         Label catalogueLabel = new Label("Publisher: " + book.getPublisher() + " | Category: "
@@ -72,8 +72,7 @@ public final class BookListView extends ScrollPane {
 
         VBox card = new VBox(4, titleLabel, detailsLabel, catalogueLabel);
         card.setPadding(new Insets(10));
-        card.setStyle("-fx-background-color: #f5f5f5; -fx-border-color: #dddddd;"
-                + " -fx-border-radius: 4; -fx-background-radius: 4;");
+        card.getStyleClass().add("book-list-card");
         card.setCursor(Cursor.HAND);
         card.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY) {

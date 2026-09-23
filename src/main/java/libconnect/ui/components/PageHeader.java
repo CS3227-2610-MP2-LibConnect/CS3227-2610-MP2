@@ -16,10 +16,10 @@ public final class PageHeader extends VBox {
      */
     public PageHeader(String title, String subtitle) {
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-size: 26px; -fx-font-weight: bold;");
+        titleLabel.getStyleClass().add("page-title");
 
         Label subtitleLabel = new Label(subtitle);
-        subtitleLabel.setStyle("-fx-text-fill: #666666;");
+        subtitleLabel.getStyleClass().add("page-subtitle");
 
         setAlignment(Pos.CENTER);
         setSpacing(SPACING);

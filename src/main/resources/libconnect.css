@@ -1,0 +1,90 @@
+.book-list-title,
+.card-heading,
+.banner-heading {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.book-list-card {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #dddddd;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.feedback-error {
+    -fx-text-fill: #b00020;
+    -fx-background-color: #f4e6e9;
+}
+
+.feedback-success {
+    -fx-text-fill: #1b5e20;
+    -fx-background-color: #e8f5e9;
+}
+
+.borrow-book-card,
+.loan-card {
+    -fx-border-color: #d0d7de;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-background-color: white;
+}
+
+.loan-card-overdue {
+    -fx-border-color: #c62828;
+    -fx-border-width: 2;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-background-color: #ffebee;
+}
+
+.bold-label {
+    -fx-font-weight: bold;
+}
+
+.navbar {
+    -fx-background-color: #1f3a5f;
+}
+
+.navbar-title {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.navbar-active,
+.selected-tab {
+    -fx-background-color: #1f3a5f;
+    -fx-text-fill: white;
+}
+
+.navbar-active {
+    -fx-background-color: #5b8db8;
+    -fx-opacity: 1.0;
+}
+
+.recommendation-banner {
+    -fx-background-color: #e8f1fb;
+    -fx-border-color: #b7cde5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.page-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.page-subtitle {
+    -fx-text-fill: #666666;
+}
+
+.book-copy-heading,
+.section-heading {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.registration-unavailable {
+    -fx-text-fill: #888888;
+}

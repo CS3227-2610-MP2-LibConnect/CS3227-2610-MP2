@@ -189,7 +189,7 @@ public final class ProfilePage extends BorderPane {
      */
     private Label createSectionHeading(String text) {
         Label heading = new Label(text);
-        heading.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        heading.getStyleClass().add("section-heading");
         return heading;
     }
 

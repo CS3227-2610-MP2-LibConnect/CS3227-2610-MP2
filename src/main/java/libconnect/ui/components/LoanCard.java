@@ -16,12 +16,6 @@ import libconnect.models.Loan;
 
 /** Displays the details and available actions for one member loan. */
 public final class LoanCard extends BorderPane {
-    private static final String CARD_STYLE = "-fx-border-color: #d0d7de;"
-            + " -fx-border-radius: 6; -fx-background-radius: 6;"
-            + " -fx-background-color: white;";
-    private static final String OVERDUE_CARD_STYLE = "-fx-border-color: #c62828;"
-            + " -fx-border-width: 2; -fx-border-radius: 6; -fx-background-radius: 6;"
-            + " -fx-background-color: #ffebee;";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
     /**
@@ -57,7 +51,7 @@ public final class LoanCard extends BorderPane {
         addDetail(details, "Renewed", loan.hasBeenRenewed() ? "Yes" : "No", 7);
 
         Label heading = new Label(title);
-        heading.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        heading.getStyleClass().add("card-heading");
         VBox content = new VBox(8, heading, details);
         setCenter(content);
 
@@ -75,12 +69,15 @@ public final class LoanCard extends BorderPane {
         }
 
         setPadding(new Insets(12));
-        setStyle(loan.isActive() && loan.isOverdue() ? OVERDUE_CARD_STYLE : CARD_STYLE);
+        getStyleClass().add("loan-card");
+        if (loan.isActive() && loan.isOverdue()) {
+            getStyleClass().add("loan-card-overdue");
+        }
     }
 
     private void addDetail(GridPane details, String fieldName, String value, int row) {
         Label fieldLabel = new Label(fieldName + ":");
-        fieldLabel.setStyle("-fx-font-weight: bold;");
+        fieldLabel.getStyleClass().add("bold-label");
         details.add(fieldLabel, 0, row);
         details.add(new Label(value), 1, row);
     }

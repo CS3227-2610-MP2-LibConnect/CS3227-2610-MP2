@@ -1,5 +1,7 @@
 package libconnect.ui;
 
+import java.util.Objects;
+
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -139,6 +141,10 @@ public final class SceneNavigator {
         this.memberService = memberService;
         this.scene = new Scene(new javafx.scene.layout.StackPane(), WINDOW_WIDTH,
                 WINDOW_HEIGHT);
+        String stylesheet = Objects.requireNonNull(
+                getClass().getResource("/libconnect.css"), "Application stylesheet not found")
+                .toExternalForm();
+        this.scene.getStylesheets().add(stylesheet);
         this.stage.setTitle(APPLICATION_TITLE);
         this.stage.setScene(scene);
         this.stage.setMinWidth(WINDOW_WIDTH);

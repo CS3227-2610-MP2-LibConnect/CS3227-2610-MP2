@@ -15,10 +15,6 @@ import libconnect.models.BookCopy;
 
 /** Displays the catalogue and copy details for one pending borrowing selection. */
 public final class BorrowBookCard extends BorderPane {
-    private static final String CARD_STYLE = "-fx-border-color: #d0d7de;"
-            + " -fx-border-radius: 6; -fx-background-radius: 6;"
-            + " -fx-background-color: white;";
-
     private final String copyId;
 
     /**
@@ -49,7 +45,7 @@ public final class BorrowBookCard extends BorderPane {
         addDetail(details, "Shelf location", copy.getShelfLocation(), 8);
 
         Label heading = new Label(book.getTitle());
-        heading.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        heading.getStyleClass().add("card-heading");
         VBox content = new VBox(8, heading, details);
 
         Button removeButton = new Button("Remove");
@@ -59,7 +55,7 @@ public final class BorrowBookCard extends BorderPane {
         setCenter(content);
         setRight(removeButton);
         setPadding(new Insets(12));
-        setStyle(CARD_STYLE);
+        getStyleClass().add("borrow-book-card");
     }
 
     /** Returns the identifier of the physical copy represented by this card. */
@@ -69,7 +65,7 @@ public final class BorrowBookCard extends BorderPane {
 
     private void addDetail(GridPane details, String fieldName, String value, int row) {
         Label fieldLabel = new Label(fieldName + ":");
-        fieldLabel.setStyle("-fx-font-weight: bold;");
+        fieldLabel.getStyleClass().add("bold-label");
         details.add(fieldLabel, 0, row);
         details.add(new Label(value), 1, row);
     }

@@ -123,7 +123,7 @@ public final class BookInfoPage extends VBox {
      */
     private void addBookField(GridPane details, String fieldName, String value, int row) {
         Label fieldLabel = new Label(fieldName + ":");
-        fieldLabel.setStyle("-fx-font-weight: bold;");
+        fieldLabel.getStyleClass().add("bold-label");
         details.add(fieldLabel, 0, row);
         details.add(new Label(value), 1, row);
     }
@@ -137,7 +137,7 @@ public final class BookInfoPage extends VBox {
     private VBox createCopySection(List<BookCopy> copies) {
         VBox copySection = new VBox(8);
         Label heading = new Label("Copies");
-        heading.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        heading.getStyleClass().add("book-copy-heading");
         copySection.getChildren().add(heading);
 
         List<BookCopy> visibleCopies = copies.stream()

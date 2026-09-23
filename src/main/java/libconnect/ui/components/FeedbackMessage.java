@@ -4,10 +4,6 @@ import javafx.scene.control.Label;
 
 /** Displays a hidden feedback message that can represent either an error or a success. */
 public final class FeedbackMessage extends Label {
-    private static final String ERROR_STYLE = "-fx-text-fill: #b00020;";
-    private static final String SUCCESS_STYLE = "-fx-text-fill: #1b5e20;"
-            + "-fx-background-color: #e8f5e9;";
-
     /** Creates an initially hidden feedback message. */
     public FeedbackMessage() {
         setManaged(false);
@@ -22,7 +18,7 @@ public final class FeedbackMessage extends Label {
      * @param message the error message to display.
      */
     public void showError(String message) {
-        showMessage(message, ERROR_STYLE);
+        showMessage(message, "feedback-error");
     }
 
     /**
@@ -31,19 +27,21 @@ public final class FeedbackMessage extends Label {
      * @param message the success message to display.
      */
     public void showSuccess(String message) {
-        showMessage(message, SUCCESS_STYLE);
+        showMessage(message, "feedback-success");
     }
 
     /** Hides and clears the current feedback message. */
     public void clearMessage() {
         setText("");
+        getStyleClass().removeAll("feedback-error", "feedback-success");
         setManaged(false);
         setVisible(false);
     }
 
-    private void showMessage(String message, String style) {
+    private void showMessage(String message, String styleClass) {
         setText(message);
-        setStyle(style);
+        getStyleClass().removeAll("feedback-error", "feedback-success");
+        getStyleClass().add(styleClass);
         setManaged(true);
         setVisible(true);
     }
