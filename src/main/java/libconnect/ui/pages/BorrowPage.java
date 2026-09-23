@@ -29,7 +29,7 @@ import libconnect.storage.repositories.RepositoryException;
 import libconnect.ui.SceneNavigator;
 import libconnect.ui.SessionManager;
 import libconnect.ui.components.BorrowBookCard;
-import libconnect.ui.components.DashboardNavbar;
+import libconnect.ui.components.Navbar;
 import libconnect.ui.components.FeedbackMessage;
 import libconnect.ui.components.PageHeader;
 
@@ -86,13 +86,14 @@ public final class BorrowPage extends BorderPane {
         updateControls();
     }
 
-    private DashboardNavbar createNavbar() {
-        return new DashboardNavbar(sceneNavigator::showDashboardPage,
+    private Navbar createNavbar() {
+        return new Navbar(sceneNavigator::showDashboardPage,
                 sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
+                sceneNavigator::showReservationPage,
                 sceneNavigator::showProfilePage, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
-        }, DashboardNavbar.ActivePage.BORROW);
+        }, Navbar.ActivePage.BORROW);
     }
 
     private VBox createContent() {

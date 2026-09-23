@@ -11,6 +11,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import libconnect.models.Member;
@@ -20,7 +22,7 @@ import libconnect.services.ServiceException;
 import libconnect.storage.repositories.RepositoryException;
 import libconnect.ui.SceneNavigator;
 import libconnect.ui.SessionManager;
-import libconnect.ui.components.DashboardNavbar;
+import libconnect.ui.components.Navbar;
 import libconnect.ui.components.FeedbackMessage;
 import libconnect.ui.components.FormField;
 import libconnect.ui.components.PageHeader;
@@ -50,6 +52,9 @@ public final class ProfilePage extends BorderPane {
     private final PasswordField confirmationPasswordField;
     private final FeedbackMessage profileFeedbackMessage;
     private final FeedbackMessage passwordFeedbackMessage;
+    private final StackPane subpageContent;
+    private final Button editProfileButton;
+    private final Button myFinesButton;
 
     /**
      * Creates a profile page backed by the supplied member service and session.
@@ -70,8 +75,12 @@ public final class ProfilePage extends BorderPane {
         confirmationPasswordField = new PasswordField();
         profileFeedbackMessage = new FeedbackMessage();
         passwordFeedbackMessage = new FeedbackMessage();
+        subpageContent = new StackPane();
+        editProfileButton = new Button("Edit Profile");
+        myFinesButton = new Button("My Fines");
 
         configureFields();
+        configureSubpageNavigation();
         populateProfileFields();
         setTop(createNavbar(sceneNavigator));
         setCenter(createContent());
@@ -102,27 +111,73 @@ public final class ProfilePage extends BorderPane {
         emailField.setText(currentMember.getEmail());
     }
 
+    /** Configures the navigation controls for the profile subpages. */
+    private void configureSubpageNavigation() {
+        editProfileButton.setMaxWidth(Double.MAX_VALUE);
+        myFinesButton.setMaxWidth(Double.MAX_VALUE);
+        editProfileButton.setOnAction(event -> showEditProfilePage());
+        myFinesButton.setOnAction(event -> showMyFinesPage());
+    }
+
     /**
      * Creates the authenticated-page navigation bar for the profile page.
      *
      * @param sceneNavigator the navigator used by the navigation actions.
      * @return the configured navigation bar.
      */
-    private DashboardNavbar createNavbar(SceneNavigator sceneNavigator) {
-        return new DashboardNavbar(sceneNavigator::showDashboardPage,
+    private Navbar createNavbar(SceneNavigator sceneNavigator) {
+        return new Navbar(sceneNavigator::showDashboardPage,
                 sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
+                sceneNavigator::showReservationPage,
                 sceneNavigator::showProfilePage, () -> {
                     sessionManager.logout();
                     sceneNavigator.showLoginPage();
-                }, DashboardNavbar.ActivePage.PROFILE);
+                }, Navbar.ActivePage.PROFILE);
     }
 
     /**
-     * Creates the scrollable profile page content.
+     * Creates the two-pane profile page content.
      *
-     * @return the scrollable page content.
+     * @return the profile navigation and subpage content.
      */
-    private ScrollPane createContent() {
+    private HBox createContent() {
+        VBox subpageNavigation = new VBox(12, editProfileButton, myFinesButton);
+        subpageNavigation.setPadding(new Insets(20));
+        subpageNavigation.setPrefWidth(180);
+        subpageNavigation.getStyleClass().add("profile-sidebar");
+
+        subpageContent.setAlignment(Pos.TOP_CENTER);
+        HBox.setHgrow(subpageContent, Priority.ALWAYS);
+        HBox content = new HBox(subpageNavigation, subpageContent);
+        showEditProfilePage();
+        return content;
+    }
+
+    /** Displays the edit-profile subpage. */
+    private void showEditProfilePage() {
+        subpageContent.getChildren().setAll(createEditProfileContent());
+        setActiveSubpage(editProfileButton);
+    }
+
+    /** Displays the placeholder fines subpage. */
+    private void showMyFinesPage() {
+        subpageContent.getChildren().setAll(new Label("Pay Fines"));
+        setActiveSubpage(myFinesButton);
+    }
+
+    /** Marks the selected profile subpage in the left navigation. */
+    private void setActiveSubpage(Button activeButton) {
+        editProfileButton.getStyleClass().remove("selected-tab");
+        myFinesButton.getStyleClass().remove("selected-tab");
+        activeButton.getStyleClass().add("selected-tab");
+    }
+
+    /**
+     * Creates the scrollable edit-profile subpage content.
+     *
+     * @return the scrollable edit-profile content.
+     */
+    private ScrollPane createEditProfileContent() {
         VBox content = new VBox(20,
                 new PageHeader("Profile", "Manage your LibConnect account"),
                 createProfileSection(),

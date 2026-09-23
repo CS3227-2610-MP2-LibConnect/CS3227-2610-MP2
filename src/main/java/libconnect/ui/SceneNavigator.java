@@ -19,6 +19,7 @@ import libconnect.ui.pages.LoginPage;
 import libconnect.ui.pages.MyLoansPage;
 import libconnect.ui.pages.ProfilePage;
 import libconnect.ui.pages.RegistrationPage;
+import libconnect.ui.pages.ReservationPage;
 
 /** Coordinates page transitions within the LibConnect application window. */
 public final class SceneNavigator {
@@ -215,6 +216,16 @@ public final class SceneNavigator {
 
         showPage(new MyLoansPage(loanService, bookService, bookCopyService, borrowService,
                 sessionManager, this));
+    }
+
+    /** Displays the authenticated member's reservation page. */
+    public void showReservationPage() {
+        if (!sessionManager.isLoggedIn()) {
+            showLoginPage();
+            return;
+        }
+
+        showPage(new ReservationPage(sessionManager, this));
     }
 
     /**

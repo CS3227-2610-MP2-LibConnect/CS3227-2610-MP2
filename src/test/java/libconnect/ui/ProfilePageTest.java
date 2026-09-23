@@ -1,6 +1,7 @@
 package libconnect.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -14,6 +15,27 @@ import libconnect.ui.pages.ProfilePage;
 
 /** Tests profile updates, password changes, validation, and failures. */
 class ProfilePageTest {
+    @Test
+    void subpageNavigation_defaultsToEditProfileAndShowsFinesPlaceholder() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                ProfilePage page = new ProfilePage(context.memberService(), context.sessionManager(),
+                        context.navigator());
+                assertEquals(4, UiTestSupport.findTextFields(page).size());
+
+                UiTestSupport.findButton(page, "My Fines").fire();
+                assertTrue(UiTestSupport.labelTexts(page).contains("Pay Fines"));
+                assertEquals(0, UiTestSupport.findTextFields(page).size());
+
+                UiTestSupport.findButton(page, "Edit Profile").fire();
+                assertEquals(4, UiTestSupport.findTextFields(page).size());
+            } finally {
+                context.close();
+            }
+        });
+    }
+
     @Test
     void updatesProfileAndPasswordOrShowsValidation() {
         UiTestSupport.runOnFxThread(() -> {

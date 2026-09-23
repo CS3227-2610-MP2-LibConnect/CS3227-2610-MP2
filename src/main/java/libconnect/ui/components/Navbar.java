@@ -8,9 +8,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import libconnect.models.AccountType;
 
 /** Displays the navigation bar for authenticated dashboard pages. */
-public final class DashboardNavbar extends BorderPane {
+public final class Navbar extends BorderPane {
     /** Identifies which navigation item represents the current page. */
     public enum ActivePage {
         /** Indicates that the dashboard is the current page. */
@@ -21,6 +22,9 @@ public final class DashboardNavbar extends BorderPane {
 
         /** Indicates that the my loans page is the current page. */
         MY_LOANS,
+
+        /** Indicates that the reservation page is the current page. */
+        RESERVATION,
 
         /** Indicates that the profile page is the current page. */
         PROFILE,
@@ -39,12 +43,31 @@ public final class DashboardNavbar extends BorderPane {
      * @param logoutAction the action run when the logout button is selected.
      * @param activePage the page represented by the highlighted navigation item.
      */
-    public DashboardNavbar(Runnable dashboardAction, Runnable borrowAction,
+    public Navbar(Runnable dashboardAction, Runnable borrowAction,
                            Runnable loansAction, Runnable profileAction, Runnable logoutAction,
                            ActivePage activePage) {
+        this(dashboardAction, borrowAction, loansAction, () -> {
+        }, profileAction, logoutAction, activePage);
+    }
+
+    /**
+     * Creates a dashboard navbar with a reservation action in addition to the standard actions.
+     *
+     * @param dashboardAction the action run when the dashboard button is selected.
+     * @param borrowAction the action run when the borrow books button is selected.
+     * @param loansAction the action run when the my loans button is selected.
+     * @param reservationAction the action run when the reservation button is selected.
+     * @param profileAction the action run when the profile button is selected.
+     * @param logoutAction the action run when the logout button is selected.
+     * @param activePage the page represented by the highlighted navigation item.
+     */
+    public Navbar(Runnable dashboardAction, Runnable borrowAction,
+                           Runnable loansAction, Runnable reservationAction,
+                           Runnable profileAction, Runnable logoutAction, ActivePage activePage) {
         Objects.requireNonNull(dashboardAction, "dashboardAction");
         Objects.requireNonNull(borrowAction, "borrowAction");
         Objects.requireNonNull(loansAction, "loansAction");
+        Objects.requireNonNull(reservationAction, "reservationAction");
         Objects.requireNonNull(profileAction, "profileAction");
         Objects.requireNonNull(logoutAction, "logoutAction");
         Objects.requireNonNull(activePage, "activePage");
@@ -60,9 +83,13 @@ public final class DashboardNavbar extends BorderPane {
         Button loansButton = new Button("My loans");
         loansButton.setOnAction(event -> loansAction.run());
 
+        Button reservationButton = new Button("Reservation");
+        reservationButton.setOnAction(event -> reservationAction.run());
+
         applyActiveStyle(dashboardButton, activePage == ActivePage.DASHBOARD);
         applyActiveStyle(borrowButton, activePage == ActivePage.BORROW);
         applyActiveStyle(loansButton, activePage == ActivePage.MY_LOANS);
+        applyActiveStyle(reservationButton, activePage == ActivePage.RESERVATION);
 
         Button profileButton = new Button("Profile");
         profileButton.setOnAction(event -> profileAction.run());
@@ -71,7 +98,7 @@ public final class DashboardNavbar extends BorderPane {
         Button logoutButton = new Button("Logout");
         logoutButton.setOnAction(event -> logoutAction.run());
 
-        HBox actions = new HBox(10, dashboardButton, borrowButton, loansButton,
+        HBox actions = new HBox(10, dashboardButton, borrowButton, loansButton, reservationButton,
                 profileButton, logoutButton);
         actions.setAlignment(Pos.CENTER_RIGHT);
 

@@ -26,7 +26,7 @@ import libconnect.services.LoanService;
 import libconnect.storage.repositories.RepositoryException;
 import libconnect.ui.SceneNavigator;
 import libconnect.ui.SessionManager;
-import libconnect.ui.components.DashboardNavbar;
+import libconnect.ui.components.Navbar;
 import libconnect.ui.components.FeedbackMessage;
 import libconnect.ui.components.LoanCard;
 import libconnect.ui.components.PageHeader;
@@ -85,13 +85,14 @@ public final class MyLoansPage extends BorderPane {
         refreshLoans();
     }
 
-    private DashboardNavbar createNavbar(SceneNavigator sceneNavigator) {
-        return new DashboardNavbar(sceneNavigator::showDashboardPage,
+    private Navbar createNavbar(SceneNavigator sceneNavigator) {
+        return new Navbar(sceneNavigator::showDashboardPage,
                 sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
+                sceneNavigator::showReservationPage,
                 sceneNavigator::showProfilePage, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
-        }, DashboardNavbar.ActivePage.MY_LOANS);
+        }, Navbar.ActivePage.MY_LOANS);
     }
 
     private VBox createContent() {

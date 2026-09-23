@@ -63,6 +63,12 @@
     -fx-opacity: 1.0;
 }
 
+.profile-sidebar {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0 1px 0 0;
+}
+
 .recommendation-banner {
     -fx-background-color: #e8f1fb;
     -fx-border-color: #b7cde5;

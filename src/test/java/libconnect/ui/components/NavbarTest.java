@@ -11,14 +11,14 @@ import org.junit.jupiter.api.Test;
 import libconnect.ui.UiTestSupport;
 
 /** Tests dashboard navigation button state and callbacks. */
-class DashboardNavbarTest {
+class NavbarTest {
     @Test
     void activePageDisablesOnlyMatchingNavigationButton() {
         UiTestSupport.runOnFxThread(() -> {
             AtomicInteger calls = new AtomicInteger();
-            DashboardNavbar navbar = new DashboardNavbar(calls::incrementAndGet,
+            Navbar navbar = new Navbar(calls::incrementAndGet,
                     calls::incrementAndGet, calls::incrementAndGet, calls::incrementAndGet,
-                    calls::incrementAndGet, DashboardNavbar.ActivePage.BORROW);
+                    calls::incrementAndGet, Navbar.ActivePage.BORROW);
             UiTestSupport.findButtons(navbar).forEach(button -> {
                 if (button.getText().equals("Borrow books")) {
                     assertTrue(button.isDisable());
@@ -33,9 +33,9 @@ class DashboardNavbarTest {
     void navigationInvokesCallbackAndDisablesNewActivePageButton() {
         UiTestSupport.runOnFxThread(() -> {
             AtomicInteger calls = new AtomicInteger();
-            DashboardNavbar navbar = new DashboardNavbar(calls::incrementAndGet,
+            Navbar navbar = new Navbar(calls::incrementAndGet,
                     calls::incrementAndGet, calls::incrementAndGet, calls::incrementAndGet,
-                    calls::incrementAndGet, DashboardNavbar.ActivePage.BORROW);
+                    calls::incrementAndGet, Navbar.ActivePage.BORROW);
             UiTestSupport.findButton(navbar, "Dashboard").fire();
             UiTestSupport.findButtons(navbar).forEach(button -> {
                 if (!button.getText().equals("Dashboard")) {

@@ -19,7 +19,7 @@ import libconnect.ui.SceneNavigator;
 import libconnect.ui.SessionManager;
 import libconnect.ui.components.BookListView;
 import libconnect.ui.components.BookSearchPanel;
-import libconnect.ui.components.DashboardNavbar;
+import libconnect.ui.components.Navbar;
 import libconnect.ui.components.FeedbackMessage;
 import libconnect.ui.components.PageHeader;
 import libconnect.ui.components.RecommendationBanner;
@@ -61,12 +61,13 @@ public final class DashboardPage extends BorderPane {
         bookListView = new BookListView(book -> sceneNavigator.showBookInfoPage(book.getIsbn()));
         feedbackMessage = new FeedbackMessage();
 
-        DashboardNavbar navbar = new DashboardNavbar(sceneNavigator::showDashboardPage,
+        Navbar navbar = new Navbar(sceneNavigator::showDashboardPage,
                 sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
+                sceneNavigator::showReservationPage,
                 sceneNavigator::showProfilePage, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
-        }, DashboardNavbar.ActivePage.DASHBOARD);
+        }, Navbar.ActivePage.DASHBOARD);
         BookSearchPanel searchPanel = new BookSearchPanel(this::searchBooks, this::showError);
 
         User currentUser = sessionManager.getCurrentUser();
