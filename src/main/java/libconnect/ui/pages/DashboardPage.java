@@ -61,13 +61,10 @@ public final class DashboardPage extends BorderPane {
         bookListView = new BookListView(book -> sceneNavigator.showBookInfoPage(book.getIsbn()));
         feedbackMessage = new FeedbackMessage();
 
-        Navbar navbar = new Navbar(sceneNavigator::showDashboardPage,
-                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
-                sceneNavigator::showReservationPage,
-                sceneNavigator::showProfilePage, () -> {
+        Navbar navbar = new Navbar(sceneNavigator, sessionManager.getCurrentUser(), Navbar.ActivePage.DASHBOARD, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
-        }, Navbar.ActivePage.DASHBOARD);
+        });
         BookSearchPanel searchPanel = new BookSearchPanel(this::searchBooks, this::showError);
 
         User currentUser = sessionManager.getCurrentUser();

@@ -126,13 +126,10 @@ public final class ProfilePage extends BorderPane {
      * @return the configured navigation bar.
      */
     private Navbar createNavbar(SceneNavigator sceneNavigator) {
-        return new Navbar(sceneNavigator::showDashboardPage,
-                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
-                sceneNavigator::showReservationPage,
-                sceneNavigator::showProfilePage, () -> {
-                    sessionManager.logout();
-                    sceneNavigator.showLoginPage();
-                }, Navbar.ActivePage.PROFILE);
+        return new Navbar(sceneNavigator, sessionManager.getCurrentUser(), Navbar.ActivePage.PROFILE, () -> {
+            sessionManager.logout();
+            sceneNavigator.showLoginPage();
+        });
     }
 
     /**

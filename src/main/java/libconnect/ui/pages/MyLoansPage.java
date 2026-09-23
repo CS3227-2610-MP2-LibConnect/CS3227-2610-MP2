@@ -86,13 +86,10 @@ public final class MyLoansPage extends BorderPane {
     }
 
     private Navbar createNavbar(SceneNavigator sceneNavigator) {
-        return new Navbar(sceneNavigator::showDashboardPage,
-                sceneNavigator::showBorrowPage, sceneNavigator::showMyLoansPage,
-                sceneNavigator::showReservationPage,
-                sceneNavigator::showProfilePage, () -> {
+        return new Navbar(sceneNavigator, sessionManager.getCurrentUser(), Navbar.ActivePage.MY_LOANS, () -> {
             sessionManager.logout();
             sceneNavigator.showLoginPage();
-        }, Navbar.ActivePage.MY_LOANS);
+        });
     }
 
     private VBox createContent() {

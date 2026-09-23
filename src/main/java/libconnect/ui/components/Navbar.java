@@ -1,5 +1,7 @@
 package libconnect.ui.components;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import javafx.geometry.Insets;
@@ -9,6 +11,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import libconnect.models.AccountType;
+import libconnect.models.Librarian;
+import libconnect.models.User;
+import libconnect.ui.SceneNavigator;
 
 /** Displays the navigation bar for authenticated dashboard pages. */
 public final class Navbar extends BorderPane {
@@ -33,58 +38,37 @@ public final class Navbar extends BorderPane {
         NONE
     }
 
-    /**
-     * Creates a dashboard navbar with navigation, profile, and logout actions.
-     *
-     * @param dashboardAction the action run when the dashboard button is selected.
-     * @param borrowAction the action run when the borrow books button is selected.
-     * @param loansAction the action run when the my loans button is selected.
-     * @param profileAction the action run when the profile button is selected.
-     * @param logoutAction the action run when the logout button is selected.
-     * @param activePage the page represented by the highlighted navigation item.
-     */
-    public Navbar(Runnable dashboardAction, Runnable borrowAction,
-                           Runnable loansAction, Runnable profileAction, Runnable logoutAction,
-                           ActivePage activePage) {
-        this(dashboardAction, borrowAction, loansAction, () -> {
-        }, profileAction, logoutAction, activePage);
-    }
-
-    /**
-     * Creates a dashboard navbar with a reservation action in addition to the standard actions.
-     *
-     * @param dashboardAction the action run when the dashboard button is selected.
-     * @param borrowAction the action run when the borrow books button is selected.
-     * @param loansAction the action run when the my loans button is selected.
-     * @param reservationAction the action run when the reservation button is selected.
-     * @param profileAction the action run when the profile button is selected.
-     * @param logoutAction the action run when the logout button is selected.
-     * @param activePage the page represented by the highlighted navigation item.
-     */
-    public Navbar(Runnable dashboardAction, Runnable borrowAction,
-                           Runnable loansAction, Runnable reservationAction,
-                           Runnable profileAction, Runnable logoutAction, ActivePage activePage) {
-        Objects.requireNonNull(dashboardAction, "dashboardAction");
-        Objects.requireNonNull(borrowAction, "borrowAction");
-        Objects.requireNonNull(loansAction, "loansAction");
-        Objects.requireNonNull(reservationAction, "reservationAction");
-        Objects.requireNonNull(profileAction, "profileAction");
-        Objects.requireNonNull(logoutAction, "logoutAction");
+    public Navbar(SceneNavigator sceneNavigator, User user, ActivePage activePage, Runnable logoutAction) {
+        Objects.requireNonNull(sceneNavigator, "sceneNavigator");
+        Objects.requireNonNull(user, "user");
         Objects.requireNonNull(activePage, "activePage");
+
+
         Label titleLabel = new Label("LibConnect");
         titleLabel.getStyleClass().add("navbar-title");
 
+        List<Button> buttons = new ArrayList<>();
+
+        // Librarian exclusive actions
+        if (user instanceof Librarian) {
+            // TODO: Add librarian-exclusive action buttons here
+        }
+
         Button dashboardButton = new Button("Dashboard");
-        dashboardButton.setOnAction(event -> dashboardAction.run());
+        dashboardButton.setOnAction(event -> sceneNavigator.showDashboardPage());
+        buttons.add(dashboardButton);
 
         Button borrowButton = new Button("Borrow books");
-        borrowButton.setOnAction(event -> borrowAction.run());
+        borrowButton.setOnAction(event -> sceneNavigator.showBorrowPage());
+        buttons.add(borrowButton);
 
         Button loansButton = new Button("My loans");
-        loansButton.setOnAction(event -> loansAction.run());
+        loansButton.setOnAction(event -> sceneNavigator.showMyLoansPage());
+        buttons.add(loansButton);
 
         Button reservationButton = new Button("Reservation");
-        reservationButton.setOnAction(event -> reservationAction.run());
+        reservationButton.setOnAction(event -> sceneNavigator.showReservationPage());
+        buttons.add(reservationButton);
 
         applyActiveStyle(dashboardButton, activePage == ActivePage.DASHBOARD);
         applyActiveStyle(borrowButton, activePage == ActivePage.BORROW);
@@ -92,14 +76,16 @@ public final class Navbar extends BorderPane {
         applyActiveStyle(reservationButton, activePage == ActivePage.RESERVATION);
 
         Button profileButton = new Button("Profile");
-        profileButton.setOnAction(event -> profileAction.run());
+        profileButton.setOnAction(event -> sceneNavigator.showProfilePage());
         applyActiveStyle(profileButton, activePage == ActivePage.PROFILE);
+        buttons.add(profileButton);
 
         Button logoutButton = new Button("Logout");
         logoutButton.setOnAction(event -> logoutAction.run());
+        buttons.add(logoutButton);
 
-        HBox actions = new HBox(10, dashboardButton, borrowButton, loansButton, reservationButton,
-                profileButton, logoutButton);
+        HBox actions = new HBox(10);
+        actions.getChildren().addAll(buttons);
         actions.setAlignment(Pos.CENTER_RIGHT);
 
         setLeft(titleLabel);
