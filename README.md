@@ -44,11 +44,11 @@ The default test command runs unit tests and excludes JavaFX integration tests:
 mvn test
 ```
 
-Run the complete suite, including TestFX UI integration tests, in a virtual display:
+Run the complete suite, including TestFX UI integration tests, with the local script:
 
 ```bash
-xvfb-run --auto-servernum mvn -Pui-tests test
+./scripts/test-ui.sh
 ```
 
-The same command runs automatically on every push and pull request through the
-GitHub Actions workflow in `.github/workflows/ui-tests.yml`.
+The script uses `xvfb-run` automatically when it is available and otherwise uses
+the current display.
