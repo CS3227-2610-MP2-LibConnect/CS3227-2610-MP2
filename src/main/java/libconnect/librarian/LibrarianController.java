@@ -77,6 +77,30 @@ public final class LibrarianController {
         return reservationService.getAllReservations();
     }
 
+    /** Creates a reservation after checking librarian authorization. */
+    public Reservation createReservation(String employeeId, String memberId, String bookId) {
+        librarianService.requireActive(employeeId);
+        return reservationService.reserveBook(memberId, bookId);
+    }
+
+    /** Cancels a reservation after checking librarian authorization. */
+    public Reservation cancelReservation(String employeeId, String reservationId) {
+        librarianService.requireActive(employeeId);
+        return reservationService.cancelReservation(reservationId);
+    }
+
+    /** Fulfils a reservation after checking librarian authorization. */
+    public Reservation fulfilReservation(String employeeId, String reservationId) {
+        librarianService.requireActive(employeeId);
+        return reservationService.fulfilReservation(reservationId);
+    }
+
+    /** Returns pending reservations for a book after checking librarian authorization. */
+    public List<Reservation> viewPendingReservations(String employeeId, String bookId) {
+        librarianService.requireActive(employeeId);
+        return reservationService.processPendingReservations(bookId);
+    }
+
     /** Returns a member's fines after checking librarian authorization. */
     public List<Fine> viewFines(String employeeId, String memberId) {
         librarianService.requireActive(employeeId);
@@ -87,6 +111,24 @@ public final class LibrarianController {
     public List<Fine> viewAllFines(String employeeId) {
         librarianService.requireActive(employeeId);
         return fineService.getAllFines();
+    }
+
+    /** Creates an overdue fine after checking librarian authorization. */
+    public Fine createFine(String employeeId, String loanId) {
+        librarianService.requireActive(employeeId);
+        return fineService.createFine(loanId);
+    }
+
+    /** Returns notifications for a user after checking librarian authorization. */
+    public List<Notification> viewNotifications(String employeeId, String userId) {
+        librarianService.requireActive(employeeId);
+        return notificationService.getNotifications(userId);
+    }
+
+    /** Marks a notification as read after checking librarian authorization. */
+    public Notification markNotificationRead(String employeeId, String notificationId) {
+        librarianService.requireActive(employeeId);
+        return notificationService.markAsRead(notificationId);
     }
 
     /** Registers a member through the member-role integration contract. */

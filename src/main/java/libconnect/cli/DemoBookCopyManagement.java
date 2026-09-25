@@ -6,7 +6,7 @@ import java.util.Map;
 import libconnect.integration.BookCopyManagement;
 
 /** Provides temporary in-memory book-copy incident tracking for the CLI. */
-final class DemoBookCopyManagement implements BookCopyManagement {
+public final class DemoBookCopyManagement implements BookCopyManagement {
     private final Map<String, String> statuses = new HashMap<>();
 
     /** Marks a demo copy as damaged. */

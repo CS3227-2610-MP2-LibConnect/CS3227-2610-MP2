@@ -11,11 +11,12 @@ import libconnect.integration.LoanQuery;
 import libconnect.integration.LoanSummary;
 
 /** Provides temporary in-memory loan data for overdue and fine manual tests. */
-final class DemoLoanQuery implements LoanQuery {
+public final class DemoLoanQuery implements LoanQuery {
     private final Map<String, LoanSummary> loans = new LinkedHashMap<>();
 
     /** Creates one overdue demo loan using the supplied clock. */
-    DemoLoanQuery(Clock clock) {
+    /** Creates temporary loan data using the supplied clock. */
+    public DemoLoanQuery(Clock clock) {
         loans.put("loan-1", new LoanSummary("loan-1", "m1", "copy-1",
                 LocalDate.now(clock).minusDays(3)));
     }

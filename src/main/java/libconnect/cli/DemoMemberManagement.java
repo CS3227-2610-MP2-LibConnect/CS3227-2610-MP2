@@ -9,11 +9,12 @@ import libconnect.integration.MemberManagement;
 import libconnect.integration.MemberSummary;
 
 /** Provides clearly temporary in-memory member data for manual CLI testing. */
-final class DemoMemberManagement implements MemberManagement {
+public final class DemoMemberManagement implements MemberManagement {
     private final Map<String, MemberSummary> members = new LinkedHashMap<>();
 
     /** Creates demo member data with one active member. */
-    DemoMemberManagement() {
+    /** Creates the temporary member directory used by manual librarian verification. */
+    public DemoMemberManagement() {
         members.put("m1", new MemberSummary("m1", "Ada", "ada@example.com", true));
     }
 

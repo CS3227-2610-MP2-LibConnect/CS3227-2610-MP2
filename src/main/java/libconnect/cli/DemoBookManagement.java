@@ -10,11 +10,12 @@ import libconnect.integration.BookManagement;
 import libconnect.integration.BookSummary;
 
 /** Provides clearly temporary in-memory book data for manual CLI testing. */
-final class DemoBookManagement implements BookManagement {
+public final class DemoBookManagement implements BookManagement {
     private final Map<String, BookSummary> books = new LinkedHashMap<>();
 
     /** Creates demo book data with one unavailable book for reservation tests. */
-    DemoBookManagement() {
+    /** Creates the temporary catalogue used by manual librarian verification. */
+    public DemoBookManagement() {
         BookDetails details = new BookDetails("978-demo", "Java Fundamentals", "Demo Author",
                 "LibConnect Press", "Programming", 2025);
         books.put("b1", new BookSummary("b1", details, 0));
