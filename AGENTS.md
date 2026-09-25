@@ -210,8 +210,14 @@ when its tests pass and the full existing test suite remains green.
   the current suite must remain green after every subsequent change.
 - Completed: separate interactive CLI harness with scripted workflow tests for manual
   librarian verification before JavaFX view integration.
+- Completed: simple JavaFX librarian shell with login/demo-account setup, dashboard,
+  navigation, and panels for members, books, book copies, loans, reservations, fines,
+  and notifications. The GUI uses the shared librarian controller boundary.
+- Completed: TestFX UI integration coverage for login, demo-account setup, navigation,
+  member search, and logout, with a Maven `ui-tests` profile and Ubuntu virtual-display
+  GitHub Actions pipeline.
 - Pending: implementation of the member-role providers behind `MemberManagement`,
-  `BookManagement`, `BookCopyManagement`, and `LoanQuery`; concrete desktop view
-  wiring; and any cross-file transaction/journal logic required once those providers
+  `BookManagement`, `BookCopyManagement`, and `LoanQuery`; shared authentication;
+  and any cross-file transaction/journal logic required once those providers
   coordinate multi-repository writes.
 - Pending: final end-to-end acceptance testing after both roles are integrated.
