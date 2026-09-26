@@ -1,9 +1,7 @@
 package libconnect.models;
 
-/**
- * Represents the current status of a user account.
- */
+/** Represents whether an account can access the application. */
 public enum AccountStatus {
     ACTIVE,
-    DEACTIVATED
+    INACTIVE
 }

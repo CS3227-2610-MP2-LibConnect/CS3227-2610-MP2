@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import libconnect.storage.repositories.Identifiable;
+
 import libconnect.storage.repositories.RepositoryException;
 
 /** Provides safe shared file-system operations for file-backed repositories. */
@@ -195,7 +196,7 @@ public final class StorageManager {
 
         Path temporaryFile = null;
         try {
-            temporaryFile = Files.createTempFile(parentDirectory,
+            temporaryFile = Files.createTempFile(dataDirectory,
                     destination.getFileName().toString(), ".tmp");
             Files.writeString(temporaryFile, json);
             try {
@@ -209,7 +210,7 @@ public final class StorageManager {
                 try {
                     Files.deleteIfExists(temporaryFile);
                 } catch (IOException ignored) {
-                    // The destination file is already safe; a leftover temporary file is recoverable.
+                    // The original file is already safe; a leftover temporary file is recoverable.
                 }
             }
         }
