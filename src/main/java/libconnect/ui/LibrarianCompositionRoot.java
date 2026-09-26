@@ -129,6 +129,11 @@ public final class LibrarianCompositionRoot {
 
         @Override
         public void registerMember(String memberId, String name, String email) {
+            registerMember(memberId, name, email, "change-me");
+        }
+
+        @Override
+        public void registerMember(String memberId, String name, String email, String password) {
             if (exists(memberId)) {
                 throw new IllegalStateException("A member with this membership ID already exists");
             }
@@ -136,7 +141,12 @@ public final class LibrarianCompositionRoot {
                 throw new IllegalStateException("A member or librarian with this email already exists");
             }
             String userId = new UserIdGenerator(userService).generate();
-            repository.save(new Member(userId, name, email, PasswordHasher.hash("change-me"), memberId));
+            repository.save(new Member(userId, name, email, PasswordHasher.hash(password), memberId));
+        }
+
+        @Override
+        public void registerMemberWithGeneratedId(String name, String email, String password) {
+            service.registerMember(name, email, password);
         }
 
         @Override
@@ -147,6 +157,16 @@ public final class LibrarianCompositionRoot {
         @Override
         public void deactivateMember(String memberId) {
             service.deactivateMember(memberId);
+        }
+
+        @Override
+        public void activateMember(String memberId) {
+            service.activateMember(memberId);
+        }
+
+        @Override
+        public void resetMemberPassword(String memberId, String newPassword) {
+            service.updatePassword(memberId, newPassword);
         }
 
         @Override

@@ -95,6 +95,18 @@ public final class LibrarianController {
         memberManagement.registerMember(memberId, name, email);
     }
 
+    /** Registers a member with a librarian-supplied password. */
+    public void registerMember(String employeeId, String memberId, String name, String email, String password) {
+        librarianService.requireActive(employeeId);
+        memberManagement.registerMember(memberId, name, email, password);
+    }
+
+    /** Registers a member with an automatically generated membership ID and password. */
+    public void registerMemberWithGeneratedId(String employeeId, String name, String email, String password) {
+        librarianService.requireActive(employeeId);
+        memberManagement.registerMemberWithGeneratedId(name, email, password);
+    }
+
     /** Edits a member through the member-role integration contract. */
     public void editMember(String employeeId, String memberId, String name, String email) {
         librarianService.requireActive(employeeId);
@@ -105,6 +117,18 @@ public final class LibrarianController {
     public void deactivateMember(String employeeId, String memberId) {
         librarianService.requireActive(employeeId);
         memberManagement.deactivateMember(memberId);
+    }
+
+    /** Activates a member through the member-role integration contract. */
+    public void activateMember(String employeeId, String memberId) {
+        librarianService.requireActive(employeeId);
+        memberManagement.activateMember(memberId);
+    }
+
+    /** Resets a member's password through the member-role integration contract. */
+    public void resetMemberPassword(String employeeId, String memberId, String newPassword) {
+        librarianService.requireActive(employeeId);
+        memberManagement.resetMemberPassword(memberId, newPassword);
     }
 
     /** Searches members through the member-role integration contract. */

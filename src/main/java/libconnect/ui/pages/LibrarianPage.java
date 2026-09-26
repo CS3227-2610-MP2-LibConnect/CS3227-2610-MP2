@@ -1,17 +1,24 @@
 package libconnect.ui.pages;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
@@ -19,6 +26,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -107,6 +115,7 @@ public final class LibrarianPage extends BorderPane {
                     + " | Reservations: " + reservations + " | Fines: " + fines);
             view.showMessage("Dashboard refreshed");
         }));
+        refresh.fire();
         return padded(new VBox(12, new Label("Librarian dashboard"), summary, refresh));
     }
 
@@ -124,14 +133,23 @@ public final class LibrarianPage extends BorderPane {
         search.setOnAction(event -> execute(() -> table.setItems(FXCollections.observableArrayList(
                 runtime.controller().searchMembers(employeeId, query.getText())))));
         Button register = new Button("Register");
-        register.setOnAction(event -> promptMember("Register member", null));
+        register.setOnAction(event -> promptMemberRegistration(() -> search.fire()));
         Button edit = new Button("Edit selected");
         edit.setOnAction(event -> {
             MemberSummary selected = table.getSelectionModel().getSelectedItem();
             if (selected == null) {
                 view.showError("Select a member first");
             } else {
-                promptMember("Edit member", selected);
+                promptMember("Edit member", selected, () -> search.fire());
+            }
+        });
+        Button resetPassword = new Button("Reset password");
+        resetPassword.setOnAction(event -> {
+            MemberSummary selected = table.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                view.showError("Select a member first");
+            } else {
+                promptMemberPasswordReset(selected);
             }
         });
         Button deactivate = new Button("Deactivate selected");
@@ -141,25 +159,137 @@ public final class LibrarianPage extends BorderPane {
             view.showMessage("Member deactivated");
             search.fire();
         }));
-        return padded(new VBox(10, new HBox(8, query, search, register, edit, deactivate), table));
+        Button activate = new Button("Activate selected");
+        activate.setOnAction(event -> execute(() -> {
+            MemberSummary selected = requireSelection(table, "member");
+            runtime.controller().activateMember(employeeId, selected.getMemberId());
+            view.showMessage("Member activated");
+            search.fire();
+        }));
+        search.fire();
+        return padded(new VBox(10,
+                new HBox(8, query, search, register, edit, resetPassword, deactivate, activate), table));
     }
 
-    private void promptMember(String title, MemberSummary selected) {
-        String memberId = selected == null ? prompt(title, "Member ID", "") : selected.getMemberId();
-        String name = prompt(title, "Name", selected == null ? "" : selected.getName());
-        String email = prompt(title, "Email", selected == null ? "" : selected.getEmail());
-        if (memberId == null || name == null || email == null) {
-            return;
-        }
-        execute(() -> {
-            if (selected == null) {
-                runtime.controller().registerMember(employeeId, memberId, name, email);
-                view.showMessage("Member registered");
-            } else {
-                runtime.controller().editMember(employeeId, memberId, name, email);
-                view.showMessage("Member updated");
-            }
-        });
+    /** Opens one form dialog for all fields required to register a member. */
+    private void promptMemberRegistration(Runnable refreshMembers) {
+        TextField name = new TextField();
+        TextField email = new TextField();
+        PasswordField password = new PasswordField();
+        PasswordField confirmPassword = new PasswordField();
+
+        name.setPromptText("Full name");
+        email.setPromptText("Email address");
+        password.setPromptText("Password");
+        confirmPassword.setPromptText("Confirm password");
+
+        GridPane fields = new GridPane();
+        fields.setHgap(10);
+        fields.setVgap(8);
+        fields.add(new Label("Name"), 0, 0);
+        fields.add(name, 1, 0);
+        fields.add(new Label("Email"), 0, 1);
+        fields.add(email, 1, 1);
+        fields.add(new Label("Password"), 0, 2);
+        fields.add(password, 1, 2);
+        fields.add(new Label("Confirm password"), 0, 3);
+        fields.add(confirmPassword, 1, 3);
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Register member");
+        dialog.setHeaderText("Enter the new member's details");
+        dialog.getDialogPane().setContent(fields);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        Button registerButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        registerButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> name.getText().isBlank()
+                        || email.getText().isBlank()
+                        || password.getText().isBlank()
+                        || !password.getText().equals(confirmPassword.getText()),
+                name.textProperty(), email.textProperty(), password.textProperty(),
+                confirmPassword.textProperty()));
+
+        dialog.showAndWait().filter(ButtonType.OK::equals).ifPresent(result -> execute(() -> {
+            runtime.controller().registerMemberWithGeneratedId(employeeId, name.getText(), email.getText(),
+                    password.getText());
+            view.showMessage("Member registered");
+            refreshMembers.run();
+        }));
+    }
+
+    /** Opens one prefilled form dialog for editing the selected member. */
+    private void promptMember(String title, MemberSummary selected, Runnable refreshMembers) {
+        Label memberId = new Label(selected.getMemberId());
+        TextField name = new TextField(selected.getName());
+        TextField email = new TextField(selected.getEmail());
+
+        GridPane fields = new GridPane();
+        fields.setHgap(10);
+        fields.setVgap(8);
+        fields.add(new Label("Member ID"), 0, 0);
+        fields.add(memberId, 1, 0);
+        fields.add(new Label("Name"), 0, 1);
+        fields.add(name, 1, 1);
+        fields.add(new Label("Email"), 0, 2);
+        fields.add(email, 1, 2);
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle(title);
+        dialog.setHeaderText("Edit member details");
+        dialog.getDialogPane().setContent(fields);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        Button saveButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        saveButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> name.getText().isBlank() || email.getText().isBlank(),
+                name.textProperty(), email.textProperty()));
+
+        dialog.showAndWait().filter(ButtonType.OK::equals).ifPresent(result -> execute(() -> {
+            runtime.controller().editMember(employeeId, memberId.getText(), name.getText(), email.getText());
+            view.showMessage("Member updated");
+            refreshMembers.run();
+        }));
+    }
+
+    /** Opens a dialog for resetting the selected member's password. */
+    private void promptMemberPasswordReset(MemberSummary selected) {
+        Label memberId = new Label(selected.getMemberId());
+        Label name = new Label(selected.getName());
+        Label email = new Label(selected.getEmail());
+        PasswordField password = new PasswordField();
+        PasswordField newPassword = new PasswordField();
+        password.setPromptText("Password");
+        newPassword.setPromptText("New password");
+
+        GridPane fields = new GridPane();
+        fields.setHgap(10);
+        fields.setVgap(8);
+        fields.add(new Label("Member ID"), 0, 0);
+        fields.add(memberId, 1, 0);
+        fields.add(new Label("Name"), 0, 1);
+        fields.add(name, 1, 1);
+        fields.add(new Label("Email"), 0, 2);
+        fields.add(email, 1, 2);
+        fields.add(new Label("Password"), 0, 3);
+        fields.add(password, 1, 3);
+        fields.add(new Label("New password"), 0, 4);
+        fields.add(newPassword, 1, 4);
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Reset password");
+        dialog.setHeaderText("Enter matching passwords for " + selected.getName());
+        dialog.getDialogPane().setContent(fields);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        Button resetButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        resetButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> password.getText().isBlank()
+                        || newPassword.getText().isBlank()
+                        || !password.getText().equals(newPassword.getText()),
+                password.textProperty(), newPassword.textProperty()));
+
+        dialog.showAndWait().filter(ButtonType.OK::equals).ifPresent(result -> execute(() -> {
+            runtime.controller().resetMemberPassword(employeeId, memberId.getText(), newPassword.getText());
+            view.showMessage("Member password reset");
+        }));
     }
 
     private Node createBooks() {
@@ -188,24 +318,24 @@ public final class LibrarianPage extends BorderPane {
         Button remove = new Button("Remove selected");
         remove.setOnAction(event -> execute(() -> {
             BookSummary selected = requireSelection(table, "book");
-            runtime.controller().removeBook(employeeId, selected.bookId());
+            if (!confirmBookDeletion(selected)) {
+                return;
+            }
+            runtime.controller().removeBook(employeeId, selected.details().isbn());
             view.showMessage("Book removed");
             search.fire();
         }));
-        TextField copyId = new TextField();
-        copyId.setPromptText("Copy ID");
-        Button damaged = new Button("Mark damaged");
-        damaged.setOnAction(event -> execute(() -> {
-            runtime.controller().recordDamagedBook(employeeId, copyId.getText());
-            view.showMessage("Copy recorded as damaged");
-        }));
-        Button lost = new Button("Mark lost");
-        lost.setOnAction(event -> execute(() -> {
-            runtime.controller().recordLostBook(employeeId, copyId.getText());
-            view.showMessage("Copy recorded as lost");
-        }));
-        return padded(new VBox(10, new HBox(8, query, search, add, edit, remove), table,
-                new HBox(8, copyId, damaged, lost)));
+        search.fire();
+        return padded(new VBox(10, new HBox(8, query, search, add, edit, remove), table));
+    }
+
+    private boolean confirmBookDeletion(BookSummary book) {
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Delete book");
+        confirmation.setHeaderText("Delete " + book.details().title() + "?");
+        confirmation.setContentText("This will permanently delete the book and all copies with ISBN "
+                + book.details().isbn() + ". Continue?");
+        return confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
     }
 
     private void promptBook(BookSummary selected) {
@@ -264,8 +394,33 @@ public final class LibrarianPage extends BorderPane {
             search.fire();
         }));
 
+        Button damaged = new Button("Mark damaged");
+        damaged.setOnAction(event -> updateCopyStatus(table, query,
+                runtime.bookCopyService()::markCopyAsDamaged, "Book copy marked damaged"));
+        Button lost = new Button("Mark lost");
+        lost.setOnAction(event -> updateCopyStatus(table, query,
+                runtime.bookCopyService()::markCopyAsLost, "Book copy marked lost"));
+        Button available = new Button("Mark available");
+        available.setOnAction(event -> updateCopyStatus(table, query,
+                runtime.bookCopyService()::markCopyAsAvailable, "Book copy marked available"));
         search.fire();
-        return padded(new VBox(10, new HBox(8, query, search, add, edit, remove), table));
+        return padded(new VBox(10, new HBox(8, query, search, add, edit, remove), table,
+                new HBox(8, damaged, lost, available)));
+    }
+
+    private void updateCopyStatus(TableView<BookCopy> table, TextField query,
+                                  Consumer<String> statusUpdater, String successMessage) {
+        execute(() -> {
+            BookCopy selected = requireSelection(table, "book copy");
+            statusUpdater.accept(selected.getCopyId());
+            table.getItems().setAll(searchCopies(query.getText()));
+            table.refresh();
+            table.getItems().stream()
+                    .filter(copy -> copy.getCopyId().equals(selected.getCopyId()))
+                    .findFirst()
+                    .ifPresent(copy -> table.getSelectionModel().select(copy));
+            view.showMessage(successMessage);
+        });
     }
 
     private List<BookCopy> searchCopies(String query) {
@@ -310,11 +465,15 @@ public final class LibrarianPage extends BorderPane {
                 textColumn("Loan ID", LoanSummary::getLoanId),
                 textColumn("Member", LoanSummary::getMemberId),
                 textColumn("Copy", LoanSummary::getBookCopyId),
-                textColumn("Due date", loan -> loan.getDueDate().toString()));
-        Button active = new Button("Active loans");
-        active.setOnAction(event -> execute(() -> table.setItems(FXCollections.observableArrayList(
+                textColumn("Due date", loan -> loan.getDueDate().toString()),
+                textColumn("Status", this::getLoanStatus));
+        Button all = new Button("All");
+        all.setOnAction(event -> execute(() -> table.setItems(FXCollections.observableArrayList(
                 runtime.controller().viewLoans(employeeId)))));
-        Button overdue = new Button("Overdue loans");
+        Button active = new Button("Active");
+        active.setOnAction(event -> execute(() -> table.setItems(FXCollections.observableArrayList(
+                filterLoans(runtime.controller().viewLoans(employeeId), false)))));
+        Button overdue = new Button("Overdue");
         overdue.setOnAction(event -> execute(() -> table.setItems(FXCollections.observableArrayList(
                 runtime.controller().viewOverdueLoans(employeeId)))));
         Button alert = new Button("Alert selected member");
@@ -322,7 +481,20 @@ public final class LibrarianPage extends BorderPane {
             LoanSummary selected = requireSelection(table, "loan");
             runtime.controller().sendOverdueAlert(employeeId, selected.getLoanId());
         }));
-        return padded(new VBox(10, new HBox(8, active, overdue, alert), table));
+        execute(() -> table.setItems(FXCollections.observableArrayList(
+                runtime.controller().viewLoans(employeeId))));
+        return padded(new VBox(10, new HBox(8, all, active, overdue, alert), table));
+    }
+
+    private List<LoanSummary> filterLoans(List<LoanSummary> loans, boolean overdue) {
+        LocalDate today = LocalDate.now();
+        return loans.stream()
+                .filter(loan -> loan.isOverdueOn(today) == overdue)
+                .toList();
+    }
+
+    private String getLoanStatus(LoanSummary loan) {
+        return loan.isOverdueOn(LocalDate.now()) ? "Overdue" : "Active";
     }
 
     private Node createReservations() {

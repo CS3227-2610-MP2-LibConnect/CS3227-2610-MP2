@@ -1,0 +1,50 @@
+# Conversation Summary
+
+Date: 2026-09-27
+
+## Objective
+
+Implement and integrate librarian-facing JavaFX UI functionality in LibConnect, including authentication, navigation, catalogue management, book copies, loans, and safe book deletion.
+
+## Key decisions
+
+- Librarian users should use the UI under `libconnect/ui`, not the dashboard GUI under `libconnect/gui`.
+- The existing layered service/controller architecture should be reused.
+- No tests or documents should be added, modified, or deleted.
+- The BookCopy tab should appear to the right of the Book tab.
+- Book deletion must require confirmation and warn that all associated copies will also be deleted.
+
+## Work completed
+
+- Enabled librarian registration in the login/registration page using `AuthenticationService.registerLibrarian`.
+- Redirected logged-in librarians to the librarian UI.
+- Integrated and moved GUI functionality into the existing `libconnect/ui` structure.
+- Fixed librarian page refactoring/integration issues.
+- Updated librarian subpages to load data automatically on navigation.
+- Fixed table refresh/search behavior that incorrectly displayed “no content in table”.
+- Added a BookCopy subpage supporting search, add, edit, and delete operations.
+- Prevented adding copies when:
+  - The ISBN does not belong to an existing book.
+  - The copy ID is already in use.
+- Updated the Loans subpage to show all loans and filter by:
+  - All
+  - Active
+  - Overdue
+- Updated book deletion:
+  - Shows a confirmation popup.
+  - Warns that all copies for the book’s ISBN will be deleted.
+  - Uses the existing `BookService.deleteBook(isbn)` flow, which deletes associated copies before deleting the book record.
+  - Cancelling leaves the book and copies unchanged.
+
+Primary modified file for the latest change:
+
+- [`LibrarianPage.java`](C:/Users/Junho/Desktop/NUS_MODS/CS3227/CS3227-2610-MP2/src/main/java/libconnect/ui/pages/LibrarianPage.java)
+
+## Open items / blockers
+
+- None reported.
+- No tests or documents were changed.
+
+## Next steps
+
+- None currently.
