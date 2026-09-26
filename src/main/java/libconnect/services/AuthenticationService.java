@@ -2,35 +2,37 @@ package libconnect.services;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
+import libconnect.models.AccountStatus;
 import libconnect.models.AccountType;
+import libconnect.models.Librarian;
 import libconnect.models.User;
-import libconnect.storage.file.FileMemberRepository;
 import libconnect.util.ValidationUtils;
 
 /** Authenticates users and delegates account creation to the appropriate role service. */
 public class AuthenticationService {
-    private final FileMemberRepository memberRepository;
     private final MemberService memberService;
     private final LibrarianService librarianService;
+    private final UserService userService;
 
     /** Creates an authentication service backed by the default member data file. */
     public AuthenticationService() {
-        this(new FileMemberRepository(), new LibrarianService());
+        this(new MemberService(), new LibrarianService(), new UserService());
     }
 
     /**
      * Creates an authentication service with explicit role-service dependencies.
      *
      * @param memberRepository the repository used for member lookup and registration.
-     * @param librarianService the service used for librarian lookup.
+     * @param librarianRepository the repository used for librarian lookup and registration.
+     * @param userService the service used for user lookup and registration.
      * @throws NullPointerException if either dependency is null.
      */
-    public AuthenticationService(FileMemberRepository memberRepository,
-                                 LibrarianService librarianService) {
-        this.memberRepository = Objects.requireNonNull(memberRepository, "memberRepository");
+    public AuthenticationService(MemberService memberService, LibrarianService librarianService, UserService userService) {
+        this.memberService = Objects.requireNonNull(memberService, "memberService");
         this.librarianService = Objects.requireNonNull(librarianService, "librarianService");
-        this.memberService = new MemberService(memberRepository, librarianService);
+        this.userService = Objects.requireNonNull(userService, "userService");
     }
 
     /**
@@ -49,11 +51,8 @@ public class AuthenticationService {
         Objects.requireNonNull(accountType, "accountType cannot be null");
         String requiredEmail = ValidationUtils.requireNonBlank(email, "email");
         ValidationUtils.requireNonBlank(password, "password");
-        if (accountType == AccountType.LIBRARIAN) {
-            throw new AuthenticationException("Librarian authentication is not supported yet.");
-        }
 
-        User user = findUser(accountType, requiredEmail)
+        User user = findUser(requiredEmail)
                 .orElseThrow(() -> new AuthenticationException("Invalid email or password."));
         if (!PasswordHasher.matches(password, user.getPasswordHash())) {
             throw new AuthenticationException("Invalid email or password.");
@@ -68,36 +67,36 @@ public class AuthenticationService {
     /**
      * Registers an account of the selected type.
      *
-     * Member registration is delegated to {@link MemberService}. Librarian registration is
-     * rejected until a librarian model and persistence service are available.
+     * Registration is delegated to the service for the selected account type.
      *
      * @param accountType the account type selected by the user.
      * @param name the account holder's name.
      * @param email the account email address.
      * @param password the plaintext account password.
-     * @return the newly registered member.
-     * @throws ServiceException if librarian registration is not yet supported.
+     * @return the newly registered account.
      * @throws IllegalArgumentException if a supplied value is invalid.
      * @throws NullPointerException if {@code accountType} is null.
      */
-    public User register(AccountType accountType, String name, String email, String password) {
-        Objects.requireNonNull(accountType, "accountType cannot be null");
-        if (accountType == AccountType.LIBRARIAN) {
-            // TODO: Implement librarian registration once a librarian model and persistence service are available.
-            throw new ServiceException("Librarian account registration is not supported yet.");
-        }
-
+    public User registerMember(String name, String email, String password) {
         memberService.registerMember(name, email, password);
-        return memberRepository.findByEmail(email)
-                .map(member -> (User) member)
-                .orElseThrow(() -> new ServiceException(
-                        "Member registration completed but the account could not be loaded."));
+        try {
+            return memberService.findMemberByEmail(email);
+        } catch (NotFoundException e) {
+            throw new ServiceException("Member registration completed but the account could not be loaded.");
+        }
     }
 
-    private Optional<User> findUser(AccountType accountType, String email) {
-        return switch (accountType) {
-        case MEMBER -> memberRepository.findByEmail(email).map(member -> (User) member);
-        case LIBRARIAN -> librarianService.findByEmail(email);
-        };
+    public User registerLibrarian(String employeeId, String name, String email, String password) {
+        UserIdGenerator userIdGenerator = new UserIdGenerator();
+        librarianService.register(new Librarian(userIdGenerator.generate(), employeeId, name, email, PasswordHasher.hash(password), AccountStatus.ACTIVE));
+        try {
+            return librarianService.requireActive(employeeId);
+        } catch (IllegalStateException e) {
+            throw new ServiceException("Librarian registration completed but the account could not be loaded.");
+        }
+    }
+
+    private Optional<User> findUser(String email) {
+        return userService.findUserByEmail(email);
     }
 }

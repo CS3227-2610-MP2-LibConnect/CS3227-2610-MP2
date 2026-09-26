@@ -127,7 +127,7 @@ public abstract class User implements libconnect.storage.repositories.Identifiab
      * Deactivates this user account.
      */
     public void deactivateAccount() {
-        status = AccountStatus.DEACTIVATED;
+        status = AccountStatus.INACTIVE;
     }
 
     /**

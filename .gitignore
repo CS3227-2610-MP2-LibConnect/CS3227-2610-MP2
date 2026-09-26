@@ -1,7 +1,6 @@
-# Gradle
-.gradle/
-build/
-gradle-user-home/
+# Maven
+target/
+.m2/
 
 # IDEs
 .idea/
@@ -18,6 +17,3 @@ Thumbs.db
 
 # Data files
 data/**
-
-# librarian branch .gitignore
-target/

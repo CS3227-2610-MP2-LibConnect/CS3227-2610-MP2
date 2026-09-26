@@ -38,7 +38,7 @@ class AuthenticationServiceTest {
 
     @Test
     void registerMember_createsActiveMember() {
-        User user = authenticationService.register(
+        User user = authenticationService.registerMember(
                 AccountType.MEMBER, "Ada", "ada@example.com", "secret-password");
 
         Member member = assertInstanceOf(Member.class, user);
@@ -48,7 +48,7 @@ class AuthenticationServiceTest {
 
     @Test
     void authenticateMember_correctCredentialsIgnoringEmailCase_returnsMember() {
-        authenticationService.register(
+        authenticationService.registerMember(
                 AccountType.MEMBER, "Ada", "ada@example.com", "secret-password");
 
         User authenticatedUser = authenticationService.authenticate(
@@ -59,7 +59,7 @@ class AuthenticationServiceTest {
 
     @Test
     void authenticateMember_wrongPassword_throwsUsefulException() {
-        authenticationService.register(
+        authenticationService.registerMember(
                 AccountType.MEMBER, "Ada", "ada@example.com", "secret-password");
 
         AuthenticationException exception = assertThrows(AuthenticationException.class,
@@ -71,7 +71,7 @@ class AuthenticationServiceTest {
 
     @Test
     void authenticateMember_deactivatedAccount_throwsUsefulException() {
-        authenticationService.register(
+        authenticationService.registerMember(
                 AccountType.MEMBER, "Ada", "ada@example.com", "secret-password");
         Member member = memberRepository.findByEmail("ada@example.com").orElseThrow();
         new MemberService(memberRepository).deactivateMember(member.getMembershipId());
@@ -87,7 +87,7 @@ class AuthenticationServiceTest {
     // TODO: Replace this test with a proper librarian registration test once a librarian model and persistence service are available.
     void registerLibrarian_beforeLibrarianImplementation_throwsServiceException() {
         ServiceException exception = assertThrows(ServiceException.class,
-                () -> authenticationService.register(
+                () -> authenticationService.registerMember(
                         AccountType.LIBRARIAN, "Grace", "grace@example.com", "secret-password"));
 
         assertEquals("Librarian account registration is not supported yet.", exception.getMessage());

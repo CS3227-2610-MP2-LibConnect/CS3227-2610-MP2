@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
@@ -23,16 +24,17 @@ import libconnect.ui.components.PageHeader;
 /** Provides the account registration page. */
 public final class RegistrationPage extends BorderPane {
     private static final String EMPTY_FIELDS_MESSAGE = "Name, email and password are required.";
+    private static final String EMPTY_EMPLOYEE_ID_MESSAGE = "Employee ID is required for librarian accounts.";
     private static final String PASSWORD_MISMATCH_MESSAGE = "Passwords do not match.";
     private static final String SELECT_ACCOUNT_TYPE_MESSAGE = "Select an account type.";
     private static final String STORAGE_ERROR_MESSAGE =
             "Unable to access account data. Please try again.";
-    private static final String LIBRARIAN_ERROR_MESSAGE =
-            "Librarian registration is not available yet.";
 
     private final AuthenticationService authenticationService;
     private final SceneNavigator sceneNavigator;
     private final ComboBox<AccountType> accountTypeSelector;
+    private final TextField employeeIdField;
+    private final FormField employeeIdFormField;
     private final MemberRegistrationForm memberRegistrationForm;
     private final FeedbackMessage feedbackMessage;
     private final Button registerButton;
@@ -48,10 +50,15 @@ public final class RegistrationPage extends BorderPane {
         this.authenticationService = authenticationService;
         this.sceneNavigator = sceneNavigator;
         accountTypeSelector = createAccountTypeSelector();
+        employeeIdField = new TextField();
+        employeeIdField.setPromptText("Enter your employee ID");
+        employeeIdFormField = new FormField("Employee ID", employeeIdField);
         memberRegistrationForm = new MemberRegistrationForm();
         feedbackMessage = new FeedbackMessage();
         registerButton = new Button("Register");
 
+        employeeIdFormField.setVisible(false);
+        employeeIdFormField.setManaged(false);
         memberRegistrationForm.setVisible(false);
         memberRegistrationForm.setManaged(false);
         registerButton.setDisable(true);
@@ -67,6 +74,7 @@ public final class RegistrationPage extends BorderPane {
                 new PageHeader("Create an account", "Register for LibConnect"),
                 new FormField("Account type", accountTypeSelector),
                 memberRegistrationForm,
+                employeeIdFormField,
                 feedbackMessage,
                 navigationButtons);
         pageContainer.setPadding(new Insets(32));
@@ -83,12 +91,6 @@ public final class RegistrationPage extends BorderPane {
         selector.setCellFactory(listView -> new AccountTypeCell());
         selector.setButtonCell(new AccountTypeCell());
         selector.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == AccountType.LIBRARIAN) {
-                selector.setValue(oldValue);
-                feedbackMessage.showError(LIBRARIAN_ERROR_MESSAGE);
-                return;
-            }
-
             feedbackMessage.clearMessage();
             updateFormVisibility(newValue);
         });
@@ -96,10 +98,13 @@ public final class RegistrationPage extends BorderPane {
     }
 
     private void updateFormVisibility(AccountType accountType) {
-        boolean isMember = accountType == AccountType.MEMBER;
-        memberRegistrationForm.setVisible(isMember);
-        memberRegistrationForm.setManaged(isMember);
-        registerButton.setDisable(!isMember);
+        boolean hasAccountType = accountType != null;
+        boolean isLibrarian = accountType == AccountType.LIBRARIAN;
+        employeeIdFormField.setVisible(isLibrarian);
+        employeeIdFormField.setManaged(isLibrarian);
+        memberRegistrationForm.setVisible(hasAccountType);
+        memberRegistrationForm.setManaged(hasAccountType);
+        registerButton.setDisable(!hasAccountType);
     }
 
     private void registerAccount() {
@@ -108,10 +113,6 @@ public final class RegistrationPage extends BorderPane {
         AccountType accountType = accountTypeSelector.getValue();
         if (accountType == null) {
             feedbackMessage.showError(SELECT_ACCOUNT_TYPE_MESSAGE);
-            return;
-        }
-        if (accountType == AccountType.LIBRARIAN) {
-            feedbackMessage.showError(LIBRARIAN_ERROR_MESSAGE);
             return;
         }
 
@@ -128,8 +129,18 @@ public final class RegistrationPage extends BorderPane {
             return;
         }
 
+        String employeeId = employeeIdField.getText().trim();
+        if (accountType == AccountType.LIBRARIAN && employeeId.isBlank()) {
+            feedbackMessage.showError(EMPTY_EMPLOYEE_ID_MESSAGE);
+            return;
+        }
+
         try {
-            authenticationService.register(accountType, name, email, password);
+            if (accountType == AccountType.MEMBER) {
+                authenticationService.registerMember(name, email, password);
+            } else {
+                authenticationService.registerLibrarian(employeeId, name, email, password);
+            }
             sceneNavigator.showLoginPage("Account created successfully. Please log in.");
         } catch (ServiceException | IllegalArgumentException exception) {
             feedbackMessage.showError(exception.getMessage());
@@ -150,13 +161,9 @@ public final class RegistrationPage extends BorderPane {
             }
 
             boolean isLibrarian = accountType == AccountType.LIBRARIAN;
-            setText(isLibrarian ? "Librarian (unavailable)" : "Member");
-            setDisable(isLibrarian);
-            if (isLibrarian) {
-                getStyleClass().add("registration-unavailable");
-            } else {
-                getStyleClass().remove("registration-unavailable");
-            }
+            setText(isLibrarian ? "Librarian" : "Member");
+            setDisable(false);
+            getStyleClass().remove("registration-unavailable");
         }
     }
 }

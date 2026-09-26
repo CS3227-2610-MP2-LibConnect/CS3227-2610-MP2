@@ -7,8 +7,7 @@ import libconnect.storage.repositories.MemberRepository;
 
 /** Generates user IDs that are unique across member and librarian accounts. */
 public final class UserIdGenerator {
-    private final MemberRepository memberRepository;
-    private final LibrarianService librarianService;
+    private final UserService userService;
 
     /**
      * Creates a generator backed by the member repository and librarian service.
@@ -17,9 +16,12 @@ public final class UserIdGenerator {
      * @param librarianService the service used to check librarian IDs.
      * @throws NullPointerException if either dependency is null.
      */
-    public UserIdGenerator(MemberRepository memberRepository, LibrarianService librarianService) {
-        this.memberRepository = Objects.requireNonNull(memberRepository, "memberRepository");
-        this.librarianService = Objects.requireNonNull(librarianService, "librarianService");
+    public UserIdGenerator(UserService userService) {
+        this.userService = Objects.requireNonNull(userService, "userService");
+    }
+
+    public UserIdGenerator() {
+        this.userService = new UserService();
     }
 
     /**
@@ -31,8 +33,7 @@ public final class UserIdGenerator {
         String userId;
         do {
             userId = "USER-" + UUID.randomUUID();
-        } while (memberRepository.findByUserId(userId).isPresent()
-                || librarianService.findByUserId(userId).isPresent());
+        } while (userService.isUserIdInUse(userId));
 
         return userId;
     }

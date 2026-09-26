@@ -1,1 +1,8 @@
-[]
+[ {
+  "userId" : "USER-dc529762-0c06-4157-bf88-395080c703ea",
+  "employeeId" : "lib1",
+  "name" : "lib",
+  "email" : "lib@lib.com",
+  "passwordHash" : "PBKDF2WithHmacSHA256$210000$HLDoIFSjPKNJ6S+yN/EwKA==$/7+ubVLPjIkgvUUYg0moUcMw4sQ9w7UuHE5Uqxk98is=",
+  "status" : "ACTIVE"
+} ]

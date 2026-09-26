@@ -5,12 +5,13 @@ import java.util.UUID;
 
 import libconnect.models.Member;
 import libconnect.storage.file.FileMemberRepository;
+import libconnect.storage.repositories.MemberRepository;
 
 /** Provides member registration, profile, password, and account-status operations. */
 public class MemberService {
-    private final FileMemberRepository memberRepository;
-    private final LibrarianService librarianService;
+    private final MemberRepository memberRepository;
     private final UserIdGenerator userIdGenerator;
+    private final UserService userService;
 
     /** Creates a service backed by the default member data file. */
     public MemberService() {
@@ -23,21 +24,21 @@ public class MemberService {
      * @param memberRepository the repository used to persist members.
      * @throws NullPointerException if {@code memberRepository} is null.
      */
-    public MemberService(FileMemberRepository memberRepository) {
-        this(memberRepository, new LibrarianService());
+    public MemberService(MemberRepository memberRepository) {
+        this(memberRepository, new UserService());
     }
 
     /**
      * Creates a service backed by the supplied member repository and librarian lookup service.
      *
      * @param memberRepository the repository used to persist members.
-     * @param librarianService the service used to enforce cross-role uniqueness.
+     * @param userService the service used to check if an email is already in use.
      * @throws NullPointerException if either dependency is null.
      */
-    public MemberService(FileMemberRepository memberRepository, LibrarianService librarianService) {
+    public MemberService(MemberRepository memberRepository, UserService userService) {
         this.memberRepository = Objects.requireNonNull(memberRepository, "memberRepository");
-        this.librarianService = Objects.requireNonNull(librarianService, "librarianService");
-        this.userIdGenerator = new UserIdGenerator(memberRepository, librarianService);
+        this.userService = Objects.requireNonNull(userService, "userService");
+        this.userIdGenerator = new UserIdGenerator(userService);
     }
 
     /**
@@ -52,8 +53,7 @@ public class MemberService {
      * @throws IllegalArgumentException if a supplied value is invalid.
      */
     public void registerMember(String name, String email, String password) {
-        if (memberRepository.findByEmail(email).isPresent()
-                || librarianService.findByEmail(email).isPresent()) {
+        if (userService.isEmailInUse(email)) {
             throw new ServiceException("Email is already in use: " + email);
         }
 
@@ -88,7 +88,7 @@ public class MemberService {
      * @throws IllegalArgumentException if a supplied value is invalid.
      */
     public Member updateMemberProfile(String membershipId, String name, String email) {
-        Member member = findMember(membershipId);
+        Member member = findMemberByMembershipId(membershipId);
         memberRepository.findByEmail(email).ifPresent(existingMember -> {
             if (!existingMember.getMembershipId().equals(member.getMembershipId())) {
                 throw new ServiceException("Email is already in use: " + email);
@@ -111,7 +111,7 @@ public class MemberService {
      * @throws IllegalArgumentException if {@code newPassword} is blank.
      */
     public Member updatePassword(String membershipId, String newPassword) {
-        Member member = findMember(membershipId);
+        Member member = findMemberByMembershipId(membershipId);
         member.updatePasswordHash(PasswordHasher.hash(newPassword));
         memberRepository.save(member);
         return member;
@@ -124,7 +124,7 @@ public class MemberService {
      * @throws NotFoundException if the member does not exist.
      */
     public void deactivateMember(String membershipId) {
-        Member member = findMember(membershipId);
+        Member member = findMemberByMembershipId(membershipId);
         member.deactivateAccount();
         memberRepository.save(member);
     }
@@ -136,14 +136,23 @@ public class MemberService {
      * @throws NotFoundException if the member does not exist.
      */
     public void activateMember(String membershipId) {
-        Member member = findMember(membershipId);
+        Member member = findMemberByMembershipId(membershipId);
         member.activateAccount();
         memberRepository.save(member);
     }
 
-    private Member findMember(String membershipId) {
+    private Member findMemberByMembershipId(String membershipId) {
         return memberRepository.findByMembershipId(membershipId)
                 .orElseThrow(() -> new NotFoundException("Member not found: " + membershipId));
+    }
+
+    public boolean hasMemberWithEmail(String email) {
+        return memberRepository.findByEmail(email).isPresent();
+    }
+
+    public Member findMemberByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Member not found with email: " + email));
     }
 
     private String generateUniqueMembershipId() {

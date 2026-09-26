@@ -7,15 +7,31 @@ import java.util.Objects;
 
 import libconnect.models.AccountStatus;
 import libconnect.models.Librarian;
+import libconnect.storage.file.FileLibrarianRepository;
+import libconnect.storage.file.FileMemberRepository;
 import libconnect.storage.repositories.LibrarianRepository;
+import libconnect.storage.repositories.MemberRepository;
 
 /** Enforces librarian account lifecycle and authorization rules. */
 public final class LibrarianService {
     private final LibrarianRepository repository;
+    private final UserService userService;
 
     /** Creates a librarian service using the supplied repository. */
     public LibrarianService(LibrarianRepository repository) {
         this.repository = Objects.requireNonNull(repository, "repository");
+        this.userService = new UserService();
+    }
+
+    public LibrarianService(LibrarianRepository repository, MemberRepository memberRepository) {
+        this.repository = Objects.requireNonNull(repository, "repository");
+        Objects.requireNonNull(memberRepository, "memberRepository");
+        this.userService = new UserService(memberRepository, repository);
+
+    }
+
+    public LibrarianService() {
+        this(new FileLibrarianRepository(), new FileMemberRepository());
     }
 
     /** Registers a librarian while preventing duplicate identifiers and emails. */
@@ -24,8 +40,8 @@ public final class LibrarianService {
         if (repository.findById(librarian.getId()).isPresent()) {
             throw new IllegalStateException("A librarian with this employee ID already exists");
         }
-        if (repository.findByEmail(librarian.getEmail()).isPresent()) {
-            throw new IllegalStateException("A librarian with this email already exists");
+        if (userService.isEmailInUse(librarian.getEmail())) {
+            throw new IllegalStateException("A librarian or member with this email already exists");
         }
         repository.save(librarian);
     }
@@ -37,7 +53,7 @@ public final class LibrarianService {
                 .ifPresent(other -> {
                     throw new IllegalStateException("A librarian with this email already exists");
                 });
-        Librarian updated = new Librarian(employeeId, name, email, current.getStatus());
+        Librarian updated = new Librarian(current.getUserId(), employeeId, name, email, current.getPasswordHash(), current.getStatus());
         repository.save(updated);
         return updated;
     }

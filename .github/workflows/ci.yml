@@ -21,8 +21,5 @@ jobs:
           distribution: temurin
           java-version: '25'
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Build and run tests
-        run: ./gradlew clean build --no-daemon
+      - name: Build and run tests with Maven
+        run: mvn --batch-mode --update-snapshots clean verify
