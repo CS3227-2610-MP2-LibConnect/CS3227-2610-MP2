@@ -1,1 +1,20 @@
+# Gradle
+.gradle/
+build/
+gradle-user-home/
 
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Java build output
+out/
+*.class
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Data files
+data/**

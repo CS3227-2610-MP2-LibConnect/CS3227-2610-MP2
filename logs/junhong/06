@@ -1,0 +1,44 @@
+## Conversation Summary
+
+Date: 2026-09-22
+
+### Objective
+
+Add comprehensive unit and integration tests for the file-backed repositories and JSON reader, improve malformed JSON handling, refactor shared logic, and commit the completed work cleanly.
+
+### Key decisions
+
+- Use the shared abstract-test approach for repository unit tests.
+- Separate tests into `unit` and `integration` subdirectories.
+- Malformed JSON records must be logged, skipped, and must not interrupt application execution.
+- Exclude integration test cases 8 and 9.
+- Commit changes in the order: documentation, production code, unit tests, integration tests.
+- Do not commit development summary logs.
+
+### Work completed
+
+- Added unit tests for:
+  - `FileBookCopyRepository`
+  - `FileBookRepository`
+  - `FileLoanRepository`
+  - `FileMemberRepository`
+  - `FileUserRepository`
+  - `JsonReader`
+  - shared repository behavior
+- Added integration tests between `FileMemberRepository` and `FileUserRepository`.
+- Added malformed-record recovery and logging across file repositories.
+- Extracted shared malformed-record logging into `FileRepositorySupport`.
+- Extracted shared JSON array parsing into `JsonReader`.
+- Added validation rejecting null, empty, and whitespace-only JSON document names.
+- Moved tests into matching `unit` and `integration` packages.
+- Fixed the Java package mismatch warning.
+- Created commits:
+  - `add9a01` — `docs: Expand development workflow guidance`
+  - `a590660` — `storage: Handle malformed JSON records`
+  - `36eb8b8` — `test: Add file repository unit tests`
+  - `c68d417` — `test: Add repository integration tests`
+
+### Verification
+
+- `.\gradlew.bat clean test` completed successfully.
+- No staged changes remain.

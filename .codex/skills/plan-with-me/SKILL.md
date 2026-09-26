@@ -22,6 +22,12 @@ Propose at least two meaningfully different implementation approaches. For each 
 
 Compare the approaches directly and give a reasoned recommendation when the available context supports one. Do not implement code or commit to an approach merely because it is recommended; end by inviting the user to choose, ask for alternatives, or give feedback.
 
+Where possible, propose approaches that are compatible with the existing architecture, technology stack, and project conventions. If a proposed approach would require significant changes to the existing codebase or architecture, clearly explain the implications and tradeoffs.
+
+Additionally, if the user requests a design for a new feature or component, consider whether it can be implemented in a way that is compatible with existing features and components. If not, explain the implications and tradeoffs of introducing a new feature or component that is not compatible with existing ones.
+
+Finally, if there are any existing libraries, frameworks, or tools that could be leveraged to implement the requested component, consider whether they are suitable and explain the implications and tradeoffs of using them versus implementing the component from scratch. For example, ObjectMapper libraries can be used to serialize and deserialize objects to and from JSON instead of having to build a custom JSON parser. In general, you should prioritize using existing libraries, frameworks, or tools over implementing a component from scratch, unless there are compelling reasons to do otherwise.
+
 ## Additional alternatives
 
 If the user asks for more alternatives, propose each new approach and evaluate it with the same strengths-and-weaknesses structure. Compare it with the existing options instead of silently replacing them. Keep alternatives realistic for the project's technology, architecture, and requirements.

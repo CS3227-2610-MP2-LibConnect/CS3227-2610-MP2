@@ -1,0 +1,36 @@
+## Conversation Summary
+
+Date: 2026-09-22
+
+### Objective
+
+Improve `StorageManager` resilience against malformed JSON records and update repository documentation.
+
+### Key decisions
+
+- Malformed records should be skipped individually while valid records continue loading.
+- Skipped records should be logged and preserved under `data/malformed/` for recovery.
+- No commit should be created yet.
+
+### Work completed
+
+- Updated `StorageManager` to:
+  - Skip malformed records.
+  - Emit timestamped warning logs.
+  - Store malformed records in `data/malformed/malformed-records.json`.
+  - Preserve source file, entity type, record index, reason, and raw record.
+- Added `StorageManagerTest` coverage for skipped and journaled records.
+- Updated Javadocs for all 8 files under:
+  `src/main/java/libconnect/storage/repositories/`
+- Staged all repository files successfully.
+- Proposed commit message:
+
+```text
+storage: Document shared repository abstractions
+
+Adopt the common Repository contract across the repository interfaces and
+complete their Javadocs.
+
+Document CRUD, identifier, validation, deletion, and persistence-failure
+semantics for librarian storage implementations.
+```

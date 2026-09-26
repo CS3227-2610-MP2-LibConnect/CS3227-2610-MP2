@@ -1,0 +1,25 @@
+## Conversation Summary
+
+Date: 2026-09-21
+
+### Objective
+
+Implement and refine LibConnect domain model classes for users, books, book copies, and loans.
+
+### Key decisions
+
+- `Member` extends `User`.
+- `Book` is immutable and stores metadata only.
+- `BookCopy` stores the book’s ISBN instead of a direct `Book` reference.
+- Reservations are no longer in scope.
+- `Loan` uses stable `memberId` and `copyId` references.
+- A loan can be renewed only once.
+- `renew()` adds 30 days to the current due date.
+- Overdue calculations use the current date automatically.
+
+### Work completed
+
+- Implemented `User`, `Member`, `Book`, `BookCopy`, `Loan`, and related status enums.
+- Implemented loan return, renewal, overdue calculation, and state validation.
+- Verified compilation using Java 25.
+- Proposed a Git commit message for the staged model classes.

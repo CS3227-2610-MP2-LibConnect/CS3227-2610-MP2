@@ -1,0 +1,23 @@
+Conversation Summary  
+Date: 2026-09-22
+
+Objective:  
+Add unit and integration tests for services, fix Loan renewal persistence, standardize JSON creators, and verify code quality.
+
+Key decisions:
+- Store full model state through Jackson full-state creators.
+- Explicitly serialize `Loan.isRenewed`.
+- Separate service tests into `unit/` and `integration/`.
+- Duplicate entity creation throws `ServiceException`.
+
+Work completed:
+- Added unit tests for Book, BookCopy, Loan, and Member services.
+- Added integration tests for coordinated library workflows.
+- Fixed JSON persistence for `Book`, `BookCopy`, `Member`, and `Loan`.
+- Added a Loan persistence regression test.
+- Added book search by publication year.
+- Removed unused imports.
+- Full Gradle test suite passes with zero failures.
+
+Open items / blockers:
+- None.

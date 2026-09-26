@@ -1,0 +1,38 @@
+# Conversation Summary
+
+Date: 2026-09-23
+
+## Objective
+
+Develop and refine the LibConnect Java desktop application’s book data and dashboard functionality.
+
+## Key decisions
+
+- Used dashboard implementation approach 2.
+- ISBN searches use case-insensitive exact matching.
+- Publication year advanced search uses inclusive start/end bounds.
+- No tests should be added or run.
+
+## Work completed
+
+- Populated `data/books.json` with 10 books.
+- Populated `data/book-copies.json` with 30 copies, providing at least 3 copies per book.
+- Implemented dashboard routing after successful login.
+- Added dashboard navbar, recommendation banner, simple search, advanced search, and book list.
+- Fixed advanced search to use separate publication-year start and end fields.
+- Ensured simple search is shown by default.
+- Made the dashboard page vertically scrollable.
+- Added a disabled, highlighted Dashboard navbar button.
+- Added Reset buttons beside Search in both search modes.
+- Reset clears all filters and restores the complete book list.
+- Performed source and formatting checks.
+
+## Open items / blockers
+
+- No dashboard UI tests currently exist.
+- Tests were not added or run, per instruction.
+
+## Next steps
+
+- Run the application manually once JavaFX dependencies are available.
+- Add UI and search integration tests if testing is later requested.

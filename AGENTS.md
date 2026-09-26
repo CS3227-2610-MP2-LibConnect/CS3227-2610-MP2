@@ -25,3 +25,16 @@ For every future commit in this project, follow the project skill [`.codex/skill
 ## Coding Standard
 
 Whenever code is generated for this project, follow the project skill [`.codex/skills/seedu-java-coding-standard/SKILL.md`](.codex/skills/seedu-java-coding-standard/SKILL.md). This is mandatory: Always create a javadoc for each method added, unless explicitly stated by the user to not include a javadoc.
+
+## Code Generation Practices
+
+Before writing new helpers or logic, search the codebase for existing implementations that already solve the problem, and reuse or extend them rather than duplicating. Be alert to logic that is likely to be needed across multiple files (e.g., date calculations, validation, formatting) — these should live in a shared/common module rather than being reimplemented per file. If a similar method already exists but doesn't quite fit, prefer generalizing it over writing a near-duplicate. When duplication is found during a change, extract it into a shared helper as part of that change rather than leaving it for later. This is mandatory: Before making any changes to existing files for the purposes listed above, you are to inform the user and ask for permission before implementing the changes.
+
+After creating any new classes or modifying any code, look through the repository for its corresponding test file. You are required to follow the following steps:
+
+1. Look through the repository for any test files for the modified class.
+1. If no test files are found highlight this to the user to inform them of the need to create unit tests.
+1. If test files are found, inspect them to look for any missing new functionality created that may not be tested by the existing test suite. If there are any such instances, highlight them to the user.
+1. Highlight any test cases that may have become redundant as a result of modification to the classes, for example, due to the removal of certain functionalities from existing classes.
+1. Highlight any integration tests that may need to be added.
+1. Run all existing tests, and highlight any failing tests to the user.

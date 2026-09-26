@@ -1,0 +1,39 @@
+## Conversation Summary
+
+Date: 2026-09-22
+
+### Objective
+
+Implement an authentication service for LibConnect supporting member and librarian account selection, login, registration, account-status checks, credential validation, and unique user IDs.
+
+### Key decisions
+
+- Use role-specific authentication logic.
+- Librarian functionality remains unsupported until its model and persistence are implemented.
+- Keep UID generation outside the `Member` model and validate generated IDs against both member and librarian services.
+- Librarian accounts will eventually default to `DEACTIVATED`; member accounts default to `ACTIVE`.
+- Duplicate emails should be checked across both account types.
+
+### Work completed
+
+- Added `AuthenticationService`.
+- Added `AccountType` with `MEMBER` and `LIBRARIAN`.
+- Added `AuthenticationException`.
+- Added PBKDF2 password hashing and verification through `PasswordHasher`.
+- Added cross-role `UserIdGenerator`.
+- Added a placeholder `LibrarianService` whose `findByUserId` and `findByEmail` return empty results.
+- Updated `MemberService` to use shared password hashing, UID generation, and librarian-aware duplicate-email checks.
+- Added authentication unit tests.
+- Confirmed all existing and new tests pass.
+
+### Open items / blockers
+
+- Librarian model, repository, and real service are not implemented.
+- Librarian login and registration currently throw informative unsupported-operation exceptions.
+- Startup UI integration, sessions, and logout were not implemented because the request was limited to the authentication service.
+
+### Next steps
+
+- Implement the actual librarian model, repository, and service.
+- Replace the placeholder `LibrarianService`.
+- Integrate `AuthenticationService` with the application startup and frontend.

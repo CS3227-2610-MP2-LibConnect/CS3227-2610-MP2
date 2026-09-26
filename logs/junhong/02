@@ -1,0 +1,30 @@
+## Conversation Summary
+
+Date: 2026-09-21
+
+### Objective
+
+Set up unit tests for `Book` and `BookCopy`, then configure the project for Java desktop application development with Gradle and JUnit.
+
+### Key decisions
+
+- Test publication years `-1`, `0`, `1`, and `2`.
+- Omit the `Book` hash-code test because `Book` does not implement `hashCode()`.
+- Use Java SE 25, Gradle, JUnit 5, and Swing for the initial desktop entry point.
+
+### Work completed
+
+- Added tests:
+  - `src/test/java/models/BookTest.java`
+  - `src/test/java/models/BookCopyTest.java`
+- Added Gradle configuration:
+  - `build.gradle`
+  - `settings.gradle`
+  - `gradle.properties`
+  - Gradle wrapper files
+- Added JUnit 5 dependencies and test configuration.
+- Added `ui.LibConnectApplication` as the initial Swing application entry point.
+- Updated `README.md` with build, test, and run commands.
+- Added `.gitignore` for Gradle and build artifacts.
+- Confirmed JUnit imports are present in both test files.
+- Production Java compilation succeeded.
