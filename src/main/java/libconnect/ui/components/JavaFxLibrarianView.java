@@ -1,4 +1,4 @@
-package libconnect.gui;
+package libconnect.ui.components;
 
 import java.util.Objects;
 
@@ -6,7 +6,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Label;
 import libconnect.librarian.LibrarianView;
 
-/** Displays controller messages in the active JavaFX shell. */
+/** Displays controller messages in the active librarian page. */
 public final class JavaFxLibrarianView implements LibrarianView {
     private Label statusLabel;
 

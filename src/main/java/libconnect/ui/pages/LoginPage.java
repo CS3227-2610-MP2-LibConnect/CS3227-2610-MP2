@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 
 import libconnect.models.AccountType;
+import libconnect.models.Librarian;
 import libconnect.models.User;
 import libconnect.services.AuthenticationException;
 import libconnect.services.AuthenticationService;
@@ -18,7 +19,7 @@ import libconnect.ui.components.FormField;
 import libconnect.ui.components.PageContainer;
 import libconnect.ui.components.PageHeader;
 
-/** Provides the login page for member authentication. */
+/** Provides the login page for member and librarian authentication. */
 public final class LoginPage extends BorderPane {
     private static final String EMPTY_FIELDS_MESSAGE = "Username and password are required.";
     private static final String STORAGE_ERROR_MESSAGE =
@@ -34,7 +35,7 @@ public final class LoginPage extends BorderPane {
     /**
      * Creates a login page connected to the application authentication and navigation services.
      *
-     * @param authenticationService the service used to authenticate members.
+     * @param authenticationService the service used to authenticate accounts.
      * @param sessionManager the session that stores the authenticated user.
      * @param sceneNavigator the navigator used after authentication.
      */
@@ -101,7 +102,11 @@ public final class LoginPage extends BorderPane {
                     AccountType.MEMBER, username, password);
             sessionManager.login(authenticatedUser);
             passwordField.clear();
-            sceneNavigator.showDashboardPage();
+            if (authenticatedUser instanceof Librarian) {
+                sceneNavigator.showLibrarianPage();
+            } else {
+                sceneNavigator.showDashboardPage();
+            }
         } catch (AuthenticationException exception) {
             passwordField.clear();
             feedbackMessage.showError(exception.getMessage());

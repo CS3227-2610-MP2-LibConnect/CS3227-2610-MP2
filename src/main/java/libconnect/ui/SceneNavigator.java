@@ -6,16 +6,19 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import libconnect.models.Librarian;
 import libconnect.services.AuthenticationService;
 import libconnect.services.BookCopyService;
 import libconnect.services.BookService;
 import libconnect.services.BorrowService;
 import libconnect.services.LoanService;
 import libconnect.services.MemberService;
+import libconnect.ui.components.JavaFxLibrarianView;
 import libconnect.ui.pages.BookInfoPage;
 import libconnect.ui.pages.BorrowPage;
 import libconnect.ui.pages.DashboardPage;
 import libconnect.ui.pages.LoginPage;
+import libconnect.ui.pages.LibrarianPage;
 import libconnect.ui.pages.ProfilePage;
 import libconnect.ui.pages.RegistrationPage;
 import libconnect.ui.pages.ReservationPage;
@@ -35,6 +38,8 @@ public final class SceneNavigator {
     private final MemberService memberService;
     private final SessionManager sessionManager;
     private final Scene scene;
+    private LibrarianRuntime librarianRuntime;
+    private JavaFxLibrarianView librarianView;
 
     /**
      * Creates a navigator for the supplied application window and dependencies.
@@ -152,6 +157,31 @@ public final class SceneNavigator {
     }
 
     /**
+     * Creates a navigator with the librarian workspace dependencies in addition to member pages.
+     *
+     * @param stage the application window used for navigation.
+     * @param authenticationService the service used by the login page.
+     * @param sessionManager the session shared by authenticated pages.
+     * @param bookService the service used by member pages.
+     * @param bookCopyService the service used by member pages.
+     * @param borrowService the service used by member pages.
+     * @param loanService the service used by member pages.
+     * @param memberService the service used by member pages.
+     * @param librarianRuntime the runtime used by the librarian page.
+     * @param librarianView the view receiving librarian controller feedback.
+     */
+    public SceneNavigator(Stage stage, AuthenticationService authenticationService,
+                          SessionManager sessionManager, BookService bookService,
+                          BookCopyService bookCopyService, BorrowService borrowService,
+                          LoanService loanService, MemberService memberService,
+                          LibrarianRuntime librarianRuntime, JavaFxLibrarianView librarianView) {
+        this(stage, authenticationService, sessionManager, bookService, bookCopyService,
+                borrowService, loanService, memberService);
+        this.librarianRuntime = Objects.requireNonNull(librarianRuntime, "librarianRuntime");
+        this.librarianView = Objects.requireNonNull(librarianView, "librarianView");
+    }
+
+    /**
      * Displays the login page and removes any previous authenticated page.
      */
     public void showLoginPage() {
@@ -193,6 +223,26 @@ public final class SceneNavigator {
         }
 
         showPage(new DashboardPage(bookService, sessionManager, this, successMessage));
+    }
+
+    /** Displays the authenticated librarian workspace. */
+    public void showLibrarianPage() {
+        if (!sessionManager.isLoggedIn()) {
+            showLoginPage();
+            return;
+        }
+        if (!(sessionManager.getCurrentUser() instanceof Librarian librarian)) {
+            showDashboardPage();
+            return;
+        }
+        if (librarianRuntime == null || librarianView == null) {
+            throw new IllegalStateException("Librarian UI dependencies are not configured");
+        }
+
+        showPage(new LibrarianPage(librarianRuntime, librarianView, librarian.getEmployeeId(), () -> {
+            sessionManager.logout();
+            showLoginPage();
+        }));
     }
 
     /** Displays the authenticated borrowing page. */

@@ -1,6 +1,7 @@
-package libconnect.gui;
+package libconnect.ui.pages;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -10,43 +11,43 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-import libconnect.app.LibrarianRuntime;
 import libconnect.integration.BookDetails;
 import libconnect.integration.BookSummary;
 import libconnect.integration.LoanSummary;
 import libconnect.integration.MemberSummary;
 import libconnect.models.Fine;
-import libconnect.models.Librarian;
 import libconnect.models.Notification;
 import libconnect.models.Reservation;
+import libconnect.ui.LibrarianRuntime;
+import libconnect.ui.components.JavaFxLibrarianView;
 
-/** Provides the single-window librarian workspace and its feature panels. */
-public final class LibrarianShell extends BorderPane {
+/** Provides the authorized librarian workspace and its feature panels. */
+public final class LibrarianPage extends BorderPane {
     private final LibrarianRuntime runtime;
     private final JavaFxLibrarianView view;
     private final String employeeId;
     private final Runnable onLogout;
     private final Label statusLabel = new Label();
 
-    /** Creates an authorized librarian shell with simple navigable feature panels. */
-    public LibrarianShell(LibrarianRuntime runtime, JavaFxLibrarianView view,
-                          String employeeId, Runnable onLogout) {
+    /** Creates an authorized librarian page for the supplied employee ID. */
+    public LibrarianPage(LibrarianRuntime runtime, JavaFxLibrarianView view,
+                         String employeeId, Runnable onLogout) {
         this.runtime = Objects.requireNonNull(runtime, "runtime");
         this.view = Objects.requireNonNull(view, "view");
         this.employeeId = Objects.requireNonNull(employeeId, "employeeId");
         this.onLogout = Objects.requireNonNull(onLogout, "onLogout");
-        setId("librarian-shell");
+        setId("librarian-page");
         view.bind(statusLabel);
 
         setTop(createHeader());
@@ -56,10 +57,10 @@ public final class LibrarianShell extends BorderPane {
     }
 
     private Node createHeader() {
-        Librarian librarian = runtime.librarianService().requireActive(employeeId);
+        String librarianName = runtime.librarianService().requireActive(employeeId).getName();
         Label title = new Label("LibConnect Librarian");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-        Label user = new Label("Signed in: " + librarian.getName());
+        Label user = new Label("Signed in: " + librarianName);
         Button logout = new Button("Log out");
         logout.setId("logout-button");
         logout.setOnAction(event -> onLogout.run());
@@ -262,28 +263,31 @@ public final class LibrarianShell extends BorderPane {
         Button list = new Button("List");
         list.setOnAction(event -> execute(() -> table.setItems(FXCollections.observableArrayList(
                 memberId.getText().isBlank()
-                        ? runtime.controller().viewAllReservations(employeeId)
-                        : runtime.controller().viewReservations(employeeId, memberId.getText())))));
+                        ? listAllReservations()
+                        : listReservations(memberId.getText())))));
         Button create = new Button("Create");
         create.setOnAction(event -> execute(() -> {
-            runtime.controller().createReservation(employeeId, memberId.getText(), bookId.getText());
+            requireActiveLibrarian();
+            runtime.reservationService().reserveBook(memberId.getText(), bookId.getText());
             view.showMessage("Reservation created");
             list.fire();
         }));
         Button pending = new Button("Pending for book");
         pending.setOnAction(event -> execute(() -> table.setItems(FXCollections.observableArrayList(
-                runtime.controller().viewPendingReservations(employeeId, bookId.getText())))));
+                pendingReservations(bookId.getText())))));
         Button cancel = new Button("Cancel selected");
         cancel.setOnAction(event -> execute(() -> {
             Reservation selected = requireSelection(table, "reservation");
-            runtime.controller().cancelReservation(employeeId, selected.getId());
+            requireActiveLibrarian();
+            runtime.reservationService().cancelReservation(selected.getId());
             view.showMessage("Reservation cancelled");
             list.fire();
         }));
         Button fulfil = new Button("Fulfil selected");
         fulfil.setOnAction(event -> execute(() -> {
             Reservation selected = requireSelection(table, "reservation");
-            runtime.controller().fulfilReservation(employeeId, selected.getId());
+            requireActiveLibrarian();
+            runtime.reservationService().fulfilReservation(selected.getId());
             view.showMessage("Reservation fulfilled");
             list.fire();
         }));
@@ -316,7 +320,8 @@ public final class LibrarianShell extends BorderPane {
                 runtime.controller().viewAllFines(employeeId)))));
         Button create = new Button("Create from loan");
         create.setOnAction(event -> execute(() -> {
-            runtime.controller().createFine(employeeId, loanId.getText());
+            requireActiveLibrarian();
+            runtime.fineService().createFine(loanId.getText());
             view.showMessage("Fine created");
             listAll.fire();
         }));
@@ -352,15 +357,40 @@ public final class LibrarianShell extends BorderPane {
                 textColumn("Message", Notification::getMessage));
         Button list = new Button("List");
         list.setOnAction(event -> execute(() -> table.setItems(FXCollections.observableArrayList(
-                runtime.controller().viewNotifications(employeeId, userId.getText())))));
+                listNotifications(userId.getText())))));
         Button read = new Button("Mark selected read");
         read.setOnAction(event -> execute(() -> {
             Notification selected = requireSelection(table, "notification");
-            runtime.controller().markNotificationRead(employeeId, selected.getId());
+            requireActiveLibrarian();
+            runtime.notificationService().markAsRead(selected.getId());
             view.showMessage("Notification marked read");
             list.fire();
         }));
         return padded(new VBox(10, new HBox(8, userId, list, read), table));
+    }
+
+    private List<Reservation> listAllReservations() {
+        requireActiveLibrarian();
+        return runtime.reservationService().getAllReservations();
+    }
+
+    private List<Reservation> listReservations(String memberId) {
+        requireActiveLibrarian();
+        return runtime.reservationService().getReservations(memberId);
+    }
+
+    private List<Reservation> pendingReservations(String bookId) {
+        requireActiveLibrarian();
+        return runtime.reservationService().processPendingReservations(bookId);
+    }
+
+    private List<Notification> listNotifications(String userId) {
+        requireActiveLibrarian();
+        return runtime.notificationService().getNotifications(userId);
+    }
+
+    private void requireActiveLibrarian() {
+        runtime.librarianService().requireActive(employeeId);
     }
 
     private void execute(Runnable action) {
