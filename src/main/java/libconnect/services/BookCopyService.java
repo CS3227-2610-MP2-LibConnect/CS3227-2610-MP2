@@ -45,6 +45,15 @@ public class BookCopyService {
     }
 
     /**
+     * Returns every persisted book copy.
+     *
+     * @return all persisted book copies.
+     */
+    public List<BookCopy> getAllCopies() {
+        return copyRepository.findAll();
+    }
+
+    /**
      * Returns a book copy by its identifier.
      *
      * @param copyId the copy ID to search for.

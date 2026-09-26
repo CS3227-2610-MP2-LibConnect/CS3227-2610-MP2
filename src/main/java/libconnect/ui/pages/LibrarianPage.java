@@ -2,6 +2,7 @@ package libconnect.ui.pages;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -26,6 +27,8 @@ import libconnect.integration.BookDetails;
 import libconnect.integration.BookSummary;
 import libconnect.integration.LoanSummary;
 import libconnect.integration.MemberSummary;
+import libconnect.models.BookCopy;
+import libconnect.models.CopyStatus;
 import libconnect.models.Fine;
 import libconnect.models.Notification;
 import libconnect.models.Reservation;
@@ -78,6 +81,7 @@ public final class LibrarianPage extends BorderPane {
                 tab("Dashboard", createDashboard()),
                 tab("Members", createMembers()),
                 tab("Books", createBooks()),
+                tab("BookCopy", createBookCopies()),
                 tab("Loans", createLoans()),
                 tab("Reservations", createReservations()),
                 tab("Fines", createFines()),
@@ -225,6 +229,78 @@ public final class LibrarianPage extends BorderPane {
                 runtime.controller().editBook(employeeId, selected.bookId(), details);
                 view.showMessage("Book updated");
             }
+        });
+    }
+
+    private Node createBookCopies() {
+        TextField query = new TextField();
+        query.setPromptText("Search by copy ID, ISBN, or shelf");
+        TableView<BookCopy> table = new TableView<>();
+        table.getColumns().addAll(
+                textColumn("Copy ID", BookCopy::getCopyId),
+                textColumn("ISBN", BookCopy::getIsbn),
+                textColumn("Status", copy -> copy.getStatus().toString()),
+                textColumn("Shelf", BookCopy::getShelfLocation));
+
+        Button search = new Button("Search");
+        search.setOnAction(event -> execute(() -> table.setItems(FXCollections.observableArrayList(
+                searchCopies(query.getText())))));
+        Button add = new Button("Add");
+        add.setOnAction(event -> promptBookCopy(null, search));
+        Button edit = new Button("Edit selected");
+        edit.setOnAction(event -> {
+            BookCopy selected = table.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                view.showError("Select a book copy first");
+            } else {
+                promptBookCopy(selected, search);
+            }
+        });
+        Button remove = new Button("Delete selected");
+        remove.setOnAction(event -> execute(() -> {
+            BookCopy selected = requireSelection(table, "book copy");
+            runtime.bookCopyService().deleteCopy(selected.getCopyId());
+            view.showMessage("Book copy deleted");
+            search.fire();
+        }));
+
+        search.fire();
+        return padded(new VBox(10, new HBox(8, query, search, add, edit, remove), table));
+    }
+
+    private List<BookCopy> searchCopies(String query) {
+        String normalizedQuery = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        return runtime.bookCopyService().getAllCopies().stream()
+                .filter(copy -> normalizedQuery.isEmpty()
+                        || copy.getCopyId().toLowerCase(Locale.ROOT).contains(normalizedQuery)
+                        || copy.getIsbn().toLowerCase(Locale.ROOT).contains(normalizedQuery)
+                        || copy.getShelfLocation().toLowerCase(Locale.ROOT).contains(normalizedQuery))
+                .sorted((first, second) -> first.getCopyId().compareToIgnoreCase(second.getCopyId()))
+                .toList();
+    }
+
+    private void promptBookCopy(BookCopy selected, Button search) {
+        String copyId = selected == null ? prompt("Book copy details", "Copy ID", "") : selected.getCopyId();
+        String isbn = selected == null ? prompt("Book copy details", "ISBN", "") : selected.getIsbn();
+        String shelfLocation = prompt("Book copy details", "Shelf location",
+                selected == null ? "" : selected.getShelfLocation());
+        if (copyId == null || isbn == null || shelfLocation == null) {
+            return;
+        }
+
+        execute(() -> {
+            if (selected == null) {
+                if (runtime.bookService().getBookByIsbn(isbn).isEmpty()) {
+                    throw new IllegalArgumentException("Cannot add a copy for an unknown ISBN: " + isbn);
+                }
+                runtime.bookCopyService().createCopy(copyId, isbn, CopyStatus.AVAILABLE,
+                        shelfLocation);
+                view.showMessage("Book copy added");
+            } else {
+                runtime.bookCopyService().updateCopyShelfLocation(selected.getCopyId(), shelfLocation);
+                view.showMessage("Book copy updated");
+            }
+            search.fire();
         });
     }
 

@@ -102,8 +102,8 @@ public final class LibrarianCompositionRoot {
         LibrarianController controller = new LibrarianController(librarianService, reservationService,
                 fineService, notificationService, loans, view, clock, members, books, copies);
 
-        return new LibrarianRuntime(librarianService, reservationService, fineService,
-                notificationService, controller);
+        return new LibrarianRuntime(librarianService, bookService, bookCopyService,
+                reservationService, fineService, notificationService, controller);
     }
 
     private static final class MemberAdapter implements MemberManagement {
