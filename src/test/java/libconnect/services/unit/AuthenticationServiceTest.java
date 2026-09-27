@@ -1,9 +1,9 @@
 package libconnect.services.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 
@@ -13,13 +13,16 @@ import org.junit.jupiter.api.io.TempDir;
 
 import libconnect.models.AccountStatus;
 import libconnect.models.AccountType;
+import libconnect.models.Librarian;
 import libconnect.models.Member;
 import libconnect.models.User;
 import libconnect.services.AuthenticationException;
 import libconnect.services.AuthenticationService;
 import libconnect.services.LibrarianService;
 import libconnect.services.MemberService;
-import libconnect.services.ServiceException;
+import libconnect.services.UserService;
+import libconnect.storage.StorageManager;
+import libconnect.storage.file.FileLibrarianRepository;
 import libconnect.storage.file.FileMemberRepository;
 
 /** Tests account registration and authentication behavior. */
@@ -28,18 +31,24 @@ class AuthenticationServiceTest {
     Path temporaryDirectory;
 
     private FileMemberRepository memberRepository;
+    private FileLibrarianRepository librarianRepository;
+    private LibrarianService librarianService;
     private AuthenticationService authenticationService;
 
     @BeforeEach
     void setUp() {
         memberRepository = new FileMemberRepository(temporaryDirectory.resolve("members.json"));
-        authenticationService = new AuthenticationService(memberRepository, new LibrarianService());
+        librarianRepository = new FileLibrarianRepository(new StorageManager(temporaryDirectory),
+                temporaryDirectory.resolve("librarians.json"));
+        MemberService memberService = new MemberService(memberRepository);
+        librarianService = new LibrarianService(librarianRepository, memberRepository);
+        UserService userService = new UserService(memberRepository, librarianRepository);
+        authenticationService = new AuthenticationService(memberService, librarianService, userService);
     }
 
     @Test
     void registerMember_createsActiveMember() {
-        User user = authenticationService.registerMember(
-                AccountType.MEMBER, "Ada", "ada@example.com", "secret-password");
+        User user = authenticationService.registerMember("Ada", "ada@example.com", "secret-password");
 
         Member member = assertInstanceOf(Member.class, user);
         assertEquals(AccountStatus.ACTIVE, member.getStatus());
@@ -48,8 +57,7 @@ class AuthenticationServiceTest {
 
     @Test
     void authenticateMember_correctCredentialsIgnoringEmailCase_returnsMember() {
-        authenticationService.registerMember(
-                AccountType.MEMBER, "Ada", "ada@example.com", "secret-password");
+        authenticationService.registerMember("Ada", "ada@example.com", "secret-password");
 
         User authenticatedUser = authenticationService.authenticate(
                 AccountType.MEMBER, " ADA@EXAMPLE.COM ", "secret-password");
@@ -59,8 +67,7 @@ class AuthenticationServiceTest {
 
     @Test
     void authenticateMember_wrongPassword_throwsUsefulException() {
-        authenticationService.registerMember(
-                AccountType.MEMBER, "Ada", "ada@example.com", "secret-password");
+        authenticationService.registerMember("Ada", "ada@example.com", "secret-password");
 
         AuthenticationException exception = assertThrows(AuthenticationException.class,
                 () -> authenticationService.authenticate(
@@ -71,8 +78,7 @@ class AuthenticationServiceTest {
 
     @Test
     void authenticateMember_deactivatedAccount_throwsUsefulException() {
-        authenticationService.registerMember(
-                AccountType.MEMBER, "Ada", "ada@example.com", "secret-password");
+        authenticationService.registerMember("Ada", "ada@example.com", "secret-password");
         Member member = memberRepository.findByEmail("ada@example.com").orElseThrow();
         new MemberService(memberRepository).deactivateMember(member.getMembershipId());
 
@@ -84,28 +90,28 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    // TODO: Replace this test with a proper librarian registration test once a librarian model and persistence service are available.
-    void registerLibrarian_beforeLibrarianImplementation_throwsServiceException() {
-        ServiceException exception = assertThrows(ServiceException.class,
-                () -> authenticationService.registerMember(
-                        AccountType.LIBRARIAN, "Grace", "grace@example.com", "secret-password"));
+    void registerLibrarian_createsActiveLibrarian() {
+        User user = authenticationService.registerLibrarian(
+                "e1", "Grace", "grace@example.com", "secret-password");
 
-        assertEquals("Librarian account registration is not supported yet.", exception.getMessage());
+        Librarian librarian = assertInstanceOf(Librarian.class, user);
+        assertEquals(AccountStatus.ACTIVE, librarian.getStatus());
+        assertEquals(librarian, librarianRepository.findByEmail("grace@example.com").orElseThrow());
     }
 
     @Test
-    // TODO: Replace this test with a proper librarian authentication test once a librarian model and persistence service are available.
-    void authenticateLibrarian_beforeLibrarianImplementation_throwsAuthenticationException() {
-        AuthenticationException exception = assertThrows(AuthenticationException.class,
-                () -> authenticationService.authenticate(
-                        AccountType.LIBRARIAN, "grace@example.com", "secret-password"));
+    void authenticateLibrarian_correctCredentials_returnsLibrarian() {
+        authenticationService.registerLibrarian("e1", "Grace", "grace@example.com", "secret-password");
 
-        assertEquals("Librarian authentication is not supported yet.", exception.getMessage());
+        User authenticatedUser = authenticationService.authenticate(
+                AccountType.LIBRARIAN, "grace@example.com", "secret-password");
+
+        assertInstanceOf(Librarian.class, authenticatedUser);
+        assertEquals("grace@example.com", authenticatedUser.getEmail());
     }
 
     @Test
-    // TODO: Replace this test with a proper librarian service test once a librarian model and persistence service are available.
-    void librarianServiceShell_hasNoUserIds() {
-        assertFalse(new LibrarianService().findByUserId("USER-1").isPresent());
+    void librarianService_search_unknownUserId_returnsNoMatches() {
+        assertTrue(librarianService.search("USER-1").isEmpty());
     }
 }

@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import libconnect.models.Member;
+import libconnect.storage.file.FileLibrarianRepository;
 import libconnect.storage.file.FileMemberRepository;
 import libconnect.storage.repositories.MemberRepository;
 
@@ -25,7 +26,7 @@ public class MemberService {
      * @throws NullPointerException if {@code memberRepository} is null.
      */
     public MemberService(MemberRepository memberRepository) {
-        this(memberRepository, new UserService());
+        this(memberRepository, new UserService(memberRepository, new FileLibrarianRepository()));
     }
 
     /**

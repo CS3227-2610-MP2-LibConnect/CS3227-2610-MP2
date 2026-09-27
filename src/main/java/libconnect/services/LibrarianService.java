@@ -42,7 +42,8 @@ public final class LibrarianService {
         if (repository.findById(librarian.getId()).isPresent()) {
             throw new IllegalStateException("A librarian with this employee ID already exists");
         }
-        if (userService.isEmailInUse(librarian.getEmail())) {
+        if (repository.findByEmail(librarian.getEmail()).isPresent()
+                || userService.isEmailInUse(librarian.getEmail())) {
             throw new IllegalStateException("A librarian or member with this email already exists");
         }
         repository.save(librarian);

@@ -58,6 +58,12 @@ final class ServiceTestDoubles {
         public Optional<Librarian> findByEmail(String email) {
             return entities.stream().filter(librarian -> librarian.getEmail().equalsIgnoreCase(email)).findFirst();
         }
+
+        /** Finds a librarian by user ID. */
+        @Override
+        public Optional<Librarian> findByUserId(String userId) {
+            return entities.stream().filter(librarian -> librarian.getUserId().equals(userId)).findFirst();
+        }
     }
 
     /** Provides an in-memory reservation repository. */

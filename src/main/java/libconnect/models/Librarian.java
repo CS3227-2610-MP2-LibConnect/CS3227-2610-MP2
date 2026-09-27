@@ -10,7 +10,7 @@ public final class Librarian extends User {
     /** Creates a librarian with the supplied identity and account status. */
     public Librarian(String userId, String employeeId, String name, String email, String passwordHash, AccountStatus status) {
         this.employeeId = requireText(employeeId, "employeeId");
-        super(userId, name, email, passwordHash);
+        super(userId, name, email, passwordHash, status);
     }
 
     /** Returns the stable employee identifier. */

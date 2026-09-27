@@ -60,10 +60,26 @@ class RegistrationPageTest {
                         context.navigator());
                 ComboBox<?> selector = UiTestSupport.findNodes(page, ComboBox.class).get(0);
                 selector.getSelectionModel().select(1);
-                UiPageTestSupport.assertFeedback(page, "Librarian registration is not available yet.");
+                List<TextField> fields = UiTestSupport.findTextFields(page);
+                fields.get(0).setText("Grace");
+                fields.get(1).setText("grace@example.com");
+                fields.get(2).setText("secret");
+                fields.get(3).setText("secret");
+                fields.get(4).setText("e1");
+                UiTestSupport.findButton(page, "Register").fire();
+                assertEquals(AccountType.LIBRARIAN, context.authenticationService().lastAccountType);
+                assertInstanceOf(LoginPage.class, context.stage().getScene().getRoot());
+            } finally {
+                context.close();
+            }
 
+            UiPageTestSupport.TestContext failureContext = UiPageTestSupport.context();
+            try {
+                RegistrationPage page = new RegistrationPage(failureContext.authenticationService(),
+                        failureContext.navigator());
+                ComboBox<?> selector = UiTestSupport.findNodes(page, ComboBox.class).get(0);
                 selector.getSelectionModel().select(0);
-                context.authenticationService().registerFailure = UiPageTestSupport.repositoryFailure();
+                failureContext.authenticationService().registerFailure = UiPageTestSupport.repositoryFailure();
                 List<TextField> fields = UiTestSupport.findTextFields(page);
                 fields.get(0).setText("Alex");
                 fields.get(1).setText("alex@example.com");
@@ -72,7 +88,7 @@ class RegistrationPageTest {
                 UiTestSupport.findButton(page, "Register").fire();
                 UiPageTestSupport.assertFeedback(page, "Unable to access account data. Please try again.");
             } finally {
-                context.close();
+                failureContext.close();
             }
         });
     }

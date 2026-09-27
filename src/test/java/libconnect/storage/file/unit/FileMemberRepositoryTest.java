@@ -60,7 +60,7 @@ class FileMemberRepositoryTest extends AbstractFileRepositoryTest<Member, FileMe
         FileMemberRepository repository = createRepository(
                 temporaryDirectory.resolve("members.json"));
         Member member = createMember("USER-1", "Alice Tan", "alice@example.com", "MEM-1",
-                AccountStatus.DEACTIVATED, LocalDate.of(2025, 12, 31));
+                AccountStatus.INACTIVE, LocalDate.of(2025, 12, 31));
 
         repository.save(member);
 
@@ -72,7 +72,7 @@ class FileMemberRepositoryTest extends AbstractFileRepositoryTest<Member, FileMe
                 () -> assertEquals("password-hash", savedMember.getPasswordHash()),
                 () -> assertEquals("MEM-1", savedMember.getMembershipId()),
                 () -> assertEquals(LocalDate.of(2025, 12, 31), savedMember.getRegistrationDate()),
-                () -> assertEquals(AccountStatus.DEACTIVATED, savedMember.getStatus()));
+                () -> assertEquals(AccountStatus.INACTIVE, savedMember.getStatus()));
     }
 
     @Test
@@ -204,7 +204,7 @@ class FileMemberRepositoryTest extends AbstractFileRepositoryTest<Member, FileMe
     @EnumSource(AccountStatus.class)
     void findByStatus_status_returnsMatchingMembers(AccountStatus status) {
         AccountStatus otherStatus = status == AccountStatus.ACTIVE
-                ? AccountStatus.DEACTIVATED : AccountStatus.ACTIVE;
+                ? AccountStatus.INACTIVE : AccountStatus.ACTIVE;
         Member matchingMember = createMember("USER-1", "Matching Member", "matching@example.com",
                 "MEM-1", status, LocalDate.of(2026, 1, 1));
         Member otherMember = createMember("USER-2", "Other Member", "other@example.com", "MEM-2",

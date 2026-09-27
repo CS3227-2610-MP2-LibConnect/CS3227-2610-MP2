@@ -16,17 +16,20 @@ class LibrarianServiceTest {
     void register_duplicateEmail_rejected() {
         ServiceTestDoubles.Librarians repository = new ServiceTestDoubles.Librarians();
         LibrarianService service = new LibrarianService(repository);
-        service.register(new Librarian("e1", "Ada", "ada@example.com", AccountStatus.ACTIVE));
+        service.register(new Librarian("u1", "e1", "Ada", "ada@example.com", "password-hash",
+                AccountStatus.ACTIVE));
 
         assertThrows(IllegalStateException.class, () -> service.register(
-                new Librarian("e2", "Grace", "ada@example.com", AccountStatus.ACTIVE)));
+                new Librarian("u2", "e2", "Grace", "ada@example.com", "password-hash",
+                        AccountStatus.ACTIVE)));
     }
 
     /** Verifies that inactive librarians cannot perform protected operations. */
     @Test
     void requireActive_inactiveLibrarian_rejected() {
         ServiceTestDoubles.Librarians repository = new ServiceTestDoubles.Librarians();
-        repository.save(new Librarian("e1", "Ada", "ada@example.com", AccountStatus.INACTIVE));
+        repository.save(new Librarian("u1", "e1", "Ada", "ada@example.com", "password-hash",
+                AccountStatus.INACTIVE));
         LibrarianService service = new LibrarianService(repository);
 
         assertThrows(IllegalStateException.class, () -> service.requireActive("e1"));
@@ -36,7 +39,8 @@ class LibrarianServiceTest {
     @Test
     void search_matchesName_caseInsensitive() {
         ServiceTestDoubles.Librarians repository = new ServiceTestDoubles.Librarians();
-        repository.save(new Librarian("e1", "Ada Lovelace", "ada@example.com", AccountStatus.ACTIVE));
+        repository.save(new Librarian("u1", "e1", "Ada Lovelace", "ada@example.com", "password-hash",
+                AccountStatus.ACTIVE));
         LibrarianService service = new LibrarianService(repository);
 
         assertEquals(1, service.search("lovelace").size());

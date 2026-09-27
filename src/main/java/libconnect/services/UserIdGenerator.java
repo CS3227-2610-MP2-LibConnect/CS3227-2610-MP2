@@ -3,8 +3,6 @@ package libconnect.services;
 import java.util.Objects;
 import java.util.UUID;
 
-import libconnect.storage.repositories.MemberRepository;
-
 /** Generates user IDs that are unique across member and librarian accounts. */
 public final class UserIdGenerator {
     private final UserService userService;

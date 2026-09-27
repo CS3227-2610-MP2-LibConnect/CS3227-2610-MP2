@@ -145,7 +145,6 @@
                 <configuration>
                     <excludes>
                         <exclude>libconnect/gui/**/*.java</exclude>
-                        <exclude>libconnect/cli/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

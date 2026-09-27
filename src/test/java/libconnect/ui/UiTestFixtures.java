@@ -96,8 +96,20 @@ public final class UiTestFixtures {
         }
 
         @Override
-        public User register(AccountType accountType, String name, String email, String password) {
-            lastAccountType = accountType;
+        public User registerMember(String name, String email, String password) {
+            lastAccountType = AccountType.MEMBER;
+            lastName = name;
+            lastEmail = email;
+            lastPassword = password;
+            if (registerFailure != null) {
+                throw registerFailure;
+            }
+            return user;
+        }
+
+        @Override
+        public User registerLibrarian(String employeeId, String name, String email, String password) {
+            lastAccountType = AccountType.LIBRARIAN;
             lastName = name;
             lastEmail = email;
             lastPassword = password;

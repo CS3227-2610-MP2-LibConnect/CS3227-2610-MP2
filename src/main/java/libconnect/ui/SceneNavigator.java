@@ -400,16 +400,6 @@ public final class SceneNavigator {
         showPage(new BookInfoPage(bookService, bookCopyService, sessionManager, isbn, this));
     }
 
-    /**
-     * Displays the dashboard through the legacy placeholder-page entry point.
-     *
-     * @deprecated Use {@link #showDashboardPage()} instead.
-     */
-    @Deprecated
-    public void showPlaceholderPage() {
-        showDashboardPage();
-    }
-
     private void showPage(Parent page) {
         scene.setRoot(page);
         stage.show();

@@ -94,7 +94,7 @@ class MemberServiceTest {
         String membershipId = memberRepository.findByEmail("ada@example.com").orElseThrow().getMembershipId();
 
         memberService.deactivateMember(membershipId);
-        assertEquals(AccountStatus.DEACTIVATED,
+        assertEquals(AccountStatus.INACTIVE,
                 memberRepository.findByMembershipId(membershipId).orElseThrow().getStatus());
 
         memberService.activateMember(membershipId);

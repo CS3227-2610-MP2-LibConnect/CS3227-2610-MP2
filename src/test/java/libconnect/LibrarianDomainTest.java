@@ -25,7 +25,8 @@ class LibrarianDomainTest {
     @Test
     void librarian_blankEmployeeId_rejected() {
         assertThrows(IllegalArgumentException.class,
-                () -> new Librarian(" ", "Name", "email@test", AccountStatus.ACTIVE));
+                () -> new Librarian("u1", " ", "Name", "email@test", "hash",
+                        AccountStatus.ACTIVE));
     }
 
     /** Verifies that reservation transitions preserve identity and change status. */

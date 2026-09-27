@@ -39,8 +39,8 @@ class LibrarianControllerTest {
     @Test
     void searchMembers_activeLibrarian_delegatesToMemberRole() {
         ServiceTestDoubles.Librarians librarians = new ServiceTestDoubles.Librarians();
-        librarians.save(new libconnect.models.Librarian("e1", "Ada", "ada@example.com",
-                AccountStatus.ACTIVE));
+        librarians.save(new libconnect.models.Librarian("u1", "e1", "Ada", "ada@example.com",
+                "password-hash", AccountStatus.ACTIVE));
         RecordingMemberManagement members = new RecordingMemberManagement();
         LibrarianController controller = createController(librarians, members);
 
@@ -52,8 +52,8 @@ class LibrarianControllerTest {
     @Test
     void searchMembers_inactiveLibrarian_rejectedBeforeDelegation() {
         ServiceTestDoubles.Librarians librarians = new ServiceTestDoubles.Librarians();
-        librarians.save(new libconnect.models.Librarian("e1", "Ada", "ada@example.com",
-                AccountStatus.INACTIVE));
+        librarians.save(new libconnect.models.Librarian("u1", "e1", "Ada", "ada@example.com",
+                "password-hash", AccountStatus.INACTIVE));
         RecordingMemberManagement members = new RecordingMemberManagement();
         LibrarianController controller = createController(librarians, members);
 

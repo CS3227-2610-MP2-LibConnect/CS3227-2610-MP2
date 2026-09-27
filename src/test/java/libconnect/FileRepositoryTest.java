@@ -36,7 +36,8 @@ class FileRepositoryTest {
         StorageManager storageManager = new StorageManager(temporaryDirectory);
         Path file = temporaryDirectory.resolve("librarians.json");
         FileLibrarianRepository repository = new FileLibrarianRepository(storageManager, file);
-        Librarian librarian = new Librarian("e1", "Ada", "ada@example.com", AccountStatus.ACTIVE);
+        Librarian librarian = new Librarian("u1", "e1", "Ada", "ada@example.com", "password-hash",
+                AccountStatus.ACTIVE);
 
         repository.save(librarian);
 
