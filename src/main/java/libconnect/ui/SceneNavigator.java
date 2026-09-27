@@ -15,6 +15,7 @@ import libconnect.services.FineService;
 import libconnect.services.LoanService;
 import libconnect.services.MemberService;
 import libconnect.services.NotificationService;
+import libconnect.services.ReservationService;
 import libconnect.ui.components.JavaFxLibrarianView;
 import libconnect.ui.pages.BookInfoPage;
 import libconnect.ui.pages.BorrowPage;
@@ -42,6 +43,7 @@ public final class SceneNavigator {
     private final MemberService memberService;
     private final NotificationService notificationService;
     private final SessionManager sessionManager;
+    private final ReservationService reservationService;
     private final Scene scene;
     private LibrarianRuntime librarianRuntime;
     private JavaFxLibrarianView librarianView;
@@ -186,6 +188,31 @@ public final class SceneNavigator {
                           BookCopyService bookCopyService, BorrowService borrowService,
                           LoanService loanService, MemberService memberService,
                           NotificationService notificationService, FineService fineService) {
+        this(stage, authenticationService, sessionManager, bookService, bookCopyService,
+                borrowService, loanService, memberService, notificationService, fineService, null);
+    }
+
+    /**
+     * Creates a navigator with explicit services for member pages, including reservations.
+     *
+     * @param stage the application window used for navigation.
+     * @param authenticationService the service used by the login page.
+     * @param sessionManager the session shared by authenticated pages.
+     * @param bookService the service used by catalogue pages.
+     * @param bookCopyService the service used to load physical book copies.
+     * @param borrowService the service used to complete borrowing and return transactions.
+     * @param loanService the service used to load and renew loans.
+     * @param memberService the service used to update member profiles and passwords.
+     * @param notificationService the service used to load and mark member notifications.
+     * @param fineService the service used to load and pay member fines.
+     * @param reservationService the service used to create and cancel member reservations.
+     */
+    public SceneNavigator(Stage stage, AuthenticationService authenticationService,
+                          SessionManager sessionManager, BookService bookService,
+                          BookCopyService bookCopyService, BorrowService borrowService,
+                          LoanService loanService, MemberService memberService,
+                          NotificationService notificationService, FineService fineService,
+                          ReservationService reservationService) {
         this.stage = stage;
         this.authenticationService = authenticationService;
         this.sessionManager = sessionManager;
@@ -196,6 +223,7 @@ public final class SceneNavigator {
         this.memberService = memberService;
         this.notificationService = notificationService;
         this.fineService = fineService;
+        this.reservationService = reservationService;
         this.scene = new Scene(new javafx.scene.layout.StackPane(), WINDOW_WIDTH,
                 WINDOW_HEIGHT);
         String stylesheet = Objects.requireNonNull(
@@ -229,7 +257,7 @@ public final class SceneNavigator {
                           LibrarianRuntime librarianRuntime, JavaFxLibrarianView librarianView) {
         this(stage, authenticationService, sessionManager, bookService, bookCopyService,
                 borrowService, loanService, memberService, librarianRuntime.notificationService(),
-                librarianRuntime.fineService());
+                librarianRuntime.fineService(), librarianRuntime.reservationService());
         this.librarianRuntime = Objects.requireNonNull(librarianRuntime, "librarianRuntime");
         this.librarianView = Objects.requireNonNull(librarianView, "librarianView");
     }
@@ -335,7 +363,12 @@ public final class SceneNavigator {
             return;
         }
 
-        showPage(new ReservationPage(sessionManager, this));
+        if (reservationService == null) {
+            showDashboardPage();
+            return;
+        }
+
+        showPage(new ReservationPage(reservationService, bookService, sessionManager, this));
     }
 
     /**

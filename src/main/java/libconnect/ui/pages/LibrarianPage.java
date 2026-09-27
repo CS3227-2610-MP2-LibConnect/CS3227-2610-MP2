@@ -544,6 +544,7 @@ public final class LibrarianPage extends BorderPane {
             Reservation selected = requireSelection(table, "reservation");
             runtime.controller().sendReservationReminder(employeeId, selected.getId());
         }));
+        list.fire();
         return padded(new VBox(10, new HBox(8, memberId, bookId),
                 new HBox(8, list, create, pending, cancel, fulfil, reminder), table));
     }

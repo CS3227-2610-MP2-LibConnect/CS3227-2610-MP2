@@ -1,0 +1,28 @@
+# Conversation Summary
+
+Date: 2026-09-27
+
+Objective:
+
+Update the librarian reservation subpage so all existing reservations load automatically when the view opens.
+
+Key decisions:
+
+- Do not reimplement the previously removed member reservation-page changes.
+- Reuse the existing “List” action to load all reservations on initial view creation.
+
+Work completed:
+
+- Modified `src/main/java/libconnect/ui/pages/LibrarianPage.java`.
+- Added `list.fire()` during reservation-tab initialization.
+- The reservation table now displays all reservations without requiring the librarian to click “List”.
+- Production Maven build passed.
+
+Open items / blockers:
+
+- No existing `LibrarianPage` test was found.
+- Full test suite remains blocked by unrelated existing test-compilation errors.
+
+Next steps:
+
+- Add a focused UI test for automatic reservation loading when practical.
