@@ -26,11 +26,12 @@ public final class LibConnectApplication extends Application {
         AuthenticationService authenticationService = new AuthenticationService();
         BookCopyService bookCopyService = new BookCopyService();
         BookService bookService = new BookService();
-        BorrowService borrowService = new BorrowService();
         SessionManager sessionManager = new SessionManager();
         JavaFxLibrarianView librarianView = new JavaFxLibrarianView();
+        Clock clock = Clock.systemDefaultZone();
         LibrarianRuntime librarianRuntime = LibrarianCompositionRoot.create(
-                Path.of("data"), Clock.systemDefaultZone(), librarianView);
+                Path.of("data"), clock, librarianView);
+        BorrowService borrowService = new BorrowService(librarianRuntime.fineService(), clock);
         SceneNavigator sceneNavigator = new SceneNavigator(stage, authenticationService,
                 sessionManager, bookService, bookCopyService, borrowService,
                 new libconnect.services.LoanService(), new libconnect.services.MemberService(),

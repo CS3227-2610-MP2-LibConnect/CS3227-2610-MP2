@@ -23,7 +23,8 @@
 }
 
 .borrow-book-card,
-.loan-card {
+.loan-card,
+.fine-card {
     -fx-border-color: #d0d7de;
     -fx-border-radius: 6;
     -fx-background-radius: 6;

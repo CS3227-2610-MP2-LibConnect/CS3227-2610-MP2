@@ -1,5 +1,6 @@
 package libconnect.services;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -8,6 +9,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import libconnect.integration.FineIssuer;
+import libconnect.integration.ReturnedLoanSummary;
 import libconnect.models.BookCopy;
 import libconnect.models.Loan;
 import libconnect.storage.file.FileBookCopyRepository;
@@ -26,10 +29,13 @@ public final class BorrowService {
 
     private final BookCopyRepository copyRepository;
     private final LoanRepository loanRepository;
+    private final FineIssuer fineIssuer;
+    private final Clock clock;
 
     /** Creates a borrowing service backed by the default data files. */
     public BorrowService() {
-        this(new FileBookCopyRepository(), new FileLoanRepository());
+        this(new FileBookCopyRepository(), new FileLoanRepository(), loan -> null,
+                Clock.systemDefaultZone());
     }
 
     /**
@@ -40,8 +46,29 @@ public final class BorrowService {
      * @throws NullPointerException if either repository is null.
      */
     public BorrowService(BookCopyRepository copyRepository, LoanRepository loanRepository) {
+        this(copyRepository, loanRepository, loan -> null, Clock.systemDefaultZone());
+    }
+
+    /**
+     * Creates a borrowing service with explicit repositories, fine issuer, and clock.
+     *
+     * @param copyRepository the repository used to persist book-copy statuses.
+     * @param loanRepository the repository used to persist loans.
+     * @param fineIssuer the component used to create fines after overdue returns.
+     * @param clock the clock used to determine the return date.
+     * @throws NullPointerException if a dependency is null.
+     */
+    public BorrowService(BookCopyRepository copyRepository, LoanRepository loanRepository,
+                         FineIssuer fineIssuer, Clock clock) {
         this.copyRepository = Objects.requireNonNull(copyRepository, "copyRepository");
         this.loanRepository = Objects.requireNonNull(loanRepository, "loanRepository");
+        this.fineIssuer = Objects.requireNonNull(fineIssuer, "fineIssuer");
+        this.clock = Objects.requireNonNull(clock, "clock");
+    }
+
+    /** Creates a borrowing service using the default repositories and supplied fine issuer. */
+    public BorrowService(FineIssuer fineIssuer, Clock clock) {
+        this(new FileBookCopyRepository(), new FileLoanRepository(), fineIssuer, clock);
     }
 
     /**
@@ -110,10 +137,15 @@ public final class BorrowService {
         BookCopy originalCopy = copySnapshot(copy);
 
         try {
-            loan.returnBook(LocalDate.now());
+            LocalDate returnDate = LocalDate.now(clock);
+            loan.returnBook(returnDate);
             copy.markAvailable();
             loanRepository.save(loan);
             copyRepository.save(copy);
+            if (loan.isOverdue()) {
+                fineIssuer.issueForReturnedLoan(new ReturnedLoanSummary(loan.getLoanId(),
+                        loan.getMemberId(), loan.getDueDate(), loan.getReturnDate()));
+            }
         } catch (RuntimeException exception) {
             try {
                 loanRepository.save(originalLoan);

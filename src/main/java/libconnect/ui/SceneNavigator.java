@@ -11,6 +11,7 @@ import libconnect.services.AuthenticationService;
 import libconnect.services.BookCopyService;
 import libconnect.services.BookService;
 import libconnect.services.BorrowService;
+import libconnect.services.FineService;
 import libconnect.services.LoanService;
 import libconnect.services.MemberService;
 import libconnect.services.NotificationService;
@@ -36,6 +37,7 @@ public final class SceneNavigator {
     private final BookService bookService;
     private final BookCopyService bookCopyService;
     private final BorrowService borrowService;
+    private final FineService fineService;
     private final LoanService loanService;
     private final MemberService memberService;
     private final NotificationService notificationService;
@@ -161,6 +163,29 @@ public final class SceneNavigator {
                           BookCopyService bookCopyService, BorrowService borrowService,
                           LoanService loanService, MemberService memberService,
                           NotificationService notificationService) {
+        this(stage, authenticationService, sessionManager, bookService, bookCopyService,
+                borrowService, loanService, memberService, notificationService, null);
+    }
+
+    /**
+     * Creates a navigator with explicit services for member pages, including fines.
+     *
+     * @param stage the application window used for navigation.
+     * @param authenticationService the service used by the login page.
+     * @param sessionManager the session shared by authenticated pages.
+     * @param bookService the service used by catalogue pages.
+     * @param bookCopyService the service used to load physical book copies.
+     * @param borrowService the service used to complete borrowing and return transactions.
+     * @param loanService the service used to load and renew loans.
+     * @param memberService the service used to update member profiles and passwords.
+     * @param notificationService the service used to load and mark member notifications.
+     * @param fineService the service used to load and pay member fines.
+     */
+    public SceneNavigator(Stage stage, AuthenticationService authenticationService,
+                          SessionManager sessionManager, BookService bookService,
+                          BookCopyService bookCopyService, BorrowService borrowService,
+                          LoanService loanService, MemberService memberService,
+                          NotificationService notificationService, FineService fineService) {
         this.stage = stage;
         this.authenticationService = authenticationService;
         this.sessionManager = sessionManager;
@@ -170,6 +195,7 @@ public final class SceneNavigator {
         this.loanService = loanService;
         this.memberService = memberService;
         this.notificationService = notificationService;
+        this.fineService = fineService;
         this.scene = new Scene(new javafx.scene.layout.StackPane(), WINDOW_WIDTH,
                 WINDOW_HEIGHT);
         String stylesheet = Objects.requireNonNull(
@@ -202,7 +228,8 @@ public final class SceneNavigator {
                           LoanService loanService, MemberService memberService,
                           LibrarianRuntime librarianRuntime, JavaFxLibrarianView librarianView) {
         this(stage, authenticationService, sessionManager, bookService, bookCopyService,
-                borrowService, loanService, memberService, librarianRuntime.notificationService());
+                borrowService, loanService, memberService, librarianRuntime.notificationService(),
+                librarianRuntime.fineService());
         this.librarianRuntime = Objects.requireNonNull(librarianRuntime, "librarianRuntime");
         this.librarianView = Objects.requireNonNull(librarianView, "librarianView");
     }
@@ -323,7 +350,7 @@ public final class SceneNavigator {
         }
 
         showPage(new ProfilePage(memberService, loanService, bookService, bookCopyService,
-                borrowService, sessionManager, this));
+                borrowService, sessionManager, this, fineService));
     }
 
     /**

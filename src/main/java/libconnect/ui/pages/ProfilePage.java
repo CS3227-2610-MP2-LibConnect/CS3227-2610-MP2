@@ -20,6 +20,7 @@ import libconnect.models.User;
 import libconnect.services.BookCopyService;
 import libconnect.services.BookService;
 import libconnect.services.BorrowService;
+import libconnect.services.FineService;
 import libconnect.services.LoanService;
 import libconnect.services.MemberService;
 import libconnect.services.ServiceException;
@@ -53,6 +54,7 @@ public final class ProfilePage extends BorderPane {
     private final BookService bookService;
     private final BookCopyService bookCopyService;
     private final BorrowService borrowService;
+    private final FineService fineService;
     private final SessionManager sessionManager;
     private final TextField nameField;
     private final TextField emailField;
@@ -81,11 +83,33 @@ public final class ProfilePage extends BorderPane {
                        BookService bookService, BookCopyService bookCopyService,
                        BorrowService borrowService, SessionManager sessionManager,
                        SceneNavigator sceneNavigator) {
+        this(memberService, loanService, bookService, bookCopyService, borrowService,
+                sessionManager, sceneNavigator, null);
+    }
+
+    /**
+     * Creates a profile page with fine-management support.
+     *
+     * @param memberService the service used to update member data.
+     * @param loanService the service used to load and renew loans.
+     * @param bookService the service used to load catalogue metadata.
+     * @param bookCopyService the service used to load physical copy metadata.
+     * @param borrowService the service used to return loans and copies together.
+     * @param sessionManager the session containing the authenticated member.
+     * @param sceneNavigator the navigator used for page transitions.
+     * @param fineService the service used to load and pay member fines.
+     * @throws NullPointerException if any required dependency is null.
+     */
+    public ProfilePage(MemberService memberService, LoanService loanService,
+                       BookService bookService, BookCopyService bookCopyService,
+                       BorrowService borrowService, SessionManager sessionManager,
+                       SceneNavigator sceneNavigator, FineService fineService) {
         this.memberService = Objects.requireNonNull(memberService, "memberService");
         this.loanService = Objects.requireNonNull(loanService, "loanService");
         this.bookService = Objects.requireNonNull(bookService, "bookService");
         this.bookCopyService = Objects.requireNonNull(bookCopyService, "bookCopyService");
         this.borrowService = Objects.requireNonNull(borrowService, "borrowService");
+        this.fineService = fineService;
         this.sessionManager = Objects.requireNonNull(sessionManager, "sessionManager");
         Objects.requireNonNull(sceneNavigator, "sceneNavigator");
         nameField = new TextField();
@@ -188,9 +212,16 @@ public final class ProfilePage extends BorderPane {
         setActiveSubpage(myLoansButton);
     }
 
-    /** Displays the placeholder fines subpage. */
+    /** Displays the member's outstanding fines and payment history. */
     private void showMyFinesPage() {
-        subpageContent.getChildren().setAll(new Label("Pay Fines"));
+        if (fineService == null) {
+            subpageContent.getChildren().setAll(new Label("Pay Fines"));
+        } else {
+            MyFinesPage myFinesPage = new MyFinesPage(fineService, sessionManager);
+            myFinesPage.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            VBox.setVgrow(myFinesPage, Priority.ALWAYS);
+            subpageContent.getChildren().setAll(myFinesPage);
+        }
         setActiveSubpage(myFinesButton);
     }
 
