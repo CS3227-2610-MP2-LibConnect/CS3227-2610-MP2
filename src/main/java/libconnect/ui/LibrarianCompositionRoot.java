@@ -88,7 +88,7 @@ public final class LibrarianCompositionRoot {
         MemberManagement members = new MemberAdapter(memberRepository, memberService, userService);
         BookManagement books = new BookAdapter(bookRepository, bookService, copyRepository);
         BookCopyManagement copies = new BookCopyAdapter(bookCopyService);
-        LoanQuery loans = new LoanAdapter(loanRepository);
+        LoanQuery loans = new LoanAdapter(loanRepository, copyRepository, bookRepository);
 
         ReservationService reservationService = new ReservationService(
                 new FileReservationRepository(storageManager, dataDirectory.resolve("reservations.json")),
@@ -271,9 +271,14 @@ public final class LibrarianCompositionRoot {
 
     private static final class LoanAdapter implements LoanQuery {
         private final LoanRepository repository;
+        private final BookCopyRepository copyRepository;
+        private final BookRepository bookRepository;
 
-        private LoanAdapter(LoanRepository repository) {
+        private LoanAdapter(LoanRepository repository, BookCopyRepository copyRepository,
+                            BookRepository bookRepository) {
             this.repository = repository;
+            this.copyRepository = copyRepository;
+            this.bookRepository = bookRepository;
         }
 
         @Override
@@ -297,7 +302,12 @@ public final class LibrarianCompositionRoot {
         }
 
         private LoanSummary toSummary(Loan loan) {
-            return new LoanSummary(loan.getLoanId(), loan.getMemberId(), loan.getCopyId(), loan.getDueDate());
+            String bookName = copyRepository.findById(loan.getCopyId())
+                    .flatMap(copy -> bookRepository.findByIsbn(copy.getIsbn()))
+                    .map(Book::getTitle)
+                    .orElse(loan.getCopyId());
+            return new LoanSummary(loan.getLoanId(), loan.getMemberId(), loan.getCopyId(), bookName,
+                    loan.getBorrowDate(), loan.getDueDate());
         }
     }
 }

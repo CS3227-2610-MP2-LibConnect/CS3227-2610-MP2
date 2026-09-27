@@ -27,7 +27,9 @@ public final class NotificationService {
     public Notification sendOverdueAlert(LoanSummary loan) {
         Objects.requireNonNull(loan, "loan");
         return sendIfAbsent(loan.getMemberId(), NotificationType.OVERDUE_ALERT, loan.getLoanId(),
-                "Loan " + loan.getLoanId() + " is overdue.");
+                "Your loan for " + loan.getBookName() + " of " + loan.getBookCopyId()
+                        + " made on " + loan.getBorrowDate() + " was due on " + loan.getDueDate()
+                        + ". Please be reminded to return the book.");
     }
 
     /** Sends or returns the existing reservation reminder. */

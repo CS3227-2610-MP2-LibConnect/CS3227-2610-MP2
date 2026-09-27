@@ -13,12 +13,14 @@ import libconnect.services.BookService;
 import libconnect.services.BorrowService;
 import libconnect.services.LoanService;
 import libconnect.services.MemberService;
+import libconnect.services.NotificationService;
 import libconnect.ui.components.JavaFxLibrarianView;
 import libconnect.ui.pages.BookInfoPage;
 import libconnect.ui.pages.BorrowPage;
 import libconnect.ui.pages.DashboardPage;
 import libconnect.ui.pages.LoginPage;
 import libconnect.ui.pages.LibrarianPage;
+import libconnect.ui.pages.NotificationsPage;
 import libconnect.ui.pages.ProfilePage;
 import libconnect.ui.pages.RegistrationPage;
 import libconnect.ui.pages.ReservationPage;
@@ -36,6 +38,7 @@ public final class SceneNavigator {
     private final BorrowService borrowService;
     private final LoanService loanService;
     private final MemberService memberService;
+    private final NotificationService notificationService;
     private final SessionManager sessionManager;
     private final Scene scene;
     private LibrarianRuntime librarianRuntime;
@@ -136,6 +139,28 @@ public final class SceneNavigator {
                           SessionManager sessionManager, BookService bookService,
                           BookCopyService bookCopyService, BorrowService borrowService,
                           LoanService loanService, MemberService memberService) {
+        this(stage, authenticationService, sessionManager, bookService, bookCopyService,
+                borrowService, loanService, memberService, null);
+    }
+
+    /**
+     * Creates a navigator with explicit services for member pages, including notifications.
+     *
+     * @param stage the application window used for navigation.
+     * @param authenticationService the service used by the login page.
+     * @param sessionManager the session shared by authenticated pages.
+     * @param bookService the service used by catalogue pages.
+     * @param bookCopyService the service used to load physical book copies.
+     * @param borrowService the service used to complete borrowing and return transactions.
+     * @param loanService the service used to load and renew loans.
+     * @param memberService the service used to update member profiles and passwords.
+     * @param notificationService the service used to load and mark member notifications.
+     */
+    public SceneNavigator(Stage stage, AuthenticationService authenticationService,
+                          SessionManager sessionManager, BookService bookService,
+                          BookCopyService bookCopyService, BorrowService borrowService,
+                          LoanService loanService, MemberService memberService,
+                          NotificationService notificationService) {
         this.stage = stage;
         this.authenticationService = authenticationService;
         this.sessionManager = sessionManager;
@@ -144,6 +169,7 @@ public final class SceneNavigator {
         this.borrowService = borrowService;
         this.loanService = loanService;
         this.memberService = memberService;
+        this.notificationService = notificationService;
         this.scene = new Scene(new javafx.scene.layout.StackPane(), WINDOW_WIDTH,
                 WINDOW_HEIGHT);
         String stylesheet = Objects.requireNonNull(
@@ -176,7 +202,7 @@ public final class SceneNavigator {
                           LoanService loanService, MemberService memberService,
                           LibrarianRuntime librarianRuntime, JavaFxLibrarianView librarianView) {
         this(stage, authenticationService, sessionManager, bookService, bookCopyService,
-                borrowService, loanService, memberService);
+                borrowService, loanService, memberService, librarianRuntime.notificationService());
         this.librarianRuntime = Objects.requireNonNull(librarianRuntime, "librarianRuntime");
         this.librarianView = Objects.requireNonNull(librarianView, "librarianView");
     }
@@ -222,7 +248,26 @@ public final class SceneNavigator {
             return;
         }
 
-        showPage(new DashboardPage(bookService, sessionManager, this, successMessage));
+        if (notificationService == null) {
+            showPage(new DashboardPage(bookService, sessionManager, this, successMessage));
+        } else {
+            showPage(new DashboardPage(bookService, sessionManager, this, successMessage,
+                    notificationService));
+        }
+    }
+
+    /** Displays all notifications for the authenticated member. */
+    public void showNotificationsPage() {
+        if (!sessionManager.isLoggedIn()) {
+            showLoginPage();
+            return;
+        }
+        if (notificationService == null) {
+            showDashboardPage();
+            return;
+        }
+
+        showPage(new NotificationsPage(notificationService, sessionManager, this));
     }
 
     /** Displays the authenticated librarian workspace. */

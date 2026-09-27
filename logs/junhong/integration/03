@@ -1,0 +1,36 @@
+## Conversation Summary
+
+Date: 2026-09-27
+
+Objective: Add member notifications to the dashboard, including unread/read styling, notification details, marking notifications as read, and a “View all” page.
+
+Key decisions:
+
+- Overdue notifications should say: “Your loan for `<book name>` of `<bookcopy id>` made on `<borrow date>` was due on `<due date>`. Please be reminded to return the book.”
+- `LoanSummary` stores the book title directly.
+- The previous repository-based implementation was restored, where `LoanAdapter.toSummary()` obtains the book title through `CopyRepository` and `BookRepository`.
+- Tests must not be created, modified, or deleted.
+
+Work completed:
+
+- Added dashboard notification display for unread notifications.
+- Added clickable notification cards and full notification dialogs.
+- Clicking a notification marks it as read.
+- Added a notifications page showing read and unread notifications.
+- Added a “View all” button.
+- Centralized notification styling in `libconnect.css`.
+- Added book title, borrow date, and due date to `LoanSummary`.
+- Updated overdue notification wording.
+- Preserved the original four-argument `LoanSummary` constructor with fallback values.
+- Explained that `.orElse(loan.getCopyId())` provides a fallback when the book copy or book lookup is missing.
+- `mvn compile` passed.
+- No tests were changed.
+- Full `mvn test` could not compile because of pre-existing unrelated project errors.
+
+Open items / blockers:
+
+- The full test suite remains blocked by existing compilation errors involving mismatched constructors, missing packages, missing methods, and missing enum values.
+
+Next steps:
+
+- None requested.
