@@ -1,0 +1,38 @@
+# Conversation Summary
+
+Date: 2026-09-27
+
+## Objective
+
+Improve service-layer test coverage, implement proposed tests and fixes, add login account-type selection, create the `test-info` skill, and maintain accurate affected tests.
+
+## Key decisions
+
+- Cover all service classes under `/service/`.
+- Use layered repositories/services architecture.
+- Split fine and notification tests into separate files.
+- Create the `test-info` skill in the project directory.
+- Do not run the full test suite when only affected tests are requested.
+
+## Work completed
+
+- Implemented proposed service-test changes:
+  - Moved the librarian unknown-user test to `LibrarianServiceTest`.
+  - Updated misleading duplicate-test expectations.
+  - Replaced `assertSame` with `assertEquals` for notification IDs.
+  - Reviewed combined tests.
+- Added tests for case-insensitive duplicate email prevention for librarian/member accounts.
+- Split fine and notification service tests.
+- Created the project-local `test-info` skill and generated `test_summary.md`, which is gitignored.
+- Added login account-type selection for Member/Librarian accounts.
+- Updated login-related tests and shared UI test helpers.
+- Updated `AuthenticationServiceTest` to assert the changed account-type mismatch message:
+  - `Invalid librarian account.`
+- Ran only `AuthenticationServiceTest` after the message change:
+  - 13 tests passed
+  - 0 failures
+  - 0 errors
+
+## Open items / blockers
+
+## Next steps

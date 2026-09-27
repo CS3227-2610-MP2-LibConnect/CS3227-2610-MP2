@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import javafx.scene.Parent;
+import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 
+import libconnect.models.AccountType;
 import libconnect.services.BorrowService;
 import libconnect.storage.repositories.RepositoryException;
 import libconnect.ui.components.FeedbackMessage;
@@ -17,6 +19,12 @@ final class UiPageTestSupport {
     }
 
     static void fillLoginFields(libconnect.ui.pages.LoginPage page) {
+        UiTestSupport.findNodes(page, ComboBox.class).get(0)
+                .getSelectionModel().select(AccountType.MEMBER);
+        fillLoginFieldsWithoutAccountType(page);
+    }
+
+    static void fillLoginFieldsWithoutAccountType(libconnect.ui.pages.LoginPage page) {
         List<javafx.scene.control.TextField> fields = UiTestSupport.findTextFields(page);
         fields.get(0).setText("alex@example.com");
         fields.get(1).setText("secret");

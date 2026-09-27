@@ -2,6 +2,7 @@ package libconnect.services.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -12,10 +13,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import libconnect.models.AccountStatus;
+import libconnect.models.Librarian;
 import libconnect.models.Member;
 import libconnect.services.MemberService;
 import libconnect.services.NotFoundException;
 import libconnect.services.ServiceException;
+import libconnect.services.UserService;
+import libconnect.storage.StorageManager;
+import libconnect.storage.file.FileLibrarianRepository;
 import libconnect.storage.file.FileMemberRepository;
 
 /** Tests member-account behavior implemented by {@link MemberService}. */
@@ -50,6 +55,30 @@ class MemberServiceTest {
 
         assertThrows(ServiceException.class,
                 () -> memberService.registerMember("Another", " ADA@EXAMPLE.COM ", "another"));
+    }
+
+    @Test
+    void registerMember_emailUsedByLibrarian_throwsServiceException() {
+        FileLibrarianRepository librarianRepository = new FileLibrarianRepository(
+                new StorageManager(temporaryDirectory), temporaryDirectory.resolve("librarians.json"));
+        librarianRepository.save(new Librarian("USER-1", "EMP-1", "Ada", "ada@example.com",
+                "password-hash", AccountStatus.ACTIVE));
+        memberService = new MemberService(memberRepository, new UserService(memberRepository, librarianRepository));
+
+        assertThrows(ServiceException.class,
+                () -> memberService.registerMember("Ada", "ada@example.com", "secret-password"));
+    }
+
+    @Test
+    void registerMember_emailUsedByLibrarianIgnoringCase_throwsServiceException() {
+        FileLibrarianRepository librarianRepository = new FileLibrarianRepository(
+                new StorageManager(temporaryDirectory), temporaryDirectory.resolve("librarians.json"));
+        librarianRepository.save(new Librarian("USER-1", "EMP-1", "Ada", "ada@example.com",
+                "password-hash", AccountStatus.ACTIVE));
+        memberService = new MemberService(memberRepository, new UserService(memberRepository, librarianRepository));
+
+        assertThrows(ServiceException.class,
+                () -> memberService.registerMember("Ada", " ADA@EXAMPLE.COM ", "secret-password"));
     }
 
     @Test
@@ -108,8 +137,53 @@ class MemberServiceTest {
     }
 
     @Test
+    void memberLookups_findExistingMemberAndReportUnknownValues() {
+        memberService.registerMember("Ada", "ada@example.com", "secret-password");
+        Member member = memberRepository.findByEmail("ada@example.com").orElseThrow();
+
+        assertTrue(memberService.hasMemberWithEmail("ada@example.com"));
+        assertTrue(memberService.findMemberByEmail("ada@example.com").equals(member));
+        assertThrows(NotFoundException.class,
+                () -> memberService.findMemberByEmail("unknown@example.com"));
+        assertFalse(memberService.hasMemberWithEmail("unknown@example.com"));
+    }
+
+    @Test
+    void deleteMember_existingMember_removesMember() {
+        memberService.registerMember("Ada", "ada@example.com", "secret-password");
+        String membershipId = memberRepository.findByEmail("ada@example.com").orElseThrow()
+                .getMembershipId();
+
+        memberService.deleteMember(membershipId);
+
+        assertTrue(memberRepository.findByMembershipId(membershipId).isEmpty());
+    }
+
+    @Test
+    void memberUpdates_unknownId_throwsNotFoundException() {
+        assertThrows(NotFoundException.class,
+                () -> memberService.updateMemberProfile("MEMBER-unknown", "Ada", "ada@example.com"));
+        assertThrows(NotFoundException.class,
+                () -> memberService.updatePassword("MEMBER-unknown", "new-password"));
+        assertThrows(NotFoundException.class,
+                () -> memberService.activateMember("MEMBER-unknown"));
+        assertThrows(NotFoundException.class,
+                () -> memberService.deactivateMember("MEMBER-unknown"));
+    }
+
+    @Test
     void registerMember_blankPassword_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
                 () -> memberService.registerMember("Ada", "ada@example.com", "   "));
+    }
+
+    @Test
+    void updatePassword_blankPassword_throwsIllegalArgumentException() {
+        memberService.registerMember("Ada", "ada@example.com", "secret-password");
+        String membershipId = memberRepository.findByEmail("ada@example.com").orElseThrow()
+                .getMembershipId();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> memberService.updatePassword(membershipId, "   "));
     }
 }

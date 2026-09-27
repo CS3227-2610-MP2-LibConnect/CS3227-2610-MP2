@@ -2,10 +2,12 @@ package libconnect.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,10 @@ class LoginPageTest {
             try {
                 LoginPage page = new LoginPage(context.authenticationService(),
                         context.sessionManager(), context.navigator());
+                ComboBox<?> accountTypeSelector = UiTestSupport.findNodes(page, ComboBox.class).get(0);
+                assertEquals(List.of(AccountType.MEMBER, AccountType.LIBRARIAN), accountTypeSelector.getItems());
+                assertNull(accountTypeSelector.getValue());
+                accountTypeSelector.getSelectionModel().select(0);
                 List<TextField> fields = UiTestSupport.findTextFields(page);
                 fields.get(0).setText(" ");
                 fields.get(1).setText(" ");
@@ -41,6 +47,46 @@ class LoginPageTest {
                 assertInstanceOf(DashboardPage.class, context.stage().getScene().getRoot());
                 assertTrue(context.sessionManager().isLoggedIn());
                 assertEquals("", fields.get(1).getText());
+            } finally {
+                context.close();
+            }
+        });
+    }
+
+    @Test
+    void accountTypeSelection_isPassedToAuthentication() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                LoginPage page = new LoginPage(context.authenticationService(),
+                        context.sessionManager(), context.navigator());
+                ComboBox<?> accountTypeSelector = UiTestSupport.findNodes(page, ComboBox.class).get(0);
+                accountTypeSelector.getSelectionModel().select(1);
+                List<TextField> fields = UiTestSupport.findTextFields(page);
+                fields.get(0).setText("grace@example.com");
+                fields.get(1).setText("secret");
+
+                UiTestSupport.findButton(page, "Login").fire();
+
+                assertEquals(AccountType.LIBRARIAN, context.authenticationService().lastAccountType);
+            } finally {
+                context.close();
+            }
+        });
+    }
+
+    @Test
+    void missingAccountType_showsValidationMessage() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                LoginPage page = new LoginPage(context.authenticationService(),
+                        context.sessionManager(), context.navigator());
+                UiPageTestSupport.fillLoginFieldsWithoutAccountType(page);
+
+                UiTestSupport.findButton(page, "Login").fire();
+
+                UiPageTestSupport.assertFeedback(page, "Select an account type.");
             } finally {
                 context.close();
             }

@@ -33,11 +33,12 @@ class LoanServiceTest {
     }
 
     @Test
-    void createLoan_duplicateId_returnsFalseAndPreservesOriginal() {
+    void createLoan_duplicateId_throwsAndPreservesOriginal() {
         Loan originalLoan = loan("LOAN-1", "MEMBER-1", "COPY-1", LocalDate.of(2026, 1, 1));
         loanRepository.save(originalLoan);
 
-        assertThrows(ServiceException.class, () -> loanService.createLoan("LOAN-1", "MEMBER-2", "COPY-2", LocalDate.of(2026, 2, 1)));
+        assertThrows(ServiceException.class, () -> loanService.createLoan("LOAN-1", "MEMBER-2", "COPY-2",
+                LocalDate.of(2026, 2, 1)));
         assertEquals(originalLoan, loanService.getLoanById("LOAN-1").orElseThrow());
     }
 
@@ -61,6 +62,16 @@ class LoanServiceTest {
     @Test
     void getLoansByUserId_withoutLoans_throwsNotFoundException() {
         assertThrows(NotFoundException.class, () -> loanService.getLoansByUserId(42));
+    }
+
+    @Test
+    void getLoansByMemberIdAndGetLoanById_returnPersistedLoans() {
+        Loan loan = loan("LOAN-1", "MEMBER-1", "COPY-1", LocalDate.of(2026, 1, 1));
+        loanRepository.save(loan);
+
+        assertEquals(java.util.List.of(loan), loanService.getLoansByMemberId("MEMBER-1"));
+        assertEquals(loan, loanService.getLoanById("LOAN-1").orElseThrow());
+        assertTrue(loanService.getLoanById("LOAN-unknown").isEmpty());
     }
 
     @Test
@@ -94,6 +105,25 @@ class LoanServiceTest {
     }
 
     @Test
+    void renewLoan_returnedLoan_throwsServiceException() {
+        LocalDate borrowDate = LocalDate.of(2026, 1, 1);
+        loanRepository.save(new Loan("LOAN-1", "MEMBER-1", "COPY-1", borrowDate,
+                borrowDate.plusDays(30), borrowDate.plusDays(10), LoanStatus.RETURNED, false));
+
+        assertThrows(ServiceException.class, () -> loanService.renewLoan("LOAN-1"));
+    }
+
+    @Test
+    void getExpiredLoans_includesReturnedOverdueLoans() {
+        LocalDate borrowDate = LocalDate.now().minusDays(60);
+        Loan returnedLoan = new Loan("LOAN-1", "MEMBER-1", "COPY-1", borrowDate,
+                borrowDate.plusDays(30), borrowDate.plusDays(40), LoanStatus.RETURNED, false);
+        loanRepository.save(returnedLoan);
+
+        assertEquals(java.util.List.of(returnedLoan), loanService.getExpiredLoans());
+    }
+
+    @Test
     void returnLoan_activeLoan_marksLoanReturned() {
         loanRepository.save(loan("LOAN-1", "MEMBER-1", "COPY-1", LocalDate.now()));
 
@@ -112,6 +142,35 @@ class LoanServiceTest {
         loanRepository.save(returnedLoan);
 
         assertThrows(ServiceException.class, () -> loanService.returnLoan("LOAN-1"));
+    }
+
+    @Test
+    void returnLoan_unknownId_throwsNotFoundException() {
+        assertThrows(NotFoundException.class, () -> loanService.returnLoan("LOAN-unknown"));
+    }
+
+    @Test
+    void renewLoan_unknownId_throwsNotFoundException() {
+        assertThrows(NotFoundException.class, () -> loanService.renewLoan("LOAN-unknown"));
+    }
+
+    @Test
+    void deleteLoan_existingLoan_removesLoan() {
+        loanRepository.save(loan("LOAN-1", "MEMBER-1", "COPY-1", LocalDate.of(2026, 1, 1)));
+
+        loanService.deleteLoan("LOAN-1");
+
+        assertTrue(loanRepository.findById("LOAN-1").isEmpty());
+    }
+
+    @Test
+    void loanCreation_invalidArguments_rejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> loanService.createLoan(" ", "MEMBER-1", "COPY-1", LocalDate.now()));
+        assertThrows(IllegalArgumentException.class,
+                () -> loanService.createLoan("LOAN-1", " ", "COPY-1", LocalDate.now()));
+        assertThrows(NullPointerException.class,
+                () -> loanService.createLoan("LOAN-1", "MEMBER-1", "COPY-1", null));
     }
 
     @Test

@@ -3,7 +3,6 @@ package libconnect.services.unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 
@@ -20,6 +19,8 @@ import libconnect.services.AuthenticationException;
 import libconnect.services.AuthenticationService;
 import libconnect.services.LibrarianService;
 import libconnect.services.MemberService;
+import libconnect.services.NotFoundException;
+import libconnect.services.ServiceException;
 import libconnect.services.UserService;
 import libconnect.storage.StorageManager;
 import libconnect.storage.file.FileLibrarianRepository;
@@ -77,6 +78,50 @@ class AuthenticationServiceTest {
     }
 
     @Test
+    void authenticate_unknownEmail_throwsUsefulException() {
+        AuthenticationException exception = assertThrows(AuthenticationException.class,
+                () -> authenticationService.authenticate(
+                        AccountType.MEMBER, "unknown@example.com", "secret-password"));
+
+        assertEquals("Invalid email or password.", exception.getMessage());
+    }
+
+    @Test
+    void authenticate_selectedAccountTypeMustMatchStoredUserType() {
+        authenticationService.registerMember("Ada", "ada@example.com", "secret-password");
+
+        AuthenticationException exception = assertThrows(AuthenticationException.class,
+                () -> authenticationService.authenticate(
+                        AccountType.LIBRARIAN, "ada@example.com", "secret-password"));
+
+        assertEquals("Invalid librarian account.", exception.getMessage());
+    }
+
+    @Test
+    void authenticate_blankEmailOrPassword_rejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> authenticationService.authenticate(AccountType.MEMBER, "   ", "password"));
+        assertThrows(IllegalArgumentException.class,
+                () -> authenticationService.authenticate(AccountType.MEMBER, "ada@example.com", "   "));
+    }
+
+    @Test
+    void authenticate_nullAccountType_rejected() {
+        assertThrows(NullPointerException.class,
+                () -> authenticationService.authenticate(null, "ada@example.com", "password"));
+    }
+
+    @Test
+    void constructor_nullDependencies_rejected() {
+        assertThrows(NullPointerException.class,
+                () -> new AuthenticationService(null, librarianService, new UserService()));
+        assertThrows(NullPointerException.class,
+                () -> new AuthenticationService(new MemberService(memberRepository), null, new UserService()));
+        assertThrows(NullPointerException.class,
+                () -> new AuthenticationService(new MemberService(memberRepository), librarianService, null));
+    }
+
+    @Test
     void authenticateMember_deactivatedAccount_throwsUsefulException() {
         authenticationService.registerMember("Ada", "ada@example.com", "secret-password");
         Member member = memberRepository.findByEmail("ada@example.com").orElseThrow();
@@ -100,6 +145,35 @@ class AuthenticationServiceTest {
     }
 
     @Test
+    void registerLibrarian_emailUsedByMember_rejected() {
+        authenticationService.registerMember("Ada", "ada@example.com", "secret-password");
+
+        assertThrows(IllegalStateException.class,
+                () -> authenticationService.registerLibrarian(
+                        "e1", "Grace", "ada@example.com", "secret-password"));
+    }
+
+    @Test
+    void registerMember_accountCannotBeReloaded_reportsServiceFailure() {
+        MemberService unavailableMemberService = new MemberService(memberRepository) {
+            @Override
+            public void registerMember(String name, String email, String password) {
+                // Simulate a persistence layer that completes without returning the new record.
+            }
+
+            @Override
+            public Member findMemberByEmail(String email) {
+                throw new NotFoundException("Member not found");
+            }
+        };
+        AuthenticationService service = new AuthenticationService(unavailableMemberService,
+                librarianService, new UserService(memberRepository, librarianRepository));
+
+        assertThrows(ServiceException.class,
+                () -> service.registerMember("Ada", "ada@example.com", "secret-password"));
+    }
+
+    @Test
     void authenticateLibrarian_correctCredentials_returnsLibrarian() {
         authenticationService.registerLibrarian("e1", "Grace", "grace@example.com", "secret-password");
 
@@ -110,8 +184,4 @@ class AuthenticationServiceTest {
         assertEquals("grace@example.com", authenticatedUser.getEmail());
     }
 
-    @Test
-    void librarianService_search_unknownUserId_returnsNoMatches() {
-        assertTrue(librarianService.search("USER-1").isEmpty());
-    }
 }

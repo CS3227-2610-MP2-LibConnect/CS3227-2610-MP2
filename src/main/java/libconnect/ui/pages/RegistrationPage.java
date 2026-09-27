@@ -5,7 +5,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -15,6 +14,7 @@ import libconnect.services.AuthenticationService;
 import libconnect.services.ServiceException;
 import libconnect.storage.repositories.RepositoryException;
 import libconnect.ui.SceneNavigator;
+import libconnect.ui.components.AccountTypeCell;
 import libconnect.ui.components.FeedbackMessage;
 import libconnect.ui.components.FormField;
 import libconnect.ui.components.MemberRegistrationForm;
@@ -149,21 +149,4 @@ public final class RegistrationPage extends BorderPane {
         }
     }
 
-    private static final class AccountTypeCell extends ListCell<AccountType> {
-        @Override
-        protected void updateItem(AccountType accountType, boolean empty) {
-            super.updateItem(accountType, empty);
-            if (empty || accountType == null) {
-                setText(null);
-                setDisable(false);
-                getStyleClass().remove("registration-unavailable");
-                return;
-            }
-
-            boolean isLibrarian = accountType == AccountType.LIBRARIAN;
-            setText(isLibrarian ? "Librarian" : "Member");
-            setDisable(false);
-            getStyleClass().remove("registration-unavailable");
-        }
-    }
 }

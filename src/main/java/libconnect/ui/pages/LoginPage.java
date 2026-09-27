@@ -1,7 +1,9 @@
 package libconnect.ui.pages;
 
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -14,6 +16,7 @@ import libconnect.services.AuthenticationService;
 import libconnect.storage.repositories.RepositoryException;
 import libconnect.ui.SceneNavigator;
 import libconnect.ui.SessionManager;
+import libconnect.ui.components.AccountTypeCell;
 import libconnect.ui.components.FeedbackMessage;
 import libconnect.ui.components.FormField;
 import libconnect.ui.components.PageContainer;
@@ -22,12 +25,14 @@ import libconnect.ui.components.PageHeader;
 /** Provides the login page for member and librarian authentication. */
 public final class LoginPage extends BorderPane {
     private static final String EMPTY_FIELDS_MESSAGE = "Username and password are required.";
+    private static final String SELECT_ACCOUNT_TYPE_MESSAGE = "Select an account type.";
     private static final String STORAGE_ERROR_MESSAGE =
             "Unable to access account data. Please try again.";
 
     private final AuthenticationService authenticationService;
     private final SessionManager sessionManager;
     private final SceneNavigator sceneNavigator;
+    private final ComboBox<AccountType> accountTypeSelector;
     private final TextField usernameField;
     private final PasswordField passwordField;
     private final FeedbackMessage feedbackMessage;
@@ -57,6 +62,7 @@ public final class LoginPage extends BorderPane {
         this.authenticationService = authenticationService;
         this.sessionManager = sessionManager;
         this.sceneNavigator = sceneNavigator;
+        accountTypeSelector = createAccountTypeSelector();
         usernameField = new TextField();
         passwordField = new PasswordField();
         feedbackMessage = new FeedbackMessage();
@@ -77,6 +83,7 @@ public final class LoginPage extends BorderPane {
 
         PageContainer pageContainer = new PageContainer(
                 new PageHeader("Welcome to LibConnect", "Sign in to continue"),
+                new FormField("Account type", accountTypeSelector),
                 new FormField("Email", usernameField),
                 new FormField("Password", passwordField),
                 feedbackMessage,
@@ -90,8 +97,13 @@ public final class LoginPage extends BorderPane {
     private void authenticate() {
         feedbackMessage.clearMessage();
 
+        AccountType accountType = accountTypeSelector.getValue();
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
+        if (accountType == null) {
+            feedbackMessage.showError(SELECT_ACCOUNT_TYPE_MESSAGE);
+            return;
+        }
         if (username.isBlank() || password.isBlank()) {
             feedbackMessage.showError(EMPTY_FIELDS_MESSAGE);
             return;
@@ -99,7 +111,7 @@ public final class LoginPage extends BorderPane {
 
         try {
             User authenticatedUser = authenticationService.authenticate(
-                    AccountType.MEMBER, username, password);
+                    accountType, username, password);
             sessionManager.login(authenticatedUser);
             passwordField.clear();
             if (authenticatedUser instanceof Librarian) {
@@ -115,4 +127,16 @@ public final class LoginPage extends BorderPane {
             feedbackMessage.showError(STORAGE_ERROR_MESSAGE);
         }
     }
+
+    private ComboBox<AccountType> createAccountTypeSelector() {
+        ComboBox<AccountType> selector = new ComboBox<>();
+        ObservableList<AccountType> accountTypes = selector.getItems();
+        accountTypes.addAll(AccountType.MEMBER, AccountType.LIBRARIAN);
+        selector.setPromptText("Select account type");
+        selector.setMaxWidth(Double.MAX_VALUE);
+        selector.setCellFactory(listView -> new AccountTypeCell());
+        selector.setButtonCell(new AccountTypeCell());
+        return selector;
+    }
+
 }

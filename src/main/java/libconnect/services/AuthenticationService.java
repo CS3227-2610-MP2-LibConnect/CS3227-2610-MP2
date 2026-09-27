@@ -58,6 +58,12 @@ public class AuthenticationService {
             throw new AuthenticationException("This account is deactivated and cannot log in.");
         }
 
+        if (accountType == AccountType.MEMBER && !(user instanceof libconnect.models.Member)) {
+            throw new AuthenticationException("Invalid member account.");
+        } else if (accountType == AccountType.LIBRARIAN && !(user instanceof libconnect.models.Librarian)) {
+            throw new AuthenticationException("Invalid librarian account.");
+        }
+
         return user;
     }
 
