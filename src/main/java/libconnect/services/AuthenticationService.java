@@ -87,8 +87,7 @@ public class AuthenticationService {
     }
 
     public User registerLibrarian(String employeeId, String name, String email, String password) {
-        UserIdGenerator userIdGenerator = new UserIdGenerator();
-        librarianService.register(new Librarian(userIdGenerator.generate(), employeeId, name, email, PasswordHasher.hash(password), AccountStatus.ACTIVE));
+        librarianService.register(employeeId, name, email, password);
         try {
             return librarianService.requireActive(employeeId);
         } catch (IllegalStateException e) {

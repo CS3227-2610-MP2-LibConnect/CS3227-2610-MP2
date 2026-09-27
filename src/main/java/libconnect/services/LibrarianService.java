@@ -16,18 +16,20 @@ import libconnect.storage.repositories.MemberRepository;
 public final class LibrarianService {
     private final LibrarianRepository repository;
     private final UserService userService;
+    private final UserIdGenerator userIdGenerator;
 
     /** Creates a librarian service using the supplied repository. */
     public LibrarianService(LibrarianRepository repository) {
         this.repository = Objects.requireNonNull(repository, "repository");
         this.userService = new UserService();
+        this.userIdGenerator = new UserIdGenerator();
     }
 
     public LibrarianService(LibrarianRepository repository, MemberRepository memberRepository) {
         this.repository = Objects.requireNonNull(repository, "repository");
         Objects.requireNonNull(memberRepository, "memberRepository");
         this.userService = new UserService(memberRepository, repository);
-
+        this.userIdGenerator = new UserIdGenerator(userService);
     }
 
     public LibrarianService() {
@@ -44,6 +46,19 @@ public final class LibrarianService {
             throw new IllegalStateException("A librarian or member with this email already exists");
         }
         repository.save(librarian);
+    }
+
+    public void register(String employeeId, String name, String email, String password) {
+        Objects.requireNonNull(employeeId, "employeeId");
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(email, "email");
+        Objects.requireNonNull(password, "password");
+
+        String userId = userIdGenerator.generate();
+        String passwordHash = PasswordHasher.hash(password);
+
+        register(new Librarian(userId, employeeId, name, email, passwordHash, 
+                                AccountStatus.ACTIVE));
     }
 
     /** Updates a librarian's name and email while preserving account status. */

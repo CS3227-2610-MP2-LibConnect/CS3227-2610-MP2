@@ -1,0 +1,34 @@
+# Conversation Summary
+
+Date: 27 September 2026
+
+## Objective
+
+Implement fine management for LibConnect, including automatic fine creation when overdue loans are returned and a member-facing “My Fines” page.
+
+## Key decisions
+
+- Remove reliance on the persisted `overdue` field because `isOverdue` is calculated dynamically.
+- Automatically calculate and create a fine when an overdue loan is returned.
+- Use dependency injection for `Clock` and `FineService`.
+- Use the existing `LoanSummary` rather than introducing a separate returned-loan summary.
+- Do not create tests.
+- Do not run tests in future unless explicitly requested.
+
+## Work completed
+
+- Added automatic fine creation during overdue loan returns.
+- Added fine payment support with ownership and outstanding-status validation.
+- Added the member My Fines page with:
+  - Outstanding fines subpage.
+  - Paid fines history subpage.
+  - Fine cards showing amount, reason, date, and status.
+  - Pay Fine button that persists payment and refreshes the page.
+- Wired `FineService` into `ProfilePage` and `SceneNavigator`.
+- Added fine-card styling.
+- Main source compilation succeeded.
+- Existing test suite was previously attempted but could not compile due unrelated pre-existing API mismatches.
+
+## Open items / blockers
+
+- Existing tests contain unrelated compilation failures.
