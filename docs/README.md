@@ -1,3 +1,9 @@
+---
+layout: page
+title: LibConnect
+permalink: /
+---
+
 # CS3227-2610-MP2
 
 ## LibConnect
