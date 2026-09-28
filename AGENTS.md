@@ -193,8 +193,6 @@ when its tests pass and the full existing test suite remains green.
   added and the test suite passed after integration.
 - [x] Completed: improved storage, repository, and JavaFX UI test coverage, added the
   user guide and developer guide, and prepared a versioned executable JAR release.
-- [ ] Pending: create the product website.
+- [x] Pending: create the product website.
 - [x] Completed: CI workflow now runs the full test suite in the build job; local verification remains available.
-- [ ] Pending: add cross-file transaction/journal handling if subsequent integration
-  changes require coordinated multi-repository writes.
 - [x] Pending: final end-to-end acceptance testing after both roles are integrated.
