@@ -1,0 +1,29 @@
+## Conversation Summary
+
+Date: 2026-09-17
+
+### Objective
+
+Expand librarian-role test coverage across domain rules, services, repositories, persistence, controller boundaries, CLI workflows, and integration contracts.
+
+### Key decisions
+
+- Prioritise boundary, invalid-input, authorization, lifecycle, persistence, and idempotency cases instead of only adding happy-path tests.
+- Keep business-rule tests at service boundaries and repository/file-safety tests isolated from the domain tests.
+- Verify inactive librarians are rejected before collaborators are called.
+- Test injected clocks and stable identifiers to make date-dependent behaviour deterministic.
+
+### Work completed
+
+- Expanded the focused test plan across librarian accounts, reservations, fines, notifications, repositories, `StorageManager`, controller delegation, and CLI workflows.
+- Implemented the expanded test set, increasing the focused suite from 21 to 75 tests.
+- Added `StorageManagerTest` and covered malformed JSON, missing files, duplicate IDs, lifecycle transitions, authorization, idempotency, and persistence round trips.
+- Verified 75 tests passed with no failures or errors, and `git diff --check` passed.
+
+### Open items / blockers
+
+- The later integrated system still required JavaFX and end-to-end coverage beyond this librarian-focused suite.
+
+### Next steps
+
+- Add integration/UI tests after the librarian and member workflows are connected.

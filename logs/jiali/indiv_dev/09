@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-17
+
+### Objective
+
+Implement and test librarian notification management.
+
+### Key decisions
+
+- Generate overdue alerts and reservation reminders through a notification service.
+- Make alert generation idempotent using stable notification references.
+- Isolate notifications by recipient and preserve creation order.
+- Treat read-state changes as state transitions on the existing notification rather than new records.
+
+### Work completed
+
+- Implemented overdue-alert and reservation-reminder creation, notification queries, and read-state changes.
+- Added tests for correct recipients/messages, duplicate suppression, notification-type/reference separation, ordering, missing IDs, and repeated read operations.
+- Covered unread-to-read transitions without creating duplicate notifications.
+
+### Open items / blockers
+
+- The dashboard/UI still needed to expose unread state and mark notifications as read.
+
+### Next steps
+
+- Connect notification queries and read actions to the librarian and member-facing views.

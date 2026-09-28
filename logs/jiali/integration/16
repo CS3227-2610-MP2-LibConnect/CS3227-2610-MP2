@@ -1,0 +1,29 @@
+## Conversation Summary
+
+Date: 2026-09-28
+
+### Objective
+
+Select and create reusable Codex skills for LibConnect documentation, CI diagnosis, and final acceptance testing.
+
+### Key decisions
+
+- Adapt the upstream `authoring-user-guide` skill substantially for LibConnect’s JavaFX workflows and exact UI labels.
+- Use `authoring-developer-guide` as a quality reference but adapt it for LibConnect’s internal architecture, persistence, Maven, JavaFX testing, CI, and release workflow.
+- Create focused project skills named `authoring-user-guide`, `authoring-developer-guide`, `github-actions-javafx-ci`, and `acceptance-testing`.
+- Keep skills narrowly scoped so each one supports a recognisable workflow rather than becoming a general-purpose instruction bundle.
+
+### Work completed
+
+- Reviewed the linked upstream guide skills and identified the repository-specific adaptations required.
+- Added and validated all four project skill files under `.codex/skills/`.
+- Confirmed formatting with `git diff --check`.
+- Recorded that application tests were not needed for instructional skill-file changes.
+
+### Open items / blockers
+
+- The product website skill was recommended but was not part of the four skills created in this conversation.
+
+### Next steps
+
+- Use the project skills when updating guides, repairing the JavaFX CI workflow, and running final acceptance tests.

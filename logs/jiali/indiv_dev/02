@@ -1,0 +1,29 @@
+## Conversation Summary
+
+Date: 2026-09-17
+
+### Objective
+
+Design an object-oriented architecture and class model for LibConnect.
+
+### Key decisions
+
+- Separate `Book` as title metadata from `BookCopy` as a physical borrowable item.
+- Model users, catalogue items, loans, reservations, fines, and notifications as separate domain concepts.
+- Keep controllers thin, place business rules in services, and isolate persistence behind repositories.
+- Use shared authentication and role-specific controllers for Librarian and Member workflows.
+- Keep domain models independent of JavaFX and file/database details.
+
+### Work completed
+
+- Produced a high-level architecture with authentication, role controllers, catalogue, loan, reservation, fine, and notification services.
+- Defined the main classes, relationships, service responsibilities, and useful status enumerations.
+- Identified the core end-to-end workflows for both roles: member borrowing/renewal/return and librarian management/monitoring/fine/alert operations.
+
+### Open items / blockers
+
+- The diagram was a design baseline; implementation contracts and exact persistence formats still required agreement.
+
+### Next steps
+
+- Convert the conceptual model into stable interfaces, validation rules, and testable service boundaries.

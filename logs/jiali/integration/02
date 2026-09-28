@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Implement the JavaFX build support, runtime composition, and authorized controller boundary for the librarian workspace.
+
+### Key decisions
+
+- Keep JavaFX build configuration separate from the standard unit-test setup.
+- Route every librarian action through `LibrarianController` so authorization and business rules remain outside the view.
+- Compose repositories, services, adapters, and controllers in one runtime composition root.
+
+### Work completed
+
+- Added JavaFX 27 Maven support and the `mvn javafx:run` entry point.
+- Added shared CLI/GUI runtime composition and extended `LibrarianController` for GUI actions.
+- Preserved the CLI as a manual fallback.
+- Reached the JavaFX runtime successfully and kept the existing unit suite passing at 76 tests.
+
+### Open items / blockers
+
+- The first implementation still used demo providers while shared authentication and real member-role providers were being integrated.
+
+### Next steps
+
+- Implement the shell, login, dashboard, and feature panels on top of this boundary.

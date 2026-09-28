@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-17
+
+### Objective
+
+Implement and verify the Librarian domain/account feature and its authorization boundary.
+
+### Key decisions
+
+- Validate librarian identity, status, employee ID, and email at the service boundary.
+- Reject duplicate employee IDs and duplicate emails, including case variations.
+- Require an active librarian before protected operations proceed.
+- Preserve identity and unrelated fields when changing status or profile data.
+
+### Work completed
+
+- Implemented tests for librarian registration, editing, deactivation, active-status checks, and case-insensitive search.
+- Covered missing, inactive, null, blank, duplicate, and invalid librarian inputs.
+- Verified inactive librarians are rejected before dependent services are invoked.
+
+### Open items / blockers
+
+- The first GUI increment used a demo-account adapter while shared authentication was still being integrated.
+
+### Next steps
+
+- Replace the demo login adapter with the shared authentication provider and retain the same authorization tests.

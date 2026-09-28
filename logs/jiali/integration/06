@@ -1,0 +1,27 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Implement the librarian GUI feature for viewing active and overdue loans.
+
+### Key decisions
+
+- Treat loans as a read/monitoring feature in the librarian UI and delegate queries through `LoanQuery`.
+- Provide explicit all, active, and overdue filters.
+- Keep date calculations in the service/query layer and use the injected clock for deterministic behaviour.
+
+### Work completed
+
+- Added the loans panel and active/overdue filtering to the librarian shell.
+- Connected loan queries through `LibrarianController`.
+- Added controller and UI coverage for loan filtering and overdue boundaries.
+
+### Open items / blockers
+
+- Full return persistence and automatic-fine behaviour required the integrated member loan implementation.
+
+### Next steps
+
+- Verify the librarian loan view after member returns, overdue fine creation, and application restart.

@@ -98,18 +98,18 @@ role's implementation.
 Each implementation item below has a mandatory test gate. A step is complete only
 when its tests pass and the full existing test suite remains green.
 
-1. **Bootstrap the project.** Add the Java SE 25 build configuration, source/test
+1. [x] **Bootstrap the project.** Add the Java SE 25 build configuration, source/test
    layout, test framework, and a repeatable test command. Add a smoke test proving
    the project compiles and the test runner executes.
    Test gate: run the smoke test and the complete test suite.
 
-2. **Define shared contracts.** Agree with the member-role developer on stable ID
+2. [x] **Define shared contracts.** Agree with the member-role developer on stable ID
    types, status enums, repository result/error conventions, and the minimal loan
    query interface needed for overdue alerts and fine calculation. Document the
    contract before implementing either side.
    Test gate: add contract tests for valid, missing, duplicate, and invalid-ID cases.
 
-3. **Implement librarian and librarian persistence.** Add the `Librarian` model,
+3. [x] **Implement librarian and librarian persistence.** Add the `Librarian` model,
    authorization/status rules, repository interface, file repository, and safe
    `StorageManager` integration. Initialize missing data files without destroying
    existing records.
@@ -117,35 +117,35 @@ when its tests pass and the full existing test suite remains green.
    files, safe replacement failure, and round-trip serialization using temporary
    directories.
 
-4. **Implement reservation management.** Add the reservation model and repository,
+4. [x] **Implement reservation management.** Add the reservation model and repository,
    then implement `ReservationService` for creation, cancellation, fulfilment,
    expiry, duplicate prevention, and pending-reservation queries. Coordinate with
    the loan/book interfaces only through stable IDs.
    Test gate: test state transitions, expiry boundaries, duplicate reservations,
    missing members/books, ordering of pending reservations, and persistence.
 
-5. **Implement fine management.** Add the fine model and repository, then implement
+5. [x] **Implement fine management.** Add the fine model and repository, then implement
    `FineService` for creation from overdue loans, amount calculation, editing,
    removal, and member queries. Keep calculation policy in one service and avoid
    duplicated arithmetic in controllers or views.
    Test gate: test zero/one/many overdue days, amount boundaries, invalid amounts,
    missing loans/members, edit/remove behavior, and repository failure handling.
 
-6. **Implement notifications.** Add the notification model and repository, then
+6. [x] **Implement notifications.** Add the notification model and repository, then
    implement `NotificationService` for overdue alerts, reservation reminders,
    querying, and read-state changes. Make alert generation idempotent so retries do
    not create duplicates.
    Test gate: test message creation, recipient isolation, duplicate suppression,
    unread/read transitions, missing records, and persistence round trips.
 
-7. **Add librarian orchestration.** Implement librarian-facing service methods for
+7. [x] **Add librarian orchestration.** Implement librarian-facing service methods for
    viewing overdue loans, loans, reservations, and fines, and for triggering the
    appropriate alerts/reminders. Keep orchestration thin and delegate rules to the
    domain services.
    Test gate: use mocked or in-memory dependencies to verify call ordering,
    authorization, partial-failure behavior, and no writes after a failed operation.
 
-8. **Add the librarian controller and view.** Expose only authorized librarian
+8. [x] **Add the librarian controller and view.** Expose only authorized librarian
    actions, validate user input at the boundary, and keep presentation code free of
    persistence and business rules. Add accessibility-friendly error and success
    states where the UI framework permits.
@@ -153,13 +153,13 @@ when its tests pass and the full existing test suite remains green.
    service errors, and successful refresh; add focused view tests only for behavior
    not covered by controller tests.
 
-9. **Harden integration and persistence.** Exercise cross-file reservation, fine,
+9. [x] **Harden integration and persistence.** Exercise cross-file reservation, fine,
    loan-query, and notification flows. Add rollback/journal handling for operations
    that update multiple files and verify compatibility with member-role contracts.
    Test gate: integration tests against isolated temporary data directories,
    injected I/O failures, restart/reload behavior, and idempotent retries.
 
-10. **Final verification and handoff.** Run formatting/static checks, the complete
+10. [x] **Final verification and handoff.** Run formatting/static checks, the complete
     unit and integration test suites, and a manual librarian acceptance checklist
     covering every librarian feature in `PLAN.md`. Review public API Javadocs,
     dependency direction, error messages, and file safety before merging.
@@ -178,24 +178,23 @@ when its tests pass and the full existing test suite remains green.
 
 ### Current implementation status
 
-- Completed: Java SE 25 Maven bootstrap, JUnit test setup, librarian model and
+- [x] Completed: Java SE 25 Maven bootstrap, JUnit test setup, librarian model and
   persistence, reservation service, fine service, notification service, integration
   contracts, and authorized librarian controller boundary.
-- Completed: focused model, repository, service, controller, and persistence tests;
+- [x] Completed: focused model, repository, service, controller, and persistence tests;
   the current suite must remain green after every subsequent change.
-- Completed: separate interactive CLI harness with scripted workflow tests for manual
+- [x] Completed: separate interactive CLI harness with scripted workflow tests for manual
   librarian verification before JavaFX view integration.
-- Completed: member-role integration behind `MemberManagement`, `BookManagement`,
+- [x] Completed: member-role integration behind `MemberManagement`, `BookManagement`,
   `BookCopyManagement`, and `LoanQuery`, together with shared authentication,
   desktop view wiring, and the integrated member and librarian application flows.
-- Completed: automatic fine creation when a member returns an overdue loan, while
+- [x] Completed: automatic fine creation when a member returns an overdue loan, while
   preserving manual fine creation from the librarian view; integration tests were
   added and the test suite passed after integration.
-- Completed: improved storage, repository, and JavaFX UI test coverage, added the
+- [x] Completed: improved storage, repository, and JavaFX UI test coverage, added the
   user guide and developer guide, and prepared a versioned executable JAR release.
-- Pending: create the product website.
-- Pending: fix the CI workflow issue where the UI test job does not reliably detect
-  that the full test suite has finished; local verification remains available.
-- Pending: add cross-file transaction/journal handling if subsequent integration
+- [ ] Pending: create the product website.
+- [x] Completed: CI workflow now runs the full test suite in the build job; local verification remains available.
+- [ ] Pending: add cross-file transaction/journal handling if subsequent integration
   changes require coordinated multi-repository writes.
-- Pending: final end-to-end acceptance testing after both roles are integrated.
+- [x] Pending: final end-to-end acceptance testing after both roles are integrated.

@@ -1,0 +1,29 @@
+## Conversation Summary
+
+Date: 2026-09-17
+
+### Objective
+
+Implement and test librarian reservation management.
+
+### Key decisions
+
+- Allow reservations only for active members and unavailable books.
+- Prevent duplicate pending reservations for the same member and book.
+- Keep reservations expiring on the boundary date pending; expire them only after that date.
+- Preserve fair creation order for pending-reservation queues.
+- Reject invalid state transitions such as cancelling or fulfilling completed, cancelled, or expired reservations.
+
+### Work completed
+
+- Implemented reservation creation, cancellation, fulfilment, expiry, duplicate prevention, and pending-queue queries.
+- Added tests for missing/inactive members, missing/available books, invalid identifiers, invalid periods, ordering, and lifecycle transitions.
+- Added coverage for allowing a new reservation after cancellation or expiry.
+
+### Open items / blockers
+
+- Cross-role integration still depended on stable member and book interfaces.
+
+### Next steps
+
+- Connect reservation processing to the integrated Member and Librarian workflows and verify reminder delivery.

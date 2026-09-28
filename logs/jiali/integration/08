@@ -1,0 +1,27 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Implement the librarian GUI feature for fine management.
+
+### Key decisions
+
+- Use the existing fine service for calculation, editing, and removal.
+- Keep manual librarian fine creation available while also supporting automatic fine creation from overdue returns.
+- Display service errors without duplicating amount validation in the view.
+
+### Work completed
+
+- Added the fines panel and connected fine queries, creation, editing, and removal through `LibrarianController`.
+- Preserved validation for zero, negative, paid, waived, missing, and invalid-member cases.
+- Added integrated tests for fine boundaries and rollback when fine issuance fails.
+
+### Open items / blockers
+
+- The guide still needed to document both manual librarian fine creation and automatic overdue-return fine creation precisely.
+
+### Next steps
+
+- Verify fine state and persistence after member returns and librarian edits across an application restart.

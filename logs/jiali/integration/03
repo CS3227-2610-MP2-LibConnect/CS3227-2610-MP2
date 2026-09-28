@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Implement the librarian JavaFX shell, login boundary, dashboard, and navigation.
+
+### Key decisions
+
+- Use one `Stage` and one main scene with a header, left navigation, replaceable center panel, and shared status area.
+- Keep the first UI simple and use a demo login adapter until shared authentication is available.
+- Prevent protected panels from being used without an active librarian session.
+
+### Work completed
+
+- Added JavaFX 27 build support and `mvn javafx:run`.
+- Implemented login/demo-account flow, session state, logout, dashboard, navigation, and shared error handling.
+- Added dashboard access to active loans, overdue loans, reservations, fines, and notifications.
+- Manually launched the JavaFX application successfully; the unit suite remained at 76 passing tests.
+
+### Open items / blockers
+
+- The demo login was temporary and required replacement by shared authentication during integration.
+
+### Next steps
+
+- Verify session and navigation behaviour with the real authentication provider.

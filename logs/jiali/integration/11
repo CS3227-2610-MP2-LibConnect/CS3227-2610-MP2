@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Implement automated UI testing support and a repeatable local runner for the JavaFX librarian workspace.
+
+### Key decisions
+
+- Use TestFX for interaction-level JavaFX tests.
+- Separate UI tests from the normal Maven unit-test profile.
+- Retain a local script as a reliable fallback when the hosted display environment is unstable.
+
+### Work completed
+
+- Added `LibrarianGuiIT.java` for login, invalid login, demo-account setup, navigation, member search, and logout.
+- Added Maven UI-test dependencies and profile configuration.
+- Added a virtual-display GitHub Actions workflow, then removed it after the CI test step failed to complete reliably.
+- Added `scripts/test-ui.sh`, which runs the full suite and uses `xvfb-run` when available.
+
+### Open items / blockers
+
+- Automatic CI UI execution still needs a corrected workflow ordering and JavaFX display setup before being re-enabled.
+
+### Next steps
+
+- Repair the workflow with explicit job dependencies and completion detection, then validate it on a clean CI runner.

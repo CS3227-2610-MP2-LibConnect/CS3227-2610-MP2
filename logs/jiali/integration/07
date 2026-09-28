@@ -1,0 +1,27 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Implement the librarian GUI feature for reservation administration.
+
+### Key decisions
+
+- Expose reservation queries and create/cancel/fulfil actions through the controller.
+- Display pending reservations and preserve service-defined queue ordering.
+- Validate state transitions in the service rather than in JavaFX event handlers.
+
+### Work completed
+
+- Added the reservations panel to the librarian shell.
+- Connected reservation listing and management actions through the authorized controller boundary.
+- Preserved service validation for unavailable books, duplicate pending reservations, and invalid reservation states.
+
+### Open items / blockers
+
+- Reminder delivery and cross-role reservation flows required final member-provider integration.
+
+### Next steps
+
+- Verify pending-queue ordering, expiry boundaries, fulfilment, and reminder generation through the integrated application.

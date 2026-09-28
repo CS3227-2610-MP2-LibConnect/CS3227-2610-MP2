@@ -1,0 +1,29 @@
+## Conversation Summary
+
+Date: 2026-09-17
+
+### Objective
+
+Implement and test librarian fine management and overdue-fine calculation.
+
+### Key decisions
+
+- Calculate fines in one service using overdue days, with no charge on the due date.
+- Support zero amounts and deterministic decimal rounding while rejecting negative amounts.
+- Make repeated creation idempotent for an outstanding fine.
+- Permit a new fine only after the previous fine has been waived.
+- Reject edits or removals for missing, paid, or waived fines.
+
+### Work completed
+
+- Implemented fine creation from overdue loans, amount calculation, editing, removal, and member queries.
+- Added tests for zero, one, and multiple overdue days, rounding, invalid members, unknown/non-overdue loans, and fine lifecycle states.
+- Verified fine failures could be tested as part of borrowing/return workflows without duplicating arithmetic in controllers.
+
+### Open items / blockers
+
+- Final end-to-end verification still needed to confirm automatic fine creation after an overdue member return.
+
+### Next steps
+
+- Run integrated return, fine, and librarian-view workflows against isolated persistent data.

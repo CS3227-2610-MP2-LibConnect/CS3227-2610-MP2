@@ -1,0 +1,27 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Handle the JavaFX CI workflow failure and retain a repeatable local UI-test path.
+
+### Key decisions
+
+- Treat the failed GitHub Actions run as a workflow/test-environment problem rather than a rejected commit.
+- Remove the automatic UI workflow after it failed in CI when the test step did not behave reliably.
+- Keep local verification available through a script that uses `xvfb-run` when it is present.
+
+### Work completed
+
+- Added and then removed the automatic `.github/workflows/ui-tests.yml` workflow after observing the failure.
+- Added `scripts/test-ui.sh` as the local fallback for running the full unit and JavaFX UI suite.
+- Preserved the project history with separate commits for the UI workspace, UI pipeline, workflow removal, and local test script.
+
+### Open items / blockers
+
+- The original CI completion-detection issue remained a known project task after the automatic workflow was removed.
+
+### Next steps
+
+- Diagnose and repair the CI dependency/order and JavaFX display setup before re-enabling automatic UI testing.

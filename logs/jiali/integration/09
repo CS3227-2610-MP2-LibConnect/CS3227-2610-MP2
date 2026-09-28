@@ -1,0 +1,27 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Implement the librarian GUI feature for notifications and alert actions.
+
+### Key decisions
+
+- Query notifications through the service and isolate them by recipient.
+- Use the notification service for overdue alerts and reservation reminders.
+- Mark notifications read through a controller action and preserve idempotency.
+
+### Work completed
+
+- Added the notifications panel to the librarian shell.
+- Connected notification listing, read-state changes, overdue alerts, and reservation reminders.
+- Added integrated coverage for unread display/read flow, recipient isolation, duplicate suppression, and notification failures.
+
+### Open items / blockers
+
+- Final acceptance testing still needed to verify notification behaviour across both roles.
+
+### Next steps
+
+- Exercise notification generation, display, read transitions, and persistence through the packaged release.
