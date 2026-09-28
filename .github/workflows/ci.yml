@@ -22,7 +22,7 @@ jobs:
           java-version: '25'
 
       - name: Build and run tests with Maven
-        run: mvn --batch-mode --update-snapshots clean verify
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" mvn --batch-mode --update-snapshots clean verify
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -40,7 +40,7 @@ jobs:
           java-version: '25'
 
       - name: Build release JAR
-        run: mvn --batch-mode -Prelease clean package
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" mvn --batch-mode -Prelease clean package
 
       - name: Upload release JAR
         uses: actions/upload-artifact@v4

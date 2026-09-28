@@ -273,26 +273,28 @@ The current `.github/workflows/ci.yml` has two jobs:
 
 1. `build` runs on `ubuntu-latest` for pushes and pull requests, checks out the
    repository, installs Temurin Java 25, and runs
-   `mvn --batch-mode --update-snapshots clean verify`.
+   `xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" mvn
+   --batch-mode --update-snapshots clean verify` so JavaFX UI tests have a
+   display-capable environment.
 2. `release` runs only for tags whose ref starts with `v`, depends on `build`,
-   installs Java 25, runs `mvn --batch-mode -Prelease clean package`, and uploads
-   `target/libconnect-*.jar` as an artifact named `libconnect-<tag>`.
+   installs Java 25, runs the release build inside the same virtual display, and
+   uploads `target/libconnect-*.jar` as an artifact named `libconnect-<tag>`.
 
-The workflow currently has no separate UI-test job, explicit virtual-display
-setup step, coverage upload step, or test-report artifact upload step. Therefore
-the JavaFX display requirement remains an environment risk for CI and should be
-addressed in the workflow if `ubuntu-latest` cannot initialize the toolkit. Do
-not document a CI artifact or job that is not present.
+The workflow has no separate UI-test job, coverage upload step, or test-report
+artifact upload step. The full Maven suite remains the authoritative test gate,
+and the release job cannot run when that gate fails.
 
-For a local CI-equivalent build, use JDK 25 and run:
+For a local CI-equivalent build on Linux, use JDK 25 and run:
 
 ```text
-mvn --batch-mode --update-snapshots clean verify
+xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" mvn --batch-mode --update-snapshots clean verify
 ```
 
-If JavaFX fails before assertions with a screen/toolkit error, configure a
-display-capable runner first. If Maven fails before compilation, inspect
-`mvn --version` and ensure it reports JDK 25 rather than a JRE or an older JDK.
+On a desktop operating system with a usable display, the `xvfb-run` wrapper is
+not required. If JavaFX still fails before assertions with a screen/toolkit
+error, check the display setup first. If Maven fails before compilation,
+inspect `mvn --version` and ensure it reports JDK 25 rather than a JRE or an
+older JDK.
 
 ## Release process
 
