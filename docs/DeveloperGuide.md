@@ -10,6 +10,28 @@ This guide is for developers who build, extend, test, troubleshoot, and release
 LibConnect. It describes the current JavaFX application, not the unimplemented
 items in `PLAN.md`.
 
+## Table of contents
+
+- [Start here](#start-here)
+  - [Toolchain](#toolchain)
+  - [Repeatable commands](#repeatable-commands)
+- [Architecture and dependency direction](#architecture-and-dependency-direction)
+  - [Package responsibilities](#package-responsibilities)
+  - [Composition roots](#composition-roots)
+- [Domain and service boundaries](#domain-and-service-boundaries)
+- [Cross-role integration contracts](#cross-role-integration-contracts)
+- [Persistence and data safety](#persistence-and-data-safety)
+- [Testing strategy](#testing-strategy)
+- [Adding common kinds of changes](#adding-common-kinds-of-changes)
+  - [Add a service capability](#add-a-service-capability)
+  - [Add persistence](#add-persistence)
+  - [Add a UI flow](#add-a-ui-flow)
+- [CI workflow](#ci-workflow)
+- [Release process](#release-process)
+- [Troubleshooting](#troubleshooting)
+- [Planned Enhancements](#planned-enhancements)
+- [Acknowledgements](#acknowledgements)
+
 ## Start here
 
 ### Toolchain
