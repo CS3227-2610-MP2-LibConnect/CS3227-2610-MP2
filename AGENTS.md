@@ -18,6 +18,17 @@ Keep explanations brief but instructive. For example:
 
 Whenever the user asks for suggestions on how to implement a particular component, you are to follow the project skill [`./codex/skills/plan-with-me/SKILL.md`] to aid the user in the planning process.
 
+## Project Skill Set
+
+Use the following project skills when their task conditions apply:
+
+- [`./codex/skills/authoring-user-guide/SKILL.md`](.codex/skills/authoring-user-guide/SKILL.md): author or update `docs/USER_GUIDE.md` using the implemented JavaFX workflows, exact UI labels, tests, and verified user-visible behavior.
+- [`./codex/skills/authoring-developer-guide/SKILL.md`](.codex/skills/authoring-developer-guide/SKILL.md): author or update `docs/DEVELOPER_GUIDE.md` using the repository architecture, Maven configuration, persistence design, tests, CI, and release workflow.
+- [`./codex/skills/github-actions-javafx-ci/SKILL.md`](.codex/skills/github-actions-javafx-ci/SKILL.md): diagnose, modify, and verify GitHub Actions workflows involving Java 25, Maven, JavaFX UI tests, job dependencies, reports, artifacts, and release ordering.
+- [`./codex/skills/acceptance-testing/SKILL.md`](.codex/skills/acceptance-testing/SKILL.md): perform final end-to-end acceptance testing across the integrated member and librarian workflows, persistence boundaries, and release artifact.
+
+These skills supplement the existing planning, Java coding, Git, and test-information skills. Read the selected skill's `SKILL.md` completely before taking task actions, and keep changes within the skill's stated scope.
+
 ## Git standard
 
 For every future commit in this project, follow the project skill [`.codex/skills/seedu-git-standard/SKILL.md`](.codex/skills/seedu-git-standard/SKILL.md). This is mandatory: before committing, review the staged diff and ensure the branch name, commit subject, and when the commit is non-trivial—commit body comply with the SE-EDU Git conventions. Do not create a non-compliant commit unless the user explicitly instructs otherwise.
