@@ -17,6 +17,9 @@ reservations, fines, loans, and alerts.
 - [Account Creation and Login](#account-creation-and-login)
 - [Member Guide](#member-guide)
 - [Librarian Guide](#librarian-guide)
+- [Troubleshooting Common Errors](#troubleshooting-common-errors)
+- [Testing Commands](#testing-commands)
+
 
 ## Quick Start
 
@@ -158,11 +161,12 @@ LibConnect will provide a random recommendation for a book for members to try to
 
 Members can search for a book in the available catalog using the search function on the `Dashboard` page. Members can click on a book to view more information about the book, as well as the number of copies available, and the shelf locations.
 
+LibConnect supports 2 types of searches, Simple and Advanced.
+
 ![book card](images/bookCard.png)
 
 ![book information](images/bookInfo.png)
 
-LibConnect supports 2 types of searches, Simple and Advanced.
 
 #### Simple Search
 
@@ -200,7 +204,7 @@ After adding all the books you want to borrow, click **Confirm Borrowing**. LibC
 
 ![borrowing books process](images/borrowBookOperation.png)
 
-> [!NOTE]
+> **NOTE:**
 > Books marked as `BORROWED`, `DAMAGED`, or `LOST` cannot be borrowed. LibConnect will reject attempts to borrow these books.
 
 ### Creating a Reservation
@@ -211,7 +215,7 @@ If all copies of a book are unavailable, members can reserve it from the **Reser
 
 When a copy becomes available, LibConnect will notify the member to collect it. Members can cancel their reservation at any time before it is fulfilled. Once they have received the book, it can no longer be cancelled.
 
-> [!NOTE]
+> **NOTE:**
 > Members will not be allowed to make a reservation for a book if there are copies available currently.
 
 ![reservation process](images/makeReservation.png)
@@ -232,10 +236,10 @@ When changing a password, enter the same password in both fields. If the passwor
 
 Members can view their loans on the **My Loans** subpage of the **Profile** page. Select **Current Loans** to view active loans. From there, members can renew or return a loan. To view past loans, select **Loan History**.
 
-> [!NOTE]
+> **NOTE:**
 > All loans can only be renewed a maximum of one time.
 
-> [!NOTE]
+> **NOTE:**
 > Overdue loans cannot be renewed. When an overdue loan is returned, LibConnect automatically calculates and creates an outstanding fine for the member.
 
 ### View and Pay Fines
@@ -244,126 +248,188 @@ Members can view their loans on the **My Loans** subpage of the **Profile** page
 
 Members can view their fines on the **My Fines** subpage of the **Profile** page. Select **Outstanding** to view unpaid fines. Click **Pay Fine** to pay a fine. To view paid fines, select **History**.
 
-> [!NOTE]
+> **NOTE:**
 > A member can only pay a fine issued to their account. Currently, LibConnect does not support payment of fines for another member's account.
 
-## Librarian guide
+## Librarian Guide
 
-Log in with account type `Librarian` to open `LibConnect Librarian`. The workspace
-contains these tabs in the current release:
+After logging in with account type `Librarian`, the `LibConnect Librarian`
+workspace opens. Librarians can manage members, books, physical book copies,
+loans, reservations, fines, and notifications from the workspace tabs.
 
-| Tab | Available actions |
-| --- | --- |
-| `Dashboard` | Refresh counts for active loans, overdue loans, reservations, and fines. |
-| `Members` | Search, register, edit, reset a member password, deactivate, and activate members. |
-| `Books` | Search, add, edit, and remove catalogue books. |
-| `BookCopy` | Search, add, edit, delete, and change copy status. |
-| `Loans` | List all, active, or overdue loans and alert the selected member. |
-| `Reservations` | List, create, inspect pending reservations, cancel, fulfil, and send reminders. |
-| `Fines` | List member/all fines, create from a loan, edit, and remove fines. |
-| `Notifications` | List notifications for a user/member and mark a selected notification read. |
+#### Contents
 
-### Refresh the librarian summary
+- [Librarian Dashboard](#librarian-dashboard)
+- [Managing Members](#managing-members)
+- [Managing Catalogue Books](#managing-catalogue-books)
+- [Managing Book Copies](#managing-book-copies)
+- [Reviewing Loans and Sending Overdue Alerts](#reviewing-loans-and-sending-overdue-alerts)
+- [Managing Reservations and Reminders](#managing-reservations-and-reminders)
+- [Managing Fines](#managing-fines)
+- [Reviewing Notifications](#reviewing-notifications)
+- [Signing Out](#signing-out)
+
+### Librarian Dashboard
+
+![Librarian Dashboard](images/librarianDashboard.png)
+
+The `Dashboard` tab shows the current counts for active loans, overdue loans,
+reservations, and fines.
 
 1. Open the `Dashboard` tab.
 2. Select `Refresh summary`.
 
-The summary is displayed as `Active loans: N | Overdue: N | Reservations: N |
-Fines: N`, followed by `Dashboard refreshed`.
+LibConnect displays the summary as `Active loans: N | Overdue: N |
+Reservations: N | Fines: N`, followed by `Dashboard refreshed`.
 
-### Manage members
+### Managing Members
+
+[Member Management](images/librarianDashboard_member.png)
+
+The `Members` tab lets librarians search for members, register new members,
+edit member details, reset passwords, and change account status.
 
 1. Open `Members`.
-2. Search with `Search by ID, name, or email` and select `Search`.
-3. Select a member row.
-4. Use `Edit selected`, `Reset password`, `Deactivate selected`, or `Activate
+2. Enter a member ID, name, or email in `Search by ID, name, or email`.
+3. Select `Search`.
+4. Select a member row to edit, reset the password, deactivate, or activate the
+   account.
+5. Select `Edit selected`, `Reset password`, `Deactivate selected`, or `Activate
    selected` as required.
-5. Select `Register` to open the member registration dialog. Enter `Name`,
-   `Email`, `Password`, and `Confirm password`, then confirm the dialog.
+6. To register a member, select `Register`.
+7. Enter `Name`, `Email`, `Password`, and `Confirm password` in the dialog.
+8. Confirm the dialog.
 
 Successful actions show `Member registered`, `Member updated`, `Member password
-reset`, `Member deactivated`, or `Member activated`. An action requiring a row
-shows `Select a member first` when no member is selected.
+reset`, `Member deactivated`, or `Member activated`.
 
-### Manage books and physical copies
+> **NOTE:**
+> Select a member row before using an action that ends with `selected`. If no
+> row is selected, LibConnect shows `Select a member first`.
 
-For catalogue books:
+### Managing Catalogue Books
+
+![Book Catalogue Management](images/librarianDashboard_books.png)
+
+Use the `Books` tab to maintain the catalogue records that members search.
 
 1. Open `Books`.
-2. Search with `Search by ID, title, author, or category`.
-3. Select `Add` to enter ISBN, title, author, publisher, category, and publication
-   year, or select a row and use `Edit selected`.
-4. Select `Remove selected` and confirm the `Delete book` dialog if the book and
-   all copies for its ISBN should be permanently removed.
+2. Enter an ID, title, author, or category in `Search by ID, title, author, or
+   category`.
+3. Select `Search`.
+4. Select `Add` to enter the book's `ISBN`, `Title`, `Author`, `Publisher`,
+   `Category`, and `Publication year`.
+5. Select a book row and use `Edit selected` to update its details.
+6. Select `Remove selected` and confirm the `Delete book` dialog to permanently
+   remove a book.
 
-For copies:
+Successful actions show `Book added`, `Book updated`, or `Book removed`.
+
+> **NOTE:**
+> Removing a book also permanently removes all physical copies with the same
+> ISBN. Confirm the `Delete book` dialog only when this is intended.
+
+### Managing Book Copies
+
+![Book Copy Management](images/librarianDashboard_bookCopy.png)
+
+The `BookCopy` tab manages individual physical copies and their shelf locations.
 
 1. Open `BookCopy`.
-2. Search with `Search by copy ID, ISBN, or shelf`.
-3. Select `Add` to enter a copy ID, an existing ISBN, and a shelf location.
-4. Select a row and use `Edit selected` to change its shelf location or `Delete
-   selected` to remove it.
-5. Use `Mark damaged`, `Mark lost`, or `Mark available` to change its status.
+2. Enter a copy ID, ISBN, or shelf location in `Search by copy ID, ISBN, or
+   shelf`.
+3. Select `Search`.
+4. Select `Add` and enter `Copy ID`, an existing `ISBN`, and `Shelf location`.
+5. Select a copy row and use `Edit selected` to change its shelf location.
+6. Select `Delete selected` to remove a copy.
+7. Select a copy row and use `Mark damaged`, `Mark lost`, or `Mark available` to
+   change its status.
 
-Success messages include `Book added`, `Book updated`, `Book removed`, `Book copy
-added`, `Book copy updated`, `Book copy deleted`, `Book copy marked damaged`,
-`Book copy marked lost`, and `Book copy marked available`. A copy cannot be added
-for an unknown ISBN.
+Success messages include `Book copy added`, `Book copy updated`, `Book copy
+deleted`, `Book copy marked damaged`, `Book copy marked lost`, and `Book copy
+marked available`.
 
-### Review loans and send overdue alerts
+> **NOTE:**
+> A copy can be added only for an existing ISBN. An unknown ISBN shows an error
+> instead of creating the copy.
+
+### Reviewing Loans and Sending Overdue Alerts
+
+![Reviewing Loans](images/librarianDashboard_loans.png)
+
+The `Loans` tab displays loan ID, member, copy, due date, and status. Use the
+filters to review all loans, active loans, or overdue loans.
 
 1. Open `Loans`.
 2. Select `All`, `Active`, or `Overdue`.
 3. Select a loan row.
-4. Select `Alert selected member` to create the member's overdue notification.
+4. Select `Alert selected member` to send an overdue notification to the member.
 
-The table shows loan ID, member, copy, due date, and status. Alerts are
-idempotent for the same member, notification type, and loan reference; retrying
-does not create another copy of the same alert.
+The alert action shows `Overdue alert sent`. Repeating the same alert does not
+create a duplicate notification for the same loan.
 
-### Manage reservations and reminders
+### Managing Reservations and Reminders
+
+![Manage Reservations](images/librarianDashboard_reservations.png)
+
+The `Reservations` tab lets librarians create, view, cancel, and fulfil
+reservations, as well as send collection reminders.
 
 1. Open `Reservations`.
-2. Enter `Member ID` and `Book ID` when creating a reservation, then select
-   `Create`.
-3. Leave `Member ID` blank and select `List` to list all reservations, or enter a
-   member ID to list that member's reservations.
-4. Enter a book ID and select `Pending for book` to inspect the pending queue.
-5. Select a row and use `Cancel selected`, `Fulfil selected`, or `Send reminder`.
+2. Enter `Member ID` and `Book ID`.
+3. Select `Create` to create a reservation.
+4. Leave `Member ID` blank and select `List` to view all reservations, or enter
+   a member ID to view that member's reservations.
+5. Enter a book ID and select `Pending for book` to view the pending reservation
+   queue for that book.
+6. Select a reservation row.
+7. Select `Cancel selected`, `Fulfil selected`, or `Send reminder` as required.
 
 Success messages include `Reservation created`, `Reservation cancelled`,
 `Reservation fulfilled`, and `Reservation reminder sent`. A reminder can be sent
 only for a pending reservation that is still current.
 
-### Manage fines
+### Managing Fines
+
+![Managing Fines](images/librarianDashboard_fines.png)
+
+Use the `Fines` tab to view, create, edit, and remove member fines.
 
 1. Open `Fines`.
-2. Enter a `Member ID` and select `List member fines`, or select `List all fines`.
-3. Enter a `Loan ID for new fine` and select `Create from loan` to create a fine
-   for an overdue loan.
-4. Select a fine row and use `Edit selected` or `Remove selected`.
+2. Enter a member ID and select `List member fines`, or select `List all fines`.
+3. Enter a loan ID in `Loan ID for new fine`.
+4. Select `Create from loan` to create a fine for an overdue loan.
+5. Select a fine row.
+6. Select `Edit selected` to change an outstanding fine's amount, or select
+   `Remove selected` to remove it.
 
-Fine amounts use the configured daily overdue rate of $1.50. Only outstanding
-fines can be edited. Success messages include `Fine created`, `Fine updated`,
-and `Fine removed`.
+Fine amounts use the configured daily overdue rate of $1.50. Successful actions
+show `Fine created`, `Fine updated`, or `Fine removed`.
 
-### Review notifications
+### Reviewing Notifications
+
+![Reviewing Notifications](images/librarianDashboard_notifications.png)
+
+The `Notifications` tab lets librarians review notifications for a member and
+mark them as read.
 
 1. Open `Notifications`.
-2. Enter a `User/member ID`.
+2. Enter a user or member ID in `User/member ID`.
 3. Select `List`.
-4. Select a notification and choose `Mark selected read`.
+4. Select a notification row.
+5. Select `Mark selected read`.
 
-The table shows ID, type, read state, and message. The `Send reminder` action in
+The table shows the notification ID, type, read state, and message. A successful
+update shows `Notification marked read`. The `Send reminder` action in
 `Reservations` and the `Alert selected member` action in `Loans` are the normal
 librarian entry points for creating member notifications.
 
-### Sign out
+### Signing Out
 
-Select `Log out` in the librarian header. The session is cleared and the login
-page is displayed.
+Select `Log out` in the librarian header. LibConnect clears the session and
+returns to the login page.
 
-## Troubleshooting
+## Troubleshooting Common Errors
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
