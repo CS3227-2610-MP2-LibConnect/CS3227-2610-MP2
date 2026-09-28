@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Implement the librarian orchestration and controller boundaries that expose librarian features without moving business rules into the UI or CLI.
+
+### Key decisions
+
+- Keep `LibrarianController` thin and delegate rules to services.
+- Check librarian authorization before invoking collaborators.
+- Use integration contracts for member, catalogue, book-copy, and loan operations.
+- Forward service failures to the view boundary instead of exposing repository details.
+
+### Work completed
+
+- Added controller coverage for member registration/edit/deactivation/search, book operations, damaged/lost copies, loan queries, reservations, fines, and alert delivery.
+- Verified injected-clock behaviour for overdue queries and validation of reservation reminders.
+- Added CLI workflow coverage for login/logout, protected commands, malformed arguments, searches, reservations, fines, notifications, and persistence across sessions.
+
+### Open items / blockers
+
+- The first JavaFX UI still required the controller to be extended for every action called directly by the CLI.
+
+### Next steps
+
+- Make the controller the single authorized boundary for the JavaFX librarian shell.

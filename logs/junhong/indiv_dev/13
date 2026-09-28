@@ -1,0 +1,46 @@
+## Conversation Summary
+
+Date: 2026-09-22
+
+### Objective
+
+Implement a JavaFX login and registration flow for LibConnect using Java-defined reusable components instead of FXML.
+
+### Key decisions
+
+- Use JavaFX with code-built pages and reusable Java components.
+- Use a single `SceneNavigator` to switch pages.
+- Keep librarian functionality disabled until implemented.
+- Registration initially shows no account-specific fields.
+- Do not add tests yet.
+
+### Work completed
+
+- Implemented login page with:
+  - Username/email and password fields
+  - Login button
+  - Disabled create-account button initially, later enabled
+  - Error messages for failed login
+- Implemented placeholder authenticated page with logout functionality.
+- Implemented registration page with:
+  - Account type selector
+  - Disabled librarian option
+  - Member registration fields
+  - Password confirmation validation
+  - Error handling
+  - Success message after registration
+- Added reusable components:
+  - `FeedbackMessage`
+  - `MemberRegistrationForm`
+  - Existing page layout components
+- Updated `SceneNavigator` to support login, registration, and success feedback navigation.
+- Updated `build.gradle` with JavaFX dependencies.
+
+### Open items / blockers
+
+- UI tests were not added or executed.
+- Existing tests were not reached because compilation failed during dependency resolution.
+
+### Next steps
+
+- Add UI tests later.

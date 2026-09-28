@@ -1,0 +1,27 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Implement the librarian GUI feature for member management.
+
+### Key decisions
+
+- Reuse `MemberManagement` through `LibrarianController` rather than accessing member repositories from the view.
+- Use a search field, table, and simple register/edit/deactivate dialogs.
+- Refresh the table after successful changes and display service errors in the shared status area.
+
+### Work completed
+
+- Added the member-management panel to the librarian shell.
+- Connected search, registration, editing, and deactivation actions through the authorized controller boundary.
+- Added UI coverage for member search and the related login/navigation path.
+
+### Open items / blockers
+
+- Production member-role providers were still being integrated when the first GUI implementation was completed.
+
+### Next steps
+
+- Replace temporary adapters and verify empty-search, no-result, invalid-input, and persistence states end to end.

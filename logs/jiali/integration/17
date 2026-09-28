@@ -1,0 +1,41 @@
+## Conversation Summary
+
+Date: 2026-09-28
+
+### Objective
+
+Launch the packaged LibConnect JAR and perform final acceptance testing for the
+integrated member and librarian workflows.
+
+### Key decisions
+
+- Use Java SE 25, an isolated temporary data directory, and a temporary
+  JavaFX cache so acceptance testing does not overwrite repository records.
+- Keep automated UI-test evidence separate from manual click-through evidence.
+- Record the native desktop limitation as Blocked rather than treating process
+  startup or automated tests as proof of full GUI acceptance.
+
+### Work completed
+
+- Re-ran `mvn --batch-mode clean verify` with host access and a writable
+  JavaFX cache: 527 tests passed with 0 failures, 0 errors, and 0 skips.
+- Rebuilt the release artifact with `mvn --batch-mode -Prelease clean package`.
+- Verified `release/libconnect-1.0.0.jar` is an approximately 11 MB shaded JAR
+  with `Main-Class: libconnect.ui.LibConnectLauncher` and Java 25 build metadata.
+- Launched the rebuilt JAR from an isolated temporary working directory. The
+  process reached JavaFX startup and remained running without an application
+  exception during the smoke-test interval.
+
+### Open items / blockers
+
+- Manual click-through of login, member workflows, librarian workflows,
+  cross-role effects, restart persistence, and release-window behaviour remains
+  blocked because this Codex session exposes no native macOS window-control
+  surface or usable screen to the UI automation tool.
+- The automated JavaFX tests are passing, but they are not a substitute for
+  visual/manual acceptance of the packaged application.
+
+### Next steps
+
+- Run the complete acceptance matrix in a real Java 25 desktop session with
+  native window control, using isolated data created through the UI.

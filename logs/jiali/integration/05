@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Implement librarian GUI features for catalogue books and physical book copies.
+
+### Key decisions
+
+- Separate book-title operations from book-copy operations in the UI.
+- Use stable ISBN and copy IDs through `BookManagement` and `BookCopyManagement` contracts.
+- Keep add/edit/delete and damaged/lost actions behind the controller boundary.
+
+### Work completed
+
+- Added book and book-copy panels to the librarian shell.
+- Connected book search, add, edit, and remove operations.
+- Connected book-copy lookup and damaged/lost actions.
+- Kept panel refresh and error display in the shared shell rather than embedding persistence logic in views.
+
+### Open items / blockers
+
+- The first implementation still depended on temporary integration adapters for some member-owned data.
+
+### Next steps
+
+- Verify invalid ISBN/copy IDs, duplicate copies, unavailable actions, and refresh behaviour with the integrated repositories.

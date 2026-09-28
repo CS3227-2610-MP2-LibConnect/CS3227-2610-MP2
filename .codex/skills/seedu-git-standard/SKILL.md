@@ -13,7 +13,7 @@ Use this skill for all Git commits and branch naming in this project. Follow the
 - Prefer 50 characters or fewer; never exceed 72 characters.
 - Use imperative mood (`Add README.md`, not `Added README.md` or `Adding README.md`).
 - Capitalize the first letter and do not end with a period.
-- Add a relevant `<scope>:` or `<category>:` prefix when useful, such as `Person class:` or `chore:`.
+- Always add a relevant `<scope>:` or `<category>:` prefix, such as `Person class:` or `chore:`.
 
 ## Commit body
 

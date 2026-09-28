@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-17
+
+### Objective
+
+Implement the librarian-role test expansion proposed for the domain, service, repository, persistence, controller, and CLI layers.
+
+### Key decisions
+
+- Use focused tests at each architectural boundary instead of relying only on end-to-end tests.
+- Cover invalid input, authorization, lifecycle transitions, date boundaries, idempotency, malformed storage, and repository failures.
+- Verify that failed operations do not call downstream collaborators or leave inconsistent records.
+
+### Work completed
+
+- Added librarian account, reservation, fine, notification, repository, storage, controller, and CLI test cases.
+- Added `StorageManagerTest` for missing files, malformed JSON, safe writes, and persistence behaviour.
+- Covered injected-clock behaviour, duplicate prevention, status transitions, case-insensitive lookup, and stable ordering.
+- Increased the focused suite from 21 to 75 passing tests with no failures or errors.
+
+### Open items / blockers
+
+- JavaFX and cross-role integration tests were outside this implementation increment.
+
+### Next steps
+
+- Extend the same boundary-first test strategy to the integrated JavaFX workflows.

@@ -1,0 +1,34 @@
+# Conversation Summary
+
+Date: 2026-09-27
+
+## Objective
+
+Audit the Java repository for unused code, unused imports, redundant model tests, API drift, and CLI implementations while preserving existing testing scope and the GUI.
+
+## Key decisions
+
+- Retain redundant tests but highlight them; do not remove or edit them.
+- Fix only test failures caused by API or constructor changes.
+- Do not introduce new tests.
+- Remove all CLI implementations and retain the GUI interface.
+
+## Work completed
+
+- Audited unused classes and imports.
+- Reviewed model unit tests and identified redundant tests and testing gaps.
+- Fixed API drift in affected tests and production code.
+- Deleted all CLI classes under `src/main/java/libconnect/cli/`.
+- Deleted the CLI-only `LibrarianCliTest`.
+- Removed CLI instructions from `README.md`.
+- Confirmed `libconnect.ui.LibConnectLauncher` remains the GUI entry point.
+- Ran the full clean test suite: 313 tests passed, with 0 failures, errors, or skipped tests.
+- Confirmed `git diff --check` passes.
+
+## Open items / blockers
+
+None.
+
+## Next steps
+
+None.

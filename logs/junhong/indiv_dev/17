@@ -1,0 +1,31 @@
+# Conversation Summary
+
+Date: 2026-09-23
+
+## Objective
+
+Implement and refine the LibConnect My Loans page and related UI behavior.
+
+## Key decisions
+
+- Adopted implementation Approach 2 for the My Loans page.
+- No tests should be created or run.
+
+## Work completed
+
+- Implemented My Loans with:
+  - Current Loans and Loan History subpages.
+  - Return and renew actions.
+  - Loan sorting and overdue highlighting.
+  - Coordinated loan and book-copy status updates.
+- Added navigation to My Loans.
+- Moved success messages below the dashboard navbar.
+- Updated success messages to use a full-width light-green background in `FeedbackMessage`.
+
+## Open items / blockers
+
+- The requested change from `memberId` to `userId` for loans has not been implemented.
+
+## Next steps
+
+- Modify all loan-related occurrences from `memberId` to `userId` after confirmation.

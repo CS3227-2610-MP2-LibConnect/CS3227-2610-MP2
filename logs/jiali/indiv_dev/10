@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-17
+
+### Objective
+
+Implement safe file-backed persistence for librarian-owned entities and shared storage operations.
+
+### Key decisions
+
+- Keep models and services independent of JSON and file-system details.
+- Initialise missing data files without deleting existing records.
+- Replace files safely and reject malformed records through repository errors.
+- Replace an existing record with the same stable ID instead of creating duplicates.
+
+### Work completed
+
+- Implemented repository round trips for librarians, reservations, fines, and notifications.
+- Added tests for missing/empty files, malformed JSON, IDs, dates, statuses, queries, duplicate replacement, deletion, and separate repository instances.
+- Added `StorageManagerTest` coverage for valid writes and protection against partial replacement on write failure where testable.
+
+### Open items / blockers
+
+- Coordinated multi-repository transactions were not required by this implementation increment.
+
+### Next steps
+
+- Add journal/rollback handling if a future operation updates multiple repositories atomically.

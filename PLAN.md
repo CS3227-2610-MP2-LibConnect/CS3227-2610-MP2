@@ -321,7 +321,7 @@ classDiagram
 | `User`, `Member`, authentication | Member-role developer |
 | `Book`, `BookCopy`, catalogue search | Member-role developer |
 | `Loan`, borrowing rules | Member-role developer |
-| `Reservation` | Member-role developer |
+| `Reservation` | Librarian-role developer |
 | `Librarian` | Librarian-role developer |
 | Fine-related logic | Librarian-role developer |
 | Notification logic | Librarian-role developer |

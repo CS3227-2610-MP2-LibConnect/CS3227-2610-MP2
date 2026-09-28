@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-17
+
+### Objective
+
+Assess whether the proposed LibConnect library circulation system satisfies the CS3227 project requirements and is feasible for a two-person team.
+
+### Key decisions
+
+- Use two distinct roles: Librarian and Member.
+- Keep circulation, catalogue, authentication, persistence, validation, testing, and packaging within the production-quality scope.
+- Treat event publishing and registration as optional scope; if retained for a three-person team, it should become a separate Event Coordinator role.
+- Define borrowing limits, loan periods, reservation ordering, renewal rules, fine calculation, item-condition behaviour, notification scope, and restart persistence explicitly before implementation.
+
+### Work completed
+
+- Confirmed that the library system provides meaningful role-specific workflows and shared data for a two-person project.
+- Identified production-level requirements beyond working code: persistent storage, role permissions, automated tests, graceful errors, logging, a JavaFX release, documentation, reflection logs, and a product website.
+- Flagged events as the main scope risk and recommended freezing the minimum viable product around library circulation first.
+
+### Open items / blockers
+
+- The detailed business rules and persistence design still needed agreement.
+
+### Next steps
+
+- Define the shared architecture and role boundaries before implementing application features.

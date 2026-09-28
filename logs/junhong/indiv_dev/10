@@ -1,0 +1,32 @@
+## Conversation Summary
+
+Date: 2026-09-22
+
+Objective: Implement and document LibConnect service methods, then add automatic unique ID generation for loans and book copies.
+
+Work completed:
+
+- Implemented `LoanService` using `FileLoanRepository`.
+- Updated `LoanService` Javadocs.
+- Implemented `BookCopyService` and updated its Javadocs.
+- Implemented `BookService`.
+- Implemented `MemberService`, including:
+  - Registration and unique IDs
+  - Password hashing
+  - Profile/password updates
+  - Account activation/deactivation
+  - Member deletion
+- Added no-ID overloads:
+  - `LoanService.createLoan(memberId, copyId, borrowDate)`
+  - `BookCopyService.createCopy(isbn, status, shelfLocation)`
+- Generated IDs use UUIDs and are checked against the repository before object creation. Collisions trigger another generation attempt.
+- Existing explicit-ID creation methods remain unchanged.
+- No tests were created.
+- Existing test suite passed successfully.
+
+Open items / blockers:
+
+- No dedicated `LoanService` or `BookCopyService` test files exist.
+- The project uses `createCopy`, not a method named `createBookCopy`.
+
+Next steps: None.

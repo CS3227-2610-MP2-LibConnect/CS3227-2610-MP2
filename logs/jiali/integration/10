@@ -1,0 +1,27 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Add automated JavaFX UI coverage for the librarian workspace.
+
+### Key decisions
+
+- Use TestFX integration tests for user-visible JavaFX behaviour.
+- Keep UI tests focused on navigation and boundary behaviour while retaining unit tests for service rules.
+- Provide a Maven profile so UI tests can be run separately from the standard unit suite.
+
+### Work completed
+
+- Added `LibrarianGuiIT.java` covering login, invalid login, demo-account setup, navigation, member search, and logout.
+- Added Maven `ui-tests` configuration with JavaFX/TestFX dependencies.
+- Verified the unit suite still passed with 76 tests and the UI test sources compiled.
+
+### Open items / blockers
+
+- Full UI execution depended on a display environment such as Linux `xvfb`; it could not be completed through the local macOS/Linux-specific command in that environment.
+
+### Next steps
+
+- Run the full UI suite in a supported display environment and expand cases for error states and persistence-sensitive actions.

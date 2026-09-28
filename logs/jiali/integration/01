@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-25
+
+### Objective
+
+Design an integration-friendly JavaFX architecture for the librarian role around the existing service and controller layers.
+
+### Key decisions
+
+- Use one JavaFX shell with switchable feature panels instead of multiple independent windows/scenes.
+- Keep the controller as the single authorized boundary for librarian actions; the UI must not access repositories directly.
+- Keep navigation, session state, shared error handling, and refresh behaviour in the shell while separating feature panels.
+- Use a small demo-account flow until shared authentication and member-role providers are integrated.
+
+### Work completed
+
+- Compared a single-shell/panel design with separate scenes and selected the single-shell design for simpler navigation and integration.
+- Defined the shell responsibilities: session state, navigation, shared status/error handling, and refresh behaviour.
+- Defined the controller extensions and composition-root responsibilities needed before adding feature panels.
+
+### Open items / blockers
+
+- Shared authentication and real member-role providers remained integration work.
+
+### Next steps
+
+- Implement the JavaFX build support, composition root, authorized controller boundary, shell, and feature panels in small increments.

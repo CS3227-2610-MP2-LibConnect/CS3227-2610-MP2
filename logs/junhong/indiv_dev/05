@@ -1,0 +1,23 @@
+## Conversation Summary
+
+Date: 2026-09-22
+
+### Objective
+
+Add a GitHub Actions CI workflow for the Gradle Java project to build the application and run all tests.
+
+### Key decisions
+
+- Selected the Gradle-optimized workflow approach.
+- CI should run on pushes and pull requests.
+- CI should use Java 25, Temurin, and Gradle’s official setup action.
+
+### Work completed
+
+- Added `.github/workflows/ci.yml`.
+- Configured:
+  - `actions/checkout@v6`
+  - `actions/setup-java@v6`
+  - `gradle/actions/setup-gradle@v6`
+  - `./gradlew clean build --no-daemon`
+- Workflow formatting passed `git diff --check`.

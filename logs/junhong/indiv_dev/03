@@ -1,0 +1,30 @@
+## Conversation Summary
+
+Date: 2026-09-21
+
+### Objective
+
+Update LibConnect model behavior and implement unit tests for `Loan`, `User`, and `Member`.
+
+### Key decisions
+
+- Loans use a default period of 30 days from the borrow date.
+- Members automatically receive today’s date as their registration date.
+- Member construction no longer accepts a caller-supplied registration date.
+- User tests 15–18, related to equality/hash behavior, were removed as unnecessary.
+
+### Work completed
+
+- Updated `Loan.java` with a 30-day default due date.
+- Added `LoanTest.java`, `UserTest.java`, and `MemberTest.java`.
+- Added/staged tests for `Book` and `BookCopy`.
+- Updated `MemberTest.java` to match the new 5-argument constructor.
+- Verified all 7 `MemberTest` tests pass.
+- Verified all 30 `UserTest` cases pass.
+- Loan tests revealed an existing issue: equal `Loan` objects do not currently guarantee matching hash codes.
+
+### Open items / blockers
+
+- Changes have not been committed.
+- `Member.java` still contains outdated Javadoc references to the removed `registrationDate` constructor parameter.
+- The staged Loan hash-code test may fail until `Loan.hashCode()` is implemented consistently with `equals()`.

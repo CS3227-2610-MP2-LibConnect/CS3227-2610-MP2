@@ -1,0 +1,29 @@
+## Conversation Summary
+
+Date: 2026-09-28
+
+### Objective
+
+Increase integrated UI and defect-finding coverage after the application roles were connected.
+
+### Key decisions
+
+- Test complete workflows and failure boundaries, not only individual service methods.
+- Preserve the existing release and documentation work while adding tests incrementally.
+- Correct faulty fixtures when the test exposed an inaccurate boundary assumption, rather than weakening the production logic.
+
+### Work completed
+
+- Added UI tests for registration validation, navigation, borrowing errors and authorization, loan renewal, book-info errors, unread notifications, scene routing, loan-return persistence, reservation validation, fine-failure rollback, fine boundaries, and librarian active/overdue filtering.
+- Expanded the suite from 512 to 520 tests, then to 527 tests, with 0 failures and 0 errors.
+- Reported JaCoCo coverage of 92.6% for the UI page lines and 96.4% for service lines in the defect-finding pass.
+- Corrected two invalid fixtures: an overdue-date boundary and a notification recipient ID mismatch.
+- Confirmed no application defect in the exercised paths and committed the coverage/release work as `d11f177` with subject `test: Expand system coverage and prepare release`.
+
+### Open items / blockers
+
+- The conversation ended with a request to make the user and developer guides more detailed; no completed follow-up response was recorded.
+
+### Next steps
+
+- Finish the guide improvement, then run the complete acceptance checklist against the packaged JAR and integrated member/librarian workflows.

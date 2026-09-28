@@ -1,0 +1,37 @@
+# Conversation Summary
+
+Date: 2026-09-27
+
+## Objective
+
+Update the librarian UI for member, book, book-copy, dashboard, and password-management workflows.
+
+## Key decisions
+
+- Tests must not be created, modified, or removed.
+- Member IDs are generated automatically during registration.
+- Read-only member details are displayed as plain text rather than input fields.
+
+## Work completed
+
+- Removed the old text input and damage/lost buttons from the Books subpage.
+- Added book-copy status controls for damaged, lost, and available; removed Mark borrowed.
+- Updated book-copy status immediately after actions without requiring a new lookup.
+- Enabled automatic loading for the dashboard, Members, and Books subpages.
+- Reworked member registration into one popup containing name, email, password, and confirmation fields.
+- Added password-match validation for member registration.
+- Refreshed the Members table after registration and editing.
+- Changed Edit selected to a single prefilled popup.
+- Added Activate selected after Deactivate selected.
+- Added Reset password after Edit selected.
+- Reset password popup displays member ID, name, and email as plain text, with two matching password fields.
+- Moved and then removed the temporary read-only field CSS after switching to plain text labels.
+- Production-only Maven build completed successfully.
+
+## Open items / blockers
+
+- None.
+
+## Next steps
+
+- None.

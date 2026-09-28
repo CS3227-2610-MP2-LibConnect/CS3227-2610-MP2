@@ -1,0 +1,29 @@
+## Conversation Summary
+
+Date: 2026-09-28
+
+### Objective
+
+Implement project documentation, coverage reporting, and an executable LibConnect release artifact.
+
+### Key decisions
+
+- Keep user-facing instructions task-oriented and include exact commands with expected output.
+- Document internal architecture, persistence, testing, coverage, and release workflows separately in the developer guide.
+- Produce a versioned executable JAR rather than a ZIP distribution.
+
+### Work completed
+
+- Added `docs/USER_GUIDE.md` and `docs/DEVELOPER_GUIDE.md`.
+- Added repository/storage tests and JaCoCo reporting.
+- Added the `1.0.0` release profile, producing `target/libconnect-1.0.0.jar` and staging `release/libconnect-1.0.0.jar`.
+- Updated build and guide instructions for `mvn -Prelease clean package` and `java -jar`.
+- Installed Java 25 and Maven 3.9.16 for full verification and smoke-tested the packaged JAR.
+
+### Open items / blockers
+
+- The later request for more detailed guides still required a follow-up implementation pass.
+
+### Next steps
+
+- Compare both guides against the final integrated UI and release behaviour, then update stale or underspecified sections.

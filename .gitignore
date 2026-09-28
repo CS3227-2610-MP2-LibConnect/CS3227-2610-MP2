@@ -1,1 +1,22 @@
+# Maven
+target/
+.m2/
 
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Java build output
+out/
+*.class
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Data files
+data/**
+!data/*.json
+release/*.jar
+test_summary.md

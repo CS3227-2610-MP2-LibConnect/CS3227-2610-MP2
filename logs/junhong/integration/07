@@ -1,0 +1,47 @@
+## Conversation Summary
+
+Date: 2026-09-27
+
+### Objective
+
+Identify UI classes without tests, propose suitable coverage, and implement the approved tests.
+
+### Key decisions
+
+- Invalid login credentials belong in `AuthenticationService`/`LoginPage` tests, not `SessionManager`.
+- Tests for `LibConnectApplication` and `LibConnectLauncher` were skipped.
+- `LibrarianPage` and `NotificationDialog` were treated as integration-test targets because they involve full JavaFX/runtime wiring and modal dialogs.
+
+### Work completed
+
+Added tests for:
+
+- `SessionManager`
+- `NotificationsPage`
+- `MyFinesPage`
+- `FineCard`
+- `NotificationCard`
+- `JavaFxLibrarianView`
+- `LibrarianPage` integration behavior
+- `NotificationDialog` integration behavior
+
+Main new files include:
+
+- `src/test/java/libconnect/ui/SessionManagerTest.java`
+- `src/test/java/libconnect/ui/LibrarianPageIntegrationTest.java`
+- `src/test/java/libconnect/ui/components/NotificationDialogIntegrationTest.java`
+
+### Verification
+
+- Targeted integration tests: 16 passed.
+- Full Maven suite: 357 passed, 0 failures/errors.
+- No production code was modified.
+- Existing data-file changes were preserved.
+
+### Open items / blockers
+
+- Tests for `LibConnectApplication` and `LibConnectLauncher` remain intentionally skipped.
+
+### Next steps
+
+None.

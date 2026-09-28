@@ -1,0 +1,29 @@
+## Conversation Summary
+
+Date: 2026-09-17
+
+### Objective
+
+Split implementation responsibilities between two developers while preserving a single coherent domain model.
+
+### Key decisions
+
+- Assign one developer full ownership of the Member role and the other full ownership of the Librarian role.
+- Design shared entities and interfaces together so that each shared rule has one implementation.
+- Let the Member-role developer own member account, catalogue browsing, borrowing, and reservation workflows.
+- Let the Librarian-role developer own member/book administration, item-condition handling, loan monitoring, fines, reservations administration, and librarian notifications.
+- Treat authentication, repositories, and shared business entities as jointly designed components with an explicit primary owner and reviewer.
+
+### Work completed
+
+- Mapped each role to its UI, controller, services, workflows, and role-specific tests.
+- Identified shared classes including `User`, `Book`, `BookCopy`, `Loan`, `Reservation`, `Fine`, `Notification`, authentication, and repositories.
+- Defined integration workflows that both developers must test after their role features are complete.
+
+### Open items / blockers
+
+- Shared method signatures, database schema, and repository contracts were not yet frozen.
+
+### Next steps
+
+- Agree on shared contracts first, then implement role features without duplicating shared rules.

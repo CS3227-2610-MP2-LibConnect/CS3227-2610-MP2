@@ -1,0 +1,28 @@
+## Conversation Summary
+
+Date: 2026-09-28
+
+### Objective
+
+Implement a defect-finding test pass for the integrated member and librarian workflows.
+
+### Key decisions
+
+- Add tests for rollback, authorization, persistence, routing, notification state, boundary dates, and service failures.
+- Treat incorrect fixtures as test defects to correct when the production behaviour is valid.
+- Require the complete suite to remain green after every coverage increment.
+
+### Work completed
+
+- Added tests for unread notifications, authenticated and unauthenticated routes, loan-return persistence, reservation validation, fine-issuance rollback, fine boundaries, and librarian loan filters.
+- Expanded the suite to 527 passing tests with 0 failures and 0 errors.
+- Reached 92.6% UI page line coverage and 96.4% service line coverage in the reported JaCoCo pass.
+- Corrected an overdue-date fixture and a notification-recipient fixture; no application defect was found in the exercised paths.
+
+### Open items / blockers
+
+- Final manual acceptance testing and the guide-detail improvement remained outstanding.
+
+### Next steps
+
+- Run the acceptance checklist against the integrated application and packaged JAR after completing the guide update.

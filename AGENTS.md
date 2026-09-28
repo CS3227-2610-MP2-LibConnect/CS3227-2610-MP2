@@ -18,6 +18,17 @@ Keep explanations brief but instructive. For example:
 
 Whenever the user asks for suggestions on how to implement a particular component, you are to follow the project skill [`./codex/skills/plan-with-me/SKILL.md`] to aid the user in the planning process.
 
+## Project Skill Set
+
+Use the following project skills when their task conditions apply:
+
+- [`./codex/skills/authoring-user-guide/SKILL.md`](.codex/skills/authoring-user-guide/SKILL.md): author or update `docs/USER_GUIDE.md` using the implemented JavaFX workflows, exact UI labels, tests, and verified user-visible behavior.
+- [`./codex/skills/authoring-developer-guide/SKILL.md`](.codex/skills/authoring-developer-guide/SKILL.md): author or update `docs/DEVELOPER_GUIDE.md` using the repository architecture, Maven configuration, persistence design, tests, CI, and release workflow.
+- [`./codex/skills/github-actions-javafx-ci/SKILL.md`](.codex/skills/github-actions-javafx-ci/SKILL.md): diagnose, modify, and verify GitHub Actions workflows involving Java 25, Maven, JavaFX UI tests, job dependencies, reports, artifacts, and release ordering.
+- [`./codex/skills/acceptance-testing/SKILL.md`](.codex/skills/acceptance-testing/SKILL.md): perform final end-to-end acceptance testing across the integrated member and librarian workflows, persistence boundaries, and release artifact.
+
+These skills supplement the existing planning, Java coding, Git, and test-information skills. Read the selected skill's `SKILL.md` completely before taking task actions, and keep changes within the skill's stated scope.
+
 ## Git standard
 
 For every future commit in this project, follow the project skill [`.codex/skills/seedu-git-standard/SKILL.md`](.codex/skills/seedu-git-standard/SKILL.md). This is mandatory: before committing, review the staged diff and ensure the branch name, commit subject, and when the commit is non-trivial—commit body comply with the SE-EDU Git conventions. Do not create a non-compliant commit unless the user explicitly instructs otherwise.
@@ -25,3 +36,165 @@ For every future commit in this project, follow the project skill [`.codex/skill
 ## Coding Standard
 
 Whenever code is generated for this project, follow the project skill [`.codex/skills/seedu-java-coding-standard/SKILL.md`](.codex/skills/seedu-java-coding-standard/SKILL.md). This is mandatory: Always create a javadoc for each method added, unless explicitly stated by the user to not include a javadoc.
+
+## Code Generation Practices
+
+Before writing new helpers or logic, search the codebase for existing implementations that already solve the problem, and reuse or extend them rather than duplicating. Be alert to logic that is likely to be needed across multiple files (e.g., date calculations, validation, formatting) — these should live in a shared/common module rather than being reimplemented per file. If a similar method already exists but doesn't quite fit, prefer generalizing it over writing a near-duplicate. When duplication is found during a change, extract it into a shared helper as part of that change rather than leaving it for later. This is mandatory: Before making any changes to existing files for the purposes listed above, you are to inform the user and ask for permission before implementing the changes.
+
+After creating any new classes or modifying any code, look through the repository for its corresponding test file. You are required to follow the following steps:
+
+1. Look through the repository for any test files for the modified class.
+1. If no test files are found highlight this to the user to inform them of the need to create unit tests.
+1. If test files are found, inspect them to look for any missing new functionality created that may not be tested by the existing test suite. If there are any such instances, highlight them to the user.
+1. Highlight any test cases that may have become redundant as a result of modification to the classes, for example, due to the removal of certain functionalities from existing classes.
+1. Highlight any integration tests that may need to be added.
+1. Run all existing tests, and highlight any failing tests to the user.
+
+## Librarian-Role Implementation Plan
+
+This plan is limited to librarian-owned functionality from `PLAN.md`. Do not implement
+member-owned authentication, member registration, catalogue search, book models,
+book-copy models, or loan/borrowing rules except where a small, documented interface
+contract is required for integration.
+
+### Scope and ownership
+
+The librarian role owns the following deliverables:
+
+- `Librarian` model and librarian authorization checks.
+- Reservation management: create/cancel/fulfil, pending-reservation processing, and
+  reservation queries needed by librarians.
+- Fine management: create, view, edit, remove, calculate, and validate fines.
+- Notification management: overdue alerts, reservation reminders, querying, and read
+  state changes.
+- Librarian-facing service orchestration, controller actions, and views for the above
+  capabilities.
+- Librarian-owned repository interfaces and file-backed implementations for
+  `Librarian`, `Reservation`, `Fine`, and `Notification`.
+
+The member-role developer owns shared authentication, `User`/`Member`, `Book`/
+`BookCopy`, catalogue logic, and loan/borrowing logic. Cross-role work must use
+stable IDs and repository/service interfaces rather than reaching into another
+role's implementation.
+
+### Engineering rules for every implementation step
+
+- Work in small vertical increments and keep each change independently buildable.
+- Apply single responsibility, encapsulation, dependency inversion, and least
+  privilege; keep business rules out of views and file-format details out of models.
+- Depend on interfaces in services and inject repositories and clock/time sources
+  where deterministic tests require them.
+- Persist stable IDs instead of nested copies of related entities.
+- Validate input and business invariants at service boundaries; return clear domain
+  errors without exposing storage details.
+- Use safe file replacement and ensure multi-repository updates either roll back or
+  use a transaction/journal mechanism before reporting success.
+- Target Java SE 25, follow the SE-EDU Java standard, and add Javadoc for every new
+  public class and public method as required by this file.
+- Do not mix unrelated refactoring with a feature implementation.
+
+### Basic implementation todos and test gates
+
+Each implementation item below has a mandatory test gate. A step is complete only
+when its tests pass and the full existing test suite remains green.
+
+1. [x] **Bootstrap the project.** Add the Java SE 25 build configuration, source/test
+   layout, test framework, and a repeatable test command. Add a smoke test proving
+   the project compiles and the test runner executes.
+   Test gate: run the smoke test and the complete test suite.
+
+2. [x] **Define shared contracts.** Agree with the member-role developer on stable ID
+   types, status enums, repository result/error conventions, and the minimal loan
+   query interface needed for overdue alerts and fine calculation. Document the
+   contract before implementing either side.
+   Test gate: add contract tests for valid, missing, duplicate, and invalid-ID cases.
+
+3. [x] **Implement librarian and librarian persistence.** Add the `Librarian` model,
+   authorization/status rules, repository interface, file repository, and safe
+   `StorageManager` integration. Initialize missing data files without destroying
+   existing records.
+   Test gate: test model invariants, repository CRUD, malformed records, missing
+   files, safe replacement failure, and round-trip serialization using temporary
+   directories.
+
+4. [x] **Implement reservation management.** Add the reservation model and repository,
+   then implement `ReservationService` for creation, cancellation, fulfilment,
+   expiry, duplicate prevention, and pending-reservation queries. Coordinate with
+   the loan/book interfaces only through stable IDs.
+   Test gate: test state transitions, expiry boundaries, duplicate reservations,
+   missing members/books, ordering of pending reservations, and persistence.
+
+5. [x] **Implement fine management.** Add the fine model and repository, then implement
+   `FineService` for creation from overdue loans, amount calculation, editing,
+   removal, and member queries. Keep calculation policy in one service and avoid
+   duplicated arithmetic in controllers or views.
+   Test gate: test zero/one/many overdue days, amount boundaries, invalid amounts,
+   missing loans/members, edit/remove behavior, and repository failure handling.
+
+6. [x] **Implement notifications.** Add the notification model and repository, then
+   implement `NotificationService` for overdue alerts, reservation reminders,
+   querying, and read-state changes. Make alert generation idempotent so retries do
+   not create duplicates.
+   Test gate: test message creation, recipient isolation, duplicate suppression,
+   unread/read transitions, missing records, and persistence round trips.
+
+7. [x] **Add librarian orchestration.** Implement librarian-facing service methods for
+   viewing overdue loans, loans, reservations, and fines, and for triggering the
+   appropriate alerts/reminders. Keep orchestration thin and delegate rules to the
+   domain services.
+   Test gate: use mocked or in-memory dependencies to verify call ordering,
+   authorization, partial-failure behavior, and no writes after a failed operation.
+
+8. [x] **Add the librarian controller and view.** Expose only authorized librarian
+   actions, validate user input at the boundary, and keep presentation code free of
+   persistence and business rules. Add accessibility-friendly error and success
+   states where the UI framework permits.
+   Test gate: controller tests for valid/invalid commands, unauthorized access,
+   service errors, and successful refresh; add focused view tests only for behavior
+   not covered by controller tests.
+
+9. [x] **Harden integration and persistence.** Exercise cross-file reservation, fine,
+   loan-query, and notification flows. Add rollback/journal handling for operations
+   that update multiple files and verify compatibility with member-role contracts.
+   Test gate: integration tests against isolated temporary data directories,
+   injected I/O failures, restart/reload behavior, and idempotent retries.
+
+10. [x] **Final verification and handoff.** Run formatting/static checks, the complete
+    unit and integration test suites, and a manual librarian acceptance checklist
+    covering every librarian feature in `PLAN.md`. Review public API Javadocs,
+    dependency direction, error messages, and file safety before merging.
+    Test gate: all automated checks pass with no ignored or quarantined failures.
+
+### Definition of done for librarian work
+
+- Every librarian feature in `PLAN.md` has an implementation, focused unit tests,
+  and an integration test where it crosses a repository or role boundary.
+- Every implementation step passed its test gate before the next step started.
+- No member-owned code was changed beyond an agreed interface contract.
+- Persistence failures cannot silently report success or leave known inconsistent
+  records.
+- Java SE 25 and the project coding/documentation standards are satisfied.
+- The full test suite passes and the librarian acceptance checklist is complete.
+
+### Current implementation status
+
+- [x] Completed: Java SE 25 Maven bootstrap, JUnit test setup, librarian model and
+  persistence, reservation service, fine service, notification service, integration
+  contracts, and authorized librarian controller boundary.
+- [x] Completed: focused model, repository, service, controller, and persistence tests;
+  the current suite must remain green after every subsequent change.
+- [x] Completed: separate interactive CLI harness with scripted workflow tests for manual
+  librarian verification before JavaFX view integration.
+- [x] Completed: member-role integration behind `MemberManagement`, `BookManagement`,
+  `BookCopyManagement`, and `LoanQuery`, together with shared authentication,
+  desktop view wiring, and the integrated member and librarian application flows.
+- [x] Completed: automatic fine creation when a member returns an overdue loan, while
+  preserving manual fine creation from the librarian view; integration tests were
+  added and the test suite passed after integration.
+- [x] Completed: improved storage, repository, and JavaFX UI test coverage, added the
+  user guide and developer guide, and prepared a versioned executable JAR release.
+- [ ] Pending: create the product website.
+- [x] Completed: CI workflow now runs the full test suite in the build job; local verification remains available.
+- [ ] Pending: add cross-file transaction/journal handling if subsequent integration
+  changes require coordinated multi-repository writes.
+- [x] Pending: final end-to-end acceptance testing after both roles are integrated.
