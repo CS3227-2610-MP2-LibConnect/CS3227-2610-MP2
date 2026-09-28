@@ -7,9 +7,9 @@ management. The project uses Java SE 25, Maven, and JUnit 5.
 
 ### Documentation
 
-- [User guide](docs/USER_GUIDE.md): installation, login, member and librarian
+- [User guide](docs/UserGuide.md): installation, login, member and librarian
   workflows, examples, expected results, and build commands.
-- [Developer guide](docs/DEVELOPER_GUIDE.md): architecture, persistence,
+- [Developer guide](docs/DeveloperGuide.md): architecture, persistence,
   integration contracts, testing, coverage, and release preparation.
 
 ### Development commands
