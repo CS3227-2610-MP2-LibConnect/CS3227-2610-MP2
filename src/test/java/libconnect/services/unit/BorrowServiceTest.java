@@ -202,6 +202,23 @@ class BorrowServiceTest {
         assertEquals(CopyStatus.BORROWED, copies.findById("COPY-1").orElseThrow().getStatus());
     }
 
+    @Test
+    void returnLoan_fineIssuanceFailure_restoresOriginalRecords() {
+        ServiceUnitTestDoubles.Copies copies = new ServiceUnitTestDoubles.Copies();
+        ServiceUnitTestDoubles.Loans loans = new ServiceUnitTestDoubles.Loans();
+        copies.save(new BookCopy("COPY-1", "978-1", CopyStatus.BORROWED, "A-1"));
+        loans.save(new Loan("LOAN-1", "MEMBER-1", "COPY-1", BORROW_DATE));
+        FineIssuer failingFineIssuer = returnedLoan -> {
+            throw new ServiceException("fine storage failure");
+        };
+        BorrowService service = new BorrowService(copies, loans, failingFineIssuer, CLOCK);
+
+        assertThrows(ServiceException.class, () -> service.returnLoan("LOAN-1"));
+
+        assertEquals(LoanStatus.ACTIVE, loans.findById("LOAN-1").orElseThrow().getStatus());
+        assertEquals(CopyStatus.BORROWED, copies.findById("COPY-1").orElseThrow().getStatus());
+    }
+
     private static BookCopy copy(String copyId) {
         return new BookCopy(copyId, "978-1", CopyStatus.AVAILABLE, "A-1");
     }

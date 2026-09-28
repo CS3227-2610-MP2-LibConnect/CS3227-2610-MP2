@@ -1,5 +1,6 @@
 package libconnect.ui;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import libconnect.models.CopyStatus;
+import libconnect.models.Loan;
 import libconnect.services.ServiceException;
 import libconnect.ui.pages.MyLoansPage;
 
@@ -59,6 +61,74 @@ class MyLoansPageTest {
                         context.bookCopyService(), context.borrowService(), context.sessionManager());
                 UiTestSupport.findButton(page, "Renew").fire();
                 UiPageTestSupport.assertFeedback(page, "Cannot renew.");
+            } finally {
+                context.close();
+            }
+        });
+    }
+
+    @Test
+    void successfulRenewal_recordsLoanIdAndShowsSuccess() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                context.loanService().loans.add(UiTestFixtures.activeLoan("CURRENT", "COPY-1"));
+                context.bookService().books.add(UiTestFixtures.book("978-1", "Title"));
+                context.bookCopyService().copies.put("COPY-1", UiTestFixtures.copy("COPY-1",
+                        "978-1", CopyStatus.BORROWED));
+                MyLoansPage page = new MyLoansPage(context.loanService(), context.bookService(),
+                        context.bookCopyService(), context.borrowService(), context.sessionManager());
+
+                UiTestSupport.findButton(page, "Renew").fire();
+
+                assertEquals("CURRENT", context.loanService().lastRenewedLoanId);
+                UiPageTestSupport.assertFeedback(page, "The loan was renewed successfully.");
+            } finally {
+                context.close();
+            }
+        });
+    }
+
+    @Test
+    void successfulReturn_updatesLoanAndCopyAndShowsSuccess() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                Loan loan = UiTestFixtures.activeLoan("CURRENT", "COPY-1");
+                context.loanService().loans.add(loan);
+                context.loanRepository().save(loan);
+                context.bookService().books.add(UiTestFixtures.book("978-1", "Title"));
+                context.bookCopyService().copies.put("COPY-1", UiTestFixtures.copy("COPY-1",
+                        "978-1", CopyStatus.BORROWED));
+                context.copyRepository().save(UiTestFixtures.copy("COPY-1", "978-1",
+                        CopyStatus.BORROWED));
+                MyLoansPage page = new MyLoansPage(context.loanService(), context.bookService(),
+                        context.bookCopyService(), context.borrowService(), context.sessionManager());
+
+                UiTestSupport.findButton(page, "Return").fire();
+
+                assertEquals(libconnect.models.LoanStatus.RETURNED,
+                        context.loanRepository().findById("CURRENT").orElseThrow().getStatus());
+                assertEquals(CopyStatus.AVAILABLE,
+                        context.copyRepository().findById("COPY-1").orElseThrow().getStatus());
+                UiPageTestSupport.assertFeedback(page, "The book was returned successfully.");
+            } finally {
+                context.close();
+            }
+        });
+    }
+
+    @Test
+    void unauthenticatedUser_cannotViewLoans() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                context.sessionManager().logout();
+                MyLoansPage page = new MyLoansPage(context.loanService(), context.bookService(),
+                        context.bookCopyService(), context.borrowService(), context.sessionManager());
+
+                UiPageTestSupport.assertFeedback(page,
+                        "Only an authenticated member can view loans.");
             } finally {
                 context.close();
             }

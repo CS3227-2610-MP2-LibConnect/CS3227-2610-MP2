@@ -131,6 +131,19 @@ class FineServiceTest {
     }
 
     @Test
+    void issueForReturnedLoan_nonOverdueOrUnknownMember_rejected() {
+        FineService service = new FineService(new ServiceTestDoubles.Fines(), loanQueryFor(null),
+                new ActiveMemberDirectory(), CLOCK, BigDecimal.ONE);
+        ReturnedLoanSummary nonOverdueLoan = new ReturnedLoanSummary("l1", "m1",
+                LocalDate.of(2026, 9, 21), LocalDate.of(2026, 9, 21));
+        ReturnedLoanSummary unknownMemberLoan = new ReturnedLoanSummary("l2", "unknown",
+                LocalDate.of(2026, 9, 18), LocalDate.of(2026, 9, 21));
+
+        assertThrows(IllegalStateException.class, () -> service.issueForReturnedLoan(nonOverdueLoan));
+        assertThrows(IllegalStateException.class, () -> service.issueForReturnedLoan(unknownMemberLoan));
+    }
+
+    @Test
     void fineConstructor_invalidDailyRate_rejected() {
         assertThrows(IllegalArgumentException.class,
                 () -> new FineService(new ServiceTestDoubles.Fines(), loanQueryFor(null),

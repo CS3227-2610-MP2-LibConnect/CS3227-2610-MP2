@@ -5,18 +5,28 @@
 LibConnect is a Java desktop application for library inventory and loan
 management. The project uses Java SE 25, Maven, and JUnit 5.
 
+### Documentation
+
+- [User guide](docs/USER_GUIDE.md): installation, login, member and librarian
+  workflows, examples, expected results, and build commands.
+- [Developer guide](docs/DEVELOPER_GUIDE.md): architecture, persistence,
+  integration contracts, testing, coverage, and release preparation.
+
 ### Development commands
 
-Use Maven for development on Windows, macOS, and Linux:
+Use Maven with Java SE 25 on Windows, macOS, and Linux:
 
 ```text
 mvn clean verify
 mvn test
 mvn exec:java
+mvn -Prelease clean package
 ```
 
-The `exec:java` goal opens the initial LibConnect desktop window. The
-application entry point is `libconnect.ui.LibConnectLauncher`.
+The `exec:java` goal opens the initial LibConnect desktop window. The application
+entry point is `libconnect.ui.LibConnectLauncher`. The release profile creates
+the self-contained executable `target/libconnect-1.0.0.jar` with its runtime
+dependencies.
 
 The librarian implementation follows the layered architecture in [`PLAN.md`](PLAN.md).
 Librarian services depend on repository and cross-role integration interfaces, so the

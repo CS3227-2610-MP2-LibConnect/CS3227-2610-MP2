@@ -92,4 +92,48 @@ class RegistrationPageTest {
             }
         });
     }
+
+    @Test
+    void emptyFieldsAndMissingEmployeeId_showValidationMessages() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                RegistrationPage page = new RegistrationPage(context.authenticationService(),
+                        context.navigator());
+                ComboBox<?> selector = UiTestSupport.findNodes(page, ComboBox.class).get(0);
+                selector.getSelectionModel().select(0);
+                UiTestSupport.findButton(page, "Register").fire();
+                UiPageTestSupport.assertFeedback(page, "Name, email and password are required.");
+
+                selector.getSelectionModel().select(1);
+                List<TextField> fields = UiTestSupport.findTextFields(page);
+                fields.get(0).setText("Grace");
+                fields.get(1).setText("grace@example.com");
+                fields.get(2).setText("secret");
+                fields.get(3).setText("secret");
+                UiTestSupport.findButton(page, "Register").fire();
+                UiPageTestSupport.assertFeedback(page,
+                        "Employee ID is required for librarian accounts.");
+            } finally {
+                context.close();
+            }
+        });
+    }
+
+    @Test
+    void backToLogin_navigatesWithoutRegistering() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                RegistrationPage page = new RegistrationPage(context.authenticationService(),
+                        context.navigator());
+
+                UiTestSupport.findButton(page, "Back to login").fire();
+
+                assertInstanceOf(LoginPage.class, context.stage().getScene().getRoot());
+            } finally {
+                context.close();
+            }
+        });
+    }
 }

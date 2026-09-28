@@ -2,6 +2,7 @@ package libconnect.storage.file;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 import libconnect.models.Reservation;
 import libconnect.models.ReservationStatus;
@@ -33,6 +34,7 @@ public final class FileReservationRepository extends AbstractFileRepository<Rese
     /** Returns reservations in the supplied lifecycle state. */
     @Override
     public List<Reservation> findByStatus(ReservationStatus status) {
+        Objects.requireNonNull(status, "status");
         return readAll().stream().filter(reservation -> reservation.getStatus() == status).toList();
     }
 

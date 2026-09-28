@@ -1,6 +1,7 @@
 package libconnect.storage.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import libconnect.models.BookCopy;
 import libconnect.storage.StorageManager;
+import libconnect.storage.repositories.RepositoryException;
 
 /** Tests record-level recovery behavior for JSON-backed storage. */
 class StorageManagerTest {
@@ -28,6 +30,43 @@ class StorageManagerTest {
 
     @TempDir
     private Path temporaryDirectory;
+
+    @Test
+    void readList_missingFile_createsEmptyJsonArray() {
+        Path dataFile = temporaryDirectory.resolve("new-data.json");
+        StorageManager storageManager = new StorageManager(temporaryDirectory);
+
+        assertTrue(storageManager.readList(dataFile, BookCopy.class).isEmpty());
+        assertTrue(Files.isRegularFile(dataFile));
+    }
+
+    @Test
+    void readList_nonArrayRoot_throwsRepositoryException() throws IOException {
+        Path dataFile = temporaryDirectory.resolve("invalid-root.json");
+        Files.writeString(dataFile, "{\"copyId\":\"COPY-1\"}");
+        StorageManager storageManager = new StorageManager(temporaryDirectory);
+
+        assertThrows(RepositoryException.class,
+                () -> storageManager.readList(dataFile, BookCopy.class));
+    }
+
+    @Test
+    void readList_nullRecord_skipsAndJournalsRecord() throws IOException {
+        Path dataFile = temporaryDirectory.resolve("null-record.json");
+        String records = """
+                [null,{"copyId":"COPY-1","isbn":"ISBN-1","status":"AVAILABLE",
+                "shelfLocation":"A1-01"}]
+                """;
+        Files.writeString(dataFile, records);
+        StorageManager storageManager = new StorageManager(temporaryDirectory);
+
+        assertEquals(List.of(new BookCopy("COPY-1", "ISBN-1", "A1-01")),
+                storageManager.readList(dataFile, BookCopy.class));
+        JsonNode journal = OBJECT_MAPPER.readTree(Files.readString(
+                temporaryDirectory.resolve("malformed/malformed-records.json")));
+        assertEquals(1, journal.size());
+        assertEquals(1, journal.get(0).get("recordIndex").asInt());
+    }
 
     @Test
     void readList_malformedRecord_skipsAndJournalsRecord() throws IOException {

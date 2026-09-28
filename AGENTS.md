@@ -66,55 +66,6 @@ The member-role developer owns shared authentication, `User`/`Member`, `Book`/
 stable IDs and repository/service interfaces rather than reaching into another
 role's implementation.
 
-### Design alternatives
-
-#### Approach A: Layered repositories and services (recommended)
-
-Implement the architecture already described in `PLAN.md`: models contain domain
-state and invariants, repository interfaces abstract persistence, file repositories
-handle serialization, services enforce use-case rules, and controllers/views handle
-interaction.
-
-Advantages:
-
-- Strong separation of concerns and dependency inversion.
-- Services can be tested with in-memory repository fakes without file I/O.
-- File persistence can later be replaced without changing librarian use cases.
-- Small, reviewable increments with clear integration boundaries.
-
-Risks and costs:
-
-- More interfaces and classes are needed before the first end-to-end feature.
-- Cross-file operations need explicit rollback or transaction handling.
-
-This is the better choice for this project because `PLAN.md` already specifies this
-architecture and the librarian features coordinate several persistent entities.
-
-#### Approach B: Feature-first librarian vertical slices
-
-Implement each feature as a self-contained slice, such as a reservation package
-containing its model, persistence, service, controller, and view, then repeat for
-fines and notifications.
-
-Advantages:
-
-- Each feature can reach an end-to-end demonstrable state quickly.
-- Related code is easy to locate while a feature is being developed.
-
-Risks and costs:
-
-- Shared storage and cross-feature rules can be duplicated.
-- Dependencies between reservations, loans, fines, and notifications become harder
-  to standardize.
-- It diverges from the package structure and repository boundaries in `PLAN.md`,
-  increasing integration and migration cost.
-
-Use this approach only if the team explicitly prioritizes independent feature
-delivery over alignment with the planned architecture.
-
-The team confirmed Approach A before implementation. Continue using the layered
-repository/service design unless the team explicitly approves a different approach.
-
 ### Engineering rules for every implementation step
 
 - Work in small vertical increments and keep each change independently buildable.
@@ -223,8 +174,17 @@ when its tests pass and the full existing test suite remains green.
   the current suite must remain green after every subsequent change.
 - Completed: separate interactive CLI harness with scripted workflow tests for manual
   librarian verification before JavaFX view integration.
-- Pending: implementation of the member-role providers behind `MemberManagement`,
-  `BookManagement`, `BookCopyManagement`, and `LoanQuery`; concrete desktop view
-  wiring; and any cross-file transaction/journal logic required once those providers
-  coordinate multi-repository writes.
+- Completed: member-role integration behind `MemberManagement`, `BookManagement`,
+  `BookCopyManagement`, and `LoanQuery`, together with shared authentication,
+  desktop view wiring, and the integrated member and librarian application flows.
+- Completed: automatic fine creation when a member returns an overdue loan, while
+  preserving manual fine creation from the librarian view; integration tests were
+  added and the test suite passed after integration.
+- Completed: improved storage, repository, and JavaFX UI test coverage, added the
+  user guide and developer guide, and prepared a versioned executable JAR release.
+- Pending: create the product website.
+- Pending: fix the CI workflow issue where the UI test job does not reliably detect
+  that the full test suite has finished; local verification remains available.
+- Pending: add cross-file transaction/journal handling if subsequent integration
+  changes require coordinated multi-repository writes.
 - Pending: final end-to-end acceptance testing after both roles are integrated.

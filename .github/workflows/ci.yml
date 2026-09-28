@@ -23,3 +23,28 @@ jobs:
 
       - name: Build and run tests with Maven
         run: mvn --batch-mode --update-snapshots clean verify
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Build release JAR
+        run: mvn --batch-mode -Prelease clean package
+
+      - name: Upload release JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: libconnect-${{ github.ref_name }}
+          path: target/libconnect-*.jar
+          if-no-files-found: error

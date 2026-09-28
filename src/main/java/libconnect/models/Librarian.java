@@ -8,9 +8,10 @@ public final class Librarian extends User {
     private final String employeeId;
 
     /** Creates a librarian with the supplied identity and account status. */
-    public Librarian(String userId, String employeeId, String name, String email, String passwordHash, AccountStatus status) {
-        this.employeeId = requireText(employeeId, "employeeId");
+    public Librarian(String userId, String employeeId, String name, String email,
+                     String passwordHash, AccountStatus status) {
         super(userId, name, email, passwordHash, status);
+        this.employeeId = requireText(employeeId, "employeeId");
     }
 
     /** Returns the stable employee identifier. */
@@ -26,7 +27,8 @@ public final class Librarian extends User {
 
     /** Returns a copy with the supplied account status. */
     public Librarian withStatus(AccountStatus newStatus) {
-        return new Librarian(super.getUserId(), employeeId, super.getName(), super.getEmail(), super.getPasswordHash(), newStatus);
+        return new Librarian(super.getUserId(), employeeId, super.getName(), super.getEmail(),
+                super.getPasswordHash(), newStatus);
     }
 
     /** Returns the stable identifier used by repositories. */

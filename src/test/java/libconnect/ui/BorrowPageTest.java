@@ -138,6 +138,87 @@ class BorrowPageTest {
         });
     }
 
+    @Test
+    void addBook_validatesBlankDuplicateAndMissingCatalogueBook() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                BookCopy copy = UiTestFixtures.copy("COPY-1", "978-1", CopyStatus.AVAILABLE);
+                context.bookCopyService().copies.put(copy.getCopyId(), copy);
+                context.bookService().books.add(UiTestFixtures.book("978-1", "Title"));
+                BorrowPage page = new BorrowPage(context.bookService(), context.bookCopyService(),
+                        context.borrowService(), context.sessionManager(), context.navigator());
+                TextField field = UiTestSupport.findTextFields(page).get(0);
+
+                UiTestSupport.findButton(page, "Add Book").fire();
+                assertTrue(UiTestSupport.labelTexts(page).stream()
+                        .anyMatch(text -> text.contains("Enter a book copy ID.")));
+
+                field.setText("COPY-1");
+                UiTestSupport.findButton(page, "Add Book").fire();
+                field.setText("COPY-1");
+                UiTestSupport.findButton(page, "Add Book").fire();
+                assertTrue(UiTestSupport.labelTexts(page).stream()
+                        .anyMatch(text -> text.contains("already been added")));
+
+                context.bookService().books.clear();
+                field.setText("COPY-1");
+                UiTestSupport.findButton(page, "Remove").fire();
+                UiTestSupport.findButton(page, "Add Book").fire();
+                assertTrue(UiTestSupport.labelTexts(page).stream()
+                        .anyMatch(text -> text.contains("catalogue book")));
+            } finally {
+                context.close();
+            }
+        });
+    }
+
+    @Test
+    void addBook_repositoryFailure_showsStorageError() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                context.bookCopyService().lookupFailure = UiPageTestSupport.repositoryFailure();
+                BorrowPage page = new BorrowPage(context.bookService(), context.bookCopyService(),
+                        context.borrowService(), context.sessionManager(), context.navigator());
+                TextField field = UiTestSupport.findTextFields(page).get(0);
+                field.setText("COPY-1");
+
+                UiTestSupport.findButton(page, "Add Book").fire();
+
+                assertTrue(UiTestSupport.labelTexts(page).stream()
+                        .anyMatch(text -> text.contains("Unable to access book data")));
+            } finally {
+                context.close();
+            }
+        });
+    }
+
+    @Test
+    void confirmBorrowing_withoutAuthenticatedMember_showsAuthorizationError() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                BookCopy copy = UiTestFixtures.copy("COPY-1", "978-1", CopyStatus.AVAILABLE);
+                context.bookCopyService().copies.put(copy.getCopyId(), copy);
+                context.bookService().books.add(UiTestFixtures.book("978-1", "Title"));
+                BorrowPage page = new BorrowPage(context.bookService(), context.bookCopyService(),
+                        context.borrowService(), context.sessionManager(), context.navigator());
+                TextField field = UiTestSupport.findTextFields(page).get(0);
+                field.setText("COPY-1");
+                UiTestSupport.findButton(page, "Add Book").fire();
+                context.sessionManager().logout();
+
+                UiTestSupport.findButton(page, "Confirm Borrowing").fire();
+
+                assertTrue(UiTestSupport.labelTexts(page).stream()
+                        .anyMatch(text -> text.contains("Only an authenticated member")));
+            } finally {
+                context.close();
+            }
+        });
+    }
+
     @Test 
     void confirmBorrowing_noBooksSelected_butttonIsDisabled() {
         UiTestSupport.runOnFxThread(() -> {

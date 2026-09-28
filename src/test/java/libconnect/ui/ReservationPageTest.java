@@ -89,6 +89,28 @@ class ReservationPageTest {
         });
     }
 
+    @Test
+    void createReservation_blankAndUnknownIsbn_showActionErrors() {
+        UiTestSupport.runOnFxThread(() -> {
+            TestContext context = createContext();
+            try {
+                Book book = new Book("978-1", "First", "Author", "Publisher", "Category", 2020);
+                context.bookService().books.add(book);
+                ReservationPage page = createPage(context, new InMemoryReservationRepository(), book);
+                TextField isbnField = UiTestSupport.findTextFields(page).get(0);
+
+                UiTestSupport.findButton(page, "Create reservation").fire();
+                UiPageTestSupport.assertFeedback(page, "Enter an ISBN first.");
+
+                isbnField.setText("UNKNOWN");
+                UiTestSupport.findButton(page, "Create reservation").fire();
+                UiPageTestSupport.assertFeedback(page, "Book does not exist");
+            } finally {
+                context.close();
+            }
+        });
+    }
+
     private static ReservationPage createPage(TestContext context,
                                               InMemoryReservationRepository repository, Book book) {
         return new ReservationPage(createService(repository, book), context.bookService(),

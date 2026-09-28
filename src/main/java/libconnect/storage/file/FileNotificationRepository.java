@@ -2,6 +2,7 @@ package libconnect.storage.file;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 import libconnect.models.Notification;
 import libconnect.models.NotificationType;
@@ -30,6 +31,7 @@ public final class FileNotificationRepository extends AbstractFileRepository<Not
     public boolean existsByRecipientAndReference(String recipientUserId, NotificationType type,
                                                  String referenceId) {
         requireText(recipientUserId, "recipientUserId");
+        Objects.requireNonNull(type, "type");
         requireText(referenceId, "referenceId");
         return readAll().stream().anyMatch(notification ->
                 notification.getRecipientUserId().equals(recipientUserId)

@@ -60,7 +60,7 @@ final class UiPageTestSupport {
                 memberService);
         return new TestContext(stage, sessionManager, authenticationService, bookService,
                 bookCopyService, copyRepository, borrowService, loanService, memberService,
-                navigator);
+                loanRepository, navigator);
     }
 
     record TestContext(Stage stage, SessionManager sessionManager,
@@ -71,6 +71,7 @@ final class UiPageTestSupport {
                        BorrowService borrowService,
                        UiTestFixtures.TestLoanService loanService,
                        UiTestFixtures.TestMemberService memberService,
+                       UiTestFixtures.InMemoryLoanRepository loanRepository,
                        SceneNavigator navigator) {
         void close() {
             stage.close();

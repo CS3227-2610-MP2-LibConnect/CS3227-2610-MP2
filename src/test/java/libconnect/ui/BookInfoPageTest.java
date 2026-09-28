@@ -40,4 +40,26 @@ class BookInfoPageTest {
             }
         });
     }
+
+    @Test
+    void missingBookAndBookRepositoryFailure_showExpectedMessages() {
+        UiTestSupport.runOnFxThread(() -> {
+            UiPageTestSupport.TestContext context = UiPageTestSupport.context();
+            try {
+                BookInfoPage missingPage = new BookInfoPage(context.bookService(),
+                        context.bookCopyService(), context.sessionManager(), "UNKNOWN",
+                        context.navigator());
+                assertTrue(UiTestSupport.labelTexts(missingPage).contains("Book not found."));
+
+                context.bookService().bookLookupFailure = UiPageTestSupport.repositoryFailure();
+                BookInfoPage failurePage = new BookInfoPage(context.bookService(),
+                        context.bookCopyService(), context.sessionManager(), "978-1",
+                        context.navigator());
+                assertTrue(UiTestSupport.labelTexts(failurePage)
+                        .contains("Unable to access book data. Please try again."));
+            } finally {
+                context.close();
+            }
+        });
+    }
 }

@@ -252,6 +252,10 @@ class LibrarianPageIntegrationTest {
                 findButton(context.page(), "Loans", "Overdue").fire();
                 assertEquals(1, loans.getItems().size());
 
+                findButton(context.page(), "Loans", "Active").fire();
+                assertEquals(0, loans.getItems().size());
+                findButton(context.page(), "Loans", "Overdue").fire();
+
                 loans.getSelectionModel().selectFirst();
                 findButton(context.page(), "Loans", "Alert selected member").fire();
                 assertTrue(context.notifications().findAll().stream()
