@@ -99,3 +99,20 @@ I learned that designing an effective single AI agent requires substantial pre-p
 
 Although I provided more information to the agent this time than I did in MP1, as noted earlier in this reflection, it was still insufficient. Moving forward, I intend to spend more time writing `PLAN.md` and other related documents to ensure that all relevant information is present before discussing the implementation plan with the agent.
 
+### Skills Designed and Utilised in MP2
+
+#### plan-with-me
+
+The goal of this skill was to act as another party with whom I could discuss implementation and design choices, bounce ideas off, and check whether my suggestions were feasible and appropriate. I used it when planning the implementation of all classes and the user interface. It was very effective in helping me develop a clearer idea of what each component should and should not contain. It also gave me a clear understanding of what the agent was planning to implement before it started, which provided some assurance that the output would be reasonably aligned with my intentions.
+
+#### propose-unit-tests
+
+The goal of this skill was to act as another party with whom I could discuss test coverage. More specifically, it acted as an auditor of my proposed test coverage by highlighting gaps and overlapping test cases. I used it during the development of both unit and integration tests. Although it caught some errors, as mentioned in the earlier section, it sometimes missed important boundary values. Overall, however, it was very helpful as a check and balance to ensure that I did not overlook important test cases.
+
+#### generate-summary
+
+The goal of this skill was to generate an agent log for documentation purposes. I used it throughout the entire development phase. It generally worked as intended and was effective at producing concise summaries.
+
+#### test-info
+
+The goal of this skill was to provide a single file containing information about all the tests in the project. I used it during the integration of my code with my teammate's code. I created it because there were too many test files to audit individually and assess for coverage. Having all the test information in one Markdown file gave me an overall view of the project's testing suite and made it easier to identify gaps in testing. I could then use skills such as `plan-with-me` and `propose-unit-tests` to brainstorm ways to improve test coverage. Overall, the skill was very useful and made my work much easier during the integration phase.
