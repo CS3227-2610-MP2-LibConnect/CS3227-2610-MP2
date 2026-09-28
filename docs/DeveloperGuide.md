@@ -95,17 +95,19 @@ not know JSON formats.
 
 ### Composition roots
 
-`LibConnectApplication.start` creates the shared member services, session, clock,
-and `JavaFxLibrarianView`, then delegates librarian wiring to
+`LibConnectApplication.start` creates the application-level member services, session,
+clock, and `JavaFxLibrarianView`. `LibrarianCompositionRoot` separately creates the
+file-backed services and adapters used by the librarian runtime; these components
+share the same data files. The application then delegates librarian wiring to
 `LibrarianCompositionRoot` and passes the resulting `LibrarianRuntime` to
 `SceneNavigator`.
 
 `LibrarianCompositionRoot` is the file-backed composition root. It creates a
 `StorageManager`, the member/librarian/book/copy/loan repositories, the librarian
 services, member-role adapters, `ReservationService`, `FineService`,
-`NotificationService`, and `LibrarianController`. Its constructor parameters
-allow tests to substitute a temporary data directory, a fixed `Clock`, and a
-test view.
+`NotificationService`, and `LibrarianController`. Its static `create(...)` method
+accepts a temporary data directory, a fixed `Clock`, and a test view, allowing
+tests to substitute these dependencies.
 
 `SceneNavigator` guards page transitions with the current session. Member pages
 are shown for member sessions; the librarian workspace is shown only when the
@@ -138,8 +140,9 @@ delegate persistence and business decisions.
 
 ## Cross-role integration contracts
 
-The librarian implementation does not reach into member-owned repositories. It
-uses stable IDs and these contracts in `libconnect.integration`:
+Librarian services and controllers do not directly depend on member-owned
+repositories. The composition root creates repository-backed adapters that expose
+the required member-role operations through stable integration contracts:
 
 | Contract | Purpose |
 | --- | --- |
@@ -317,10 +320,10 @@ Build it with:
 mvn -Prelease clean package
 ```
 
-The JavaFX dependency classifier is selected by Maven profiles for Windows,
-Linux, Linux aarch64, macOS, and macOS aarch64. Build on the target platform and
-architecture because the shaded JAR includes platform-specific JavaFX native
-libraries.
+Maven uses the default `win` JavaFX classifier on Windows and platform-specific
+profiles for Linux, Linux aarch64, macOS, and macOS aarch64. Build on the target
+platform and architecture because the shaded JAR includes platform-specific
+JavaFX native libraries.
 
 At runtime, data paths are relative to the process working directory. Distribute
 the complete `data/` directory beside the directory from which the JAR is
@@ -341,6 +344,16 @@ distribution.
 | A write fails or leaves the old data intact. | The directory is not writable or replacement failed. | Check permissions and free space; the safe-write path should leave the original file unchanged when replacement fails. |
 | A new multi-file operation leaves partial state. | It has no rollback or transaction boundary. | Add compensating rollback or journal support before returning success. |
 | The release starts but cannot find data. | It was started from a directory without the expected relative `data/` directory. | Start it from the directory containing `data/`, or place the complete data directory there. |
+
+## Planned Enhancements
+
+LibConnect is currently a minimum viable product (MVP). Some features are not included because their implementation depends on access to physical hardware or third-party services that were outside the scope of this project. Organisations adopting LibConnect could implement these enhancements as those resources become available:
+
+- **Barcode and RFID scanning:** Allow members to scan a book’s barcode or RFID tag when borrowing, instead of entering the copy ID manually. This requires compatible scanning hardware.
+- **Book return verification:** Integrate the bookdrop’s sorting system to verify returned books. Currently, a book is marked as returned and available as soon as a member clicks **Return Loan**. This enhancement requires compatible bookdrop hardware.
+- **Reservation fulfilment and loan tracking:** Create a loan record automatically when a librarian fulfils a reservation, rather than requiring a separate loan to be created. Currently, a reservation can be fulfilled even when no copies are available. The system assumes the librarian has set aside a copy before notifying the member to collect it.
+- **Fine payments:** Integrate a payment gateway so members can pay fines through LibConnect. Currently, clicking **Pay Fine** records the fine as paid without processing an actual payment. This enhancement requires access to a payment provider.
+- **Book reviews:** Allow members to leave reviews for books.
 
 ## Acknowledgements
 
