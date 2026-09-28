@@ -23,6 +23,13 @@ reservations, fines, loans, and alerts.
 
 ## Quick Start
 
+### Before You Begin
+
+<div class="alert alert-block alert-danger">
+:exclamation: <b>IMPORTANT:</b><br>
+<b>DO NOT</b> modify the data files in the `data/` folder. Doing so may result in unexpected behaviour when using LibConnect and you may lose your data permanently.
+</div>
+
 ### Requirements
 
 - Java Development Kit (JDK) 25.
