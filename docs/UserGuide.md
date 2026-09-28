@@ -12,7 +12,13 @@ borrow books, manage loans and reservations, pay fines, and read notifications.
 Librarians use it to maintain members, catalogue books, physical copies,
 reservations, fines, loans, and alerts.
 
-## Start here
+#### Contents
+- [Quick Start](#quick-start)
+- [Account Creation and Login](#account-creation-and-login)
+- [Member Guide](#member-guide)
+- [Librarian Guide](#librarian-guide)
+
+## Quick Start
 
 ### Requirements
 
@@ -83,16 +89,20 @@ reservations, fines, or notifications. For a clean manual test, make a backup of
 Use a copy of the data directory for peer testing if you need to repeat the
 workflow without retaining previous test records.
 
-## Authentication
+## Account Creation and Login
 
 ### Register an account
 
 1. From the login page, select `Create account`.
-2. Select `Member` or `Librarian` in `Account type`.
-3. Enter `Name`, `Email`, `Password`, and `Confirm password`.
-4. If `Librarian` is selected, enter `Employee ID`.
-5. Select `Register`.
-6. Return to the login page and sign in.
+   ![Create account from login](images/login_createAccount.png)
+
+1. Select `Member` or `Librarian` in `Account type`.
+   ![Select user type](images/createAccountSelectUserType.png)
+1. Enter `Name`, `Email`, `Password`, and `Confirm password`.
+   ![Input account details](images/createAccountFields.png)
+1. If `Librarian` is selected, provide the `Employee ID` as well.
+1. Select `Register`.
+1. Return to the login page and sign in.
 
 The two password fields must match. Blank required fields show `Name, email and
 password are required.`, and mismatched passwords show `Passwords do not match.`
@@ -100,138 +110,142 @@ Librarian registration without an employee ID shows `Employee ID is required for
 librarian accounts.` A successful registration shows `Account created
 successfully. Please log in.`
 
-### Log in or log out
+### Logging in
 
 1. Select `Member` or `Librarian` in the login page's account-type selector.
+   ![Select account type on login](images/login_selectAccountType.png)
 2. Enter the account email in the `Email` field.
 3. Enter the password in the `Password` field.
 4. Select `Login`.
 5. Select `Logout` in the member navigation bar or `Log out` in the librarian
    workspace when finished.
 
-Successful member login opens `Dashboard`. Successful librarian login opens the
-`LibConnect Librarian` workspace. Invalid credentials show `Invalid email or
-password.` A deactivated account shows `This account is deactivated and cannot
-log in.`
+Successful member login opens `Dashboard`. 
+![Member dashboard](images/memberDashboard.png)
 
-## Member guide
+Successful librarian login opens the `LibConnect Librarian` workspace. 
+![LibConnect Librarian Workspace](images/libconnectLibrarianWorkspace.png)
 
-After member login, the navigation bar contains `Dashboard`, `Borrow books`,
-`Reservation`, `Profile`, and `Logout`.
+Invalid credentials show `Invalid email or password.` A deactivated account shows `This account is deactivated and cannot log in.`
 
-### Search the catalogue
+## Member Guide
 
-1. Open `Dashboard`.
-2. In `Search type`, keep `Simple search` selected to search titles, or select
-   `Advanced search`.
-3. For `Simple search`, enter a title in `Search by title`.
-4. For `Advanced search`, fill any combination of `Exact ISBN`, `Title contains`,
-   `Author contains`, `Publisher contains`, `Category contains`, `Start year`,
-   and `End year`.
-5. Select `Search`.
-6. Select a result card to open its details.
-7. Select `Reset` to clear the filters and show the full catalogue again.
+After logging in, members can access four pages from the navigation bar: **Dashboard**, **Borrow books**, **Reservation**, and **Profile**. The navigation bar also includes a **Logout** button.
 
-Book details show the title, author, ISBN, publication year, publisher, category,
-and visible copies. Available copies show their shelf location; borrowed copies
-show `Borrowed`. Lost and damaged copies are not shown to members. Select `Back
-to Dashboard` to return.
+Members can view their loans and fines, and update their name, email address, or password on the **Profile** page.
 
-An empty result list shows `No books match your search.` A non-numeric or
-non-positive year shows `Start year must be a number.`, `Start year must be
-positive.`, `End year must be a number.`, or `End year must be positive.` as
-appropriate. A reversed year range is rejected by the search criteria
-validation.
+#### Contents
+- [View Notifications](#view-notifications)
+- [Random Book Recommendation](#random-book-recommendation)
+- [Searching the Book Catalogue](#searching-the-book-catalogue)
+- [Borrowing Books](#borrowing-books)
+- [Creating a Reservation](#creating-a-reservation)
+- [Update User Profile and Password](#update-user-profile-and-password)
+- [View, Renew and Return Loans](#view-renew-and-return-loans)
+- [View and Pay Fines](#view-and-pay-fines)
 
-The dashboard also shows a randomly selected `Book recommendation` when the
-catalogue is not empty. If there are no books, it shows `no books in database`.
+### View Notifications
 
-### Borrow one or more books
+![notification bar](images/notificationBar.png)
 
-1. Select `Borrow books`.
-2. Enter an available physical copy identifier in `Enter book copy ID`.
-3. Select `Add Book`.
-4. Repeat for other available copies if needed.
-5. Select `Confirm Borrowing`.
+Members can view unread notifications in the notification bar on the dashboard. Click a notification to read its full details. To view all notifications, including those already read, click **View All**.
 
-A transaction accepts at most 10 copies. The page displays the selection count,
-for example `2 / 10 books selected`. Remove a selected item from its book card
-before confirming if necessary. A successful transaction returns to the
-dashboard with `Successfully borrowed N book(s).`
+### Random Book Recommendation
 
-Common validation messages include `Enter a book copy ID.`, `This book copy has
-already been added.`, `A transaction cannot contain more than 10 books.`, `Book
-copy not found: <copy ID>`, and `Add at least one available book before
-confirming.` Copies that are borrowed, lost, or damaged cannot be added.
+LibConnect will provide a random recommendation for a book for members to try to read. 
 
-### View, return, and renew loans
+### Searching the Book Catalogue
 
-1. Select `Profile`.
-2. Select `My Loans`.
-3. Select `Current Loans` to see active loans, due dates, and status.
-4. Select `Return` on a current loan to return it.
-5. Select `Renew` on an eligible current loan.
-6. Select `Loan History` to see returned loans.
+Members can search for a book in the available catalog using the search function on the `Dashboard` page. Members can click on a book to view more information about the book, as well as the number of copies available, and the shelf locations.
 
-The `Renew` button is disabled after a loan has already been renewed or when the
-loan is overdue. Successful actions show `The book was returned successfully.`
-or `The loan was renewed successfully.` Returning an overdue loan automatically
-creates an outstanding fine.
+![book card](images/bookCard.png)
 
-### Create and cancel a reservation
+![book information](images/bookInfo.png)
 
-1. Select `Reservation`.
-2. Enter the book ISBN in `Enter book ISBN`.
-3. Select `Create reservation`.
-4. Review the reservation ID, ISBN, reserved date, expiry date, and status in
-   `My reservations`.
-5. For a pending reservation, select `Cancel reservation` if you no longer want
-   it.
+LibConnect supports 2 types of searches, Simple and Advanced.
 
-Reservations are for unavailable books. A successful request shows `Reservation
-created successfully.` A successful cancellation shows `Reservation cancelled
-successfully.` The default reservation period is seven days. The application
-rejects unknown books, available books, duplicate pending reservations, and
-inactive or unknown members with the corresponding validation message.
+#### Simple Search
 
-### View and pay fines
+![simple search](images/simpleSearch.png)
 
-1. Select `Profile`.
-2. Select `My Fines`.
-3. Select `Outstanding` to see unpaid fines.
-4. Select `Pay Fine` on an outstanding fine.
-5. Select `History` to see paid fine history.
+Simple search is case-insensitive and returns books whose titles contain the keyword or phrase you enter. It supports partial matches. For example, searching for `cook` returns titles such as `COOK`, `cook`, and `cookbook`.
 
-Fine cards show the book, amount, reason, issue date, and status. A successful
-payment shows `Fine paid successfully.` Only the member who owns a fine can pay
-it. If there are no records, the page shows `You have no outstanding fines.` or
-`You have no fine history.`
+To view all books in the catalog, leave the search field blank and click **Search**, or click **Reset**.
 
-### Read notifications
+#### Advanced Search
 
-1. On `Dashboard`, review the unread items in `Notifications`.
-2. Select `View all` to open the full `Notifications` page, or select an unread
-   notification card directly.
-3. Read the full message in the notification dialog.
-4. Select the dialog's confirmation button to close it.
+![advanced search](images/advancedSearch.png)
 
-Opening a notification marks it as read. If there are no items, the dashboard
-shows `You have no unread notifications.` and the full page shows `You have no
-notifications.` Notifications may be overdue alerts or reservation reminders.
+Advanced search lets you filter books by additional details, such as author, ISBN, and publication year. Leave a field blank to exclude it from the search.
 
-### Update member details and password
+Like simple search, text searches are case-insensitive and match partial text. ISBN and publication year searches are exceptions: enter the exact ISBN to search by ISBN.
 
-1. Select `Profile`.
-2. Edit `Name` or `Email` under `Update information`.
-3. Select `Update information`.
-4. To change the password, enter values in `New password` and `Re-type new
-   password`.
-5. Select `Reset password`.
+For publication year, you can enter a start year, an end year, or both:
 
-Successful updates show `Profile updated successfully.` and `Password updated
-successfully.` Blank profile fields show `Name and email are required.` Blank
-passwords show `Password is required.`, and mismatched passwords show `Passwords
-do not match.`
+- **Start year only:** Finds books published in that year or later. For example, `2008` finds books published in 2008 and later.
+- **End year only:** Finds books published in that year or earlier. For example, `2020` finds books published in 2020 and earlier.
+- **Both years:** Finds books published between the start and end years, inclusive.
+
+Similarly, to view all books in the catalog, leave the search field blank and click **Search**, or click **Reset**.
+
+### Borrowing Books
+
+![borrow books page](images/borrowBookPage.png)
+
+Members can borrow books from the **Borrow books** page.
+
+Enter the **Copy ID** of a book and click **Add book** to add it to the transaction. You can add up to 10 books per transaction. To remove a book from the list, click **Remove** beside it.
+
+After adding all the books you want to borrow, click **Confirm Borrowing**. LibConnect will create a loan for each selected book.
+
+![borrowing books process](images/borrowBookOperation.png)
+
+> [!NOTE]
+> Books marked as `BORROWED`, `DAMAGED`, or `LOST` cannot be borrowed. LibConnect will reject attempts to borrow these books.
+
+### Creating a Reservation
+
+![reservation page](images/reservationPage.png)
+
+If all copies of a book are unavailable, members can reserve it from the **Reservation** page. Enter the book’s ISBN and click **Create Reservation**.
+
+When a copy becomes available, LibConnect will notify the member to collect it. Members can cancel their reservation at any time before it is fulfilled. Once they have received the book, it can no longer be cancelled.
+
+> [!NOTE]
+> Members will not be allowed to make a reservation for a book if there are copies available currently.
+
+![reservation process](images/makeReservation.png)
+
+The default reservation period is seven days. LibConnect displays an error message if the book is unknown or if the member has a duplicate pending reservation, or the member is inactive or unknown.
+
+### Update User Profile and Password 
+
+![Update user profile and password](images/profilePage_updateProfile.png)
+
+Members can update their name, email address, or password on the **Profile** page. LibConnect displays a success message when an update is complete or an error message if it fails.
+
+When changing a password, enter the same password in both fields. If the passwords do not match, LibConnect displays an error message. Members cannot change their email address to one that is already in use; LibConnect displays an error message if they try.
+
+### View, Renew, and Return Loans
+
+![My Loans page](images/myloans.png)
+
+Members can view their loans on the **My Loans** subpage of the **Profile** page. Select **Current Loans** to view active loans. From there, members can renew or return a loan. To view past loans, select **Loan History**.
+
+> [!NOTE]
+> All loans can only be renewed a maximum of one time.
+
+> [!NOTE]
+> Overdue loans cannot be renewed. When an overdue loan is returned, LibConnect automatically calculates and creates an outstanding fine for the member.
+
+### View and Pay Fines
+
+![My Fines page](images/myFines.png)
+
+Members can view their fines on the **My Fines** subpage of the **Profile** page. Select **Outstanding** to view unpaid fines. Click **Pay Fine** to pay a fine. To view paid fines, select **History**.
+
+> [!NOTE]
+> A member can only pay a fine issued to their account. Currently, LibConnect does not support payment of fines for another member's account.
 
 ## Librarian guide
 
