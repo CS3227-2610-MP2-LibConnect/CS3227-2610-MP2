@@ -200,11 +200,12 @@ class LibrarianPageIntegrationTest {
                 findButton(context.page(), "Books", "Edit selected").fire();
                 assertEquals("Updated title", context.books().findByIsbn(BOOK_ID).orElseThrow().getTitle());
 
+                query.clear();
                 acceptTextFields("ISBN-2", "Second book", "Author", "Publisher", "Category", "2022");
                 findButton(context.page(), "Books", "Add").fire();
                 assertTrue(context.books().findByIsbn("ISBN-2").isPresent());
+                assertEquals(2, books.getItems().size());
 
-                query.clear();
                 findButton(context.page(), "Books", "Search").fire();
                 books.getSelectionModel().selectFirst();
                 acceptButton(ButtonType.OK);
@@ -484,6 +485,10 @@ class LibrarianPageIntegrationTest {
             public void run() {
                 DialogPane dialogPane = findDialogPane();
                 List<T> fields = UiTestSupport.findNodes(dialogPane, fieldType);
+                if (fieldType == PasswordField.class) {
+                    assertTrue(UiTestSupport.labelTexts(dialogPane).contains("New password"));
+                    assertTrue(UiTestSupport.labelTexts(dialogPane).contains("Confirm password"));
+                }
                 if (fields.size() == values.length) {
                     for (T field : fields) {
                         field.setText(values[index.getAndIncrement()]);

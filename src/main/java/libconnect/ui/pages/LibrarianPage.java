@@ -255,10 +255,10 @@ public final class LibrarianPage extends BorderPane {
         Label memberId = new Label(selected.getMemberId());
         Label name = new Label(selected.getName());
         Label email = new Label(selected.getEmail());
-        PasswordField password = new PasswordField();
         PasswordField newPassword = new PasswordField();
-        password.setPromptText("Password");
+        PasswordField confirmPassword = new PasswordField();
         newPassword.setPromptText("New password");
+        confirmPassword.setPromptText("Confirm password");
 
         GridPane fields = new GridPane();
         fields.setHgap(10);
@@ -269,10 +269,10 @@ public final class LibrarianPage extends BorderPane {
         fields.add(name, 1, 1);
         fields.add(new Label("Email"), 0, 2);
         fields.add(email, 1, 2);
-        fields.add(new Label("Password"), 0, 3);
-        fields.add(password, 1, 3);
-        fields.add(new Label("New password"), 0, 4);
-        fields.add(newPassword, 1, 4);
+        fields.add(new Label("New password"), 0, 3);
+        fields.add(newPassword, 1, 3);
+        fields.add(new Label("Confirm password"), 0, 4);
+        fields.add(confirmPassword, 1, 4);
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Reset password");
@@ -281,10 +281,10 @@ public final class LibrarianPage extends BorderPane {
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         Button resetButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
         resetButton.disableProperty().bind(Bindings.createBooleanBinding(
-                () -> password.getText().isBlank()
-                        || newPassword.getText().isBlank()
-                        || !password.getText().equals(newPassword.getText()),
-                password.textProperty(), newPassword.textProperty()));
+                () -> newPassword.getText().isBlank()
+                        || confirmPassword.getText().isBlank()
+                        || !newPassword.getText().equals(confirmPassword.getText()),
+                newPassword.textProperty(), confirmPassword.textProperty()));
 
         dialog.showAndWait().filter(ButtonType.OK::equals).ifPresent(result -> execute(() -> {
             runtime.controller().resetMemberPassword(employeeId, memberId.getText(), newPassword.getText());
@@ -305,14 +305,14 @@ public final class LibrarianPage extends BorderPane {
         search.setOnAction(event -> execute(() -> table.setItems(FXCollections.observableArrayList(
                 runtime.controller().searchBooks(employeeId, query.getText())))));
         Button add = new Button("Add");
-        add.setOnAction(event -> promptBook(null));
+        add.setOnAction(event -> promptBook(null, search::fire));
         Button edit = new Button("Edit selected");
         edit.setOnAction(event -> {
             BookSummary selected = table.getSelectionModel().getSelectedItem();
             if (selected == null) {
                 view.showError("Select a book first");
             } else {
-                promptBook(selected);
+                promptBook(selected, search::fire);
             }
         });
         Button remove = new Button("Remove selected");
@@ -338,7 +338,7 @@ public final class LibrarianPage extends BorderPane {
         return confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
     }
 
-    private void promptBook(BookSummary selected) {
+    private void promptBook(BookSummary selected, Runnable refreshBooks) {
         String isbn = prompt("Book details", "ISBN", selected == null ? "" : selected.details().isbn());
         String title = prompt("Book details", "Title", selected == null ? "" : selected.details().title());
         String author = prompt("Book details", "Author", selected == null ? "" : selected.details().author());
@@ -359,6 +359,7 @@ public final class LibrarianPage extends BorderPane {
                 runtime.controller().editBook(employeeId, selected.bookId(), details);
                 view.showMessage("Book updated");
             }
+            refreshBooks.run();
         });
     }
 
