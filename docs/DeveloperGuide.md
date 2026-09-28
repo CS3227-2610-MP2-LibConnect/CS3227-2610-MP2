@@ -1,9 +1,3 @@
----
-layout: page
-title: Developer Guide
-permalink: /dev-guide
----
-
 # LibConnect Developer Guide
 
 This guide is for developers who build, extend, test, troubleshoot, and release
@@ -52,30 +46,6 @@ production library-management platform.
 - [Planned Enhancements](#planned-enhancements)
 - [Troubleshooting](#troubleshooting)
 - [Source and test map](#source-and-test-map)
-- [Acknowledgements](#acknowledgements)
-
-
-
-## Table of contents
-
-- [Start here](#start-here)
-  - [Toolchain](#toolchain)
-  - [Repeatable commands](#repeatable-commands)
-- [Architecture and dependency direction](#architecture-and-dependency-direction)
-  - [Package responsibilities](#package-responsibilities)
-  - [Composition roots](#composition-roots)
-- [Domain and service boundaries](#domain-and-service-boundaries)
-- [Cross-role integration contracts](#cross-role-integration-contracts)
-- [Persistence and data safety](#persistence-and-data-safety)
-- [Testing strategy](#testing-strategy)
-- [Adding common kinds of changes](#adding-common-kinds-of-changes)
-  - [Add a service capability](#add-a-service-capability)
-  - [Add persistence](#add-persistence)
-  - [Add a UI flow](#add-a-ui-flow)
-- [CI workflow](#ci-workflow)
-- [Release process](#release-process)
-- [Troubleshooting](#troubleshooting)
-- [Planned Enhancements](#planned-enhancements)
 - [Acknowledgements](#acknowledgements)
 
 ## Start here
@@ -709,16 +679,6 @@ and the file repository tests for malformed records and safe replacement;
 for failure-point and rollback behavior.
 
 
-
-## Planned Enhancements
-
-LibConnect is currently a minimum viable product (MVP). Some features are not included because their implementation depends on access to physical hardware or third-party services that were outside the scope of this project. Organisations adopting LibConnect could implement these enhancements as those resources become available:
-
-- **Barcode and RFID scanning:** Allow members to scan a book’s barcode or RFID tag when borrowing, instead of entering the copy ID manually. This requires compatible scanning hardware.
-- **Book return verification:** Integrate the bookdrop’s sorting system to verify returned books. Currently, a book is marked as returned and available as soon as a member clicks **Return Loan**. This enhancement requires compatible bookdrop hardware.
-- **Reservation fulfilment and loan tracking:** Create a loan record automatically when a librarian fulfils a reservation, rather than requiring a separate loan to be created. Currently, a reservation can be fulfilled even when no copies are available. The system assumes the librarian has set aside a copy before notifying the member to collect it.
-- **Fine payments:** Integrate a payment gateway so members can pay fines through LibConnect. Currently, clicking **Pay Fine** records the fine as paid without processing an actual payment. This enhancement requires access to a payment provider.
-- **Book reviews:** Allow members to leave reviews for books.
 
 ## Acknowledgements
 
