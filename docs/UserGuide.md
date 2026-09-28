@@ -1,3 +1,9 @@
+---
+layout: page
+title: User Guide
+permalink: /user-guide
+---
+
 # LibConnect User Guide
 
 LibConnect is a Java desktop application for library catalogue, book-copy, loan,

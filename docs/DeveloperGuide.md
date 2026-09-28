@@ -1,3 +1,9 @@
+---
+layout: page
+title: Developer Guide
+permalink: /dev-guide
+---
+
 # LibConnect Developer Guide
 
 This guide is for developers who build, extend, test, troubleshoot, and release
