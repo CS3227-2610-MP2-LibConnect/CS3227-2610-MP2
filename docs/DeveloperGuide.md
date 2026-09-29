@@ -520,9 +520,15 @@ jobs:
    `xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" mvn  --batch-mode --update-snapshots clean verify`. The virtual display is needed
    for JavaFX UI tests.
 2. `release` runs only for tags whose ref starts with `v`, depends on `build`,
-  installs Java 25, runs the release build in the same virtual display, and
-   uploads `target/libconnect-*.jar` as an artifact named
-   `libconnect-<tag>`.
+  installs Java 25, and builds a five-entry matrix for the `win`, `linux`,
+  `linux-aarch64`, `mac`, and `mac-aarch64` JavaFX classifiers. Each matrix
+  entry stages a classifier-specific filename and uploads one platform asset
+  named `libconnect-<tag>-<classifier>`.
+
+The JavaFX native runtime is platform-specific. A JAR produced on the Linux
+runner is therefore a Linux bundle, not a universal JAR. The release folder
+and the official release must contain one asset for each supported operating
+system and architecture.
 
 The release job cannot run when the build gate fails. There is no separate UI
 job, coverage upload, test-report artifact upload, or published release step.
@@ -548,17 +554,28 @@ The project version is `1.0.0`. The `release` Maven profile:
 - preserves service resources;
 - copies the result to `release/libconnect-1.0.0.jar`.
 
-Build it with:
+Build a bundle by selecting its JavaFX classifier explicitly:
 
 ```text
-mvn -Prelease clean package
+mvn -Prelease -Djavafx.platform=win clean package
 ```
 
-The default JavaFX classifier is `win`; Maven profiles select `linux`,
-`linux-aarch64`, `mac`, or `mac-aarch64` on the corresponding platforms and
-architectures. Build on the target platform and architecture because the
-shaded JAR includes platform-specific JavaFX native libraries. A single JAR is
-not automatically portable across all operating systems and architectures.
+Use the following classifier-to-asset mapping when preparing a distribution:
+
+| JavaFX classifier | Distribution asset |
+| ---------------- | ------------------ |
+| `win`             | `libconnect-1.0.0-windows-x64.jar` |
+| `linux`           | `libconnect-1.0.0-linux-x64.jar` |
+| `linux-aarch64`   | `libconnect-1.0.0-linux-aarch64.jar` |
+| `mac`             | `libconnect-1.0.0-macos-x64.jar` |
+| `mac-aarch64`     | `libconnect-1.0.0-macos-aarch64.jar` |
+
+After each build, rename or copy `target/libconnect-1.0.0.jar` to the mapped
+asset name before starting the next classifier build; otherwise the next build
+overwrites the generic staged file. The resulting assets are executable JARs,
+but each embeds only its selected platform's JavaFX native libraries. A single
+JAR is not automatically portable across all operating systems and
+architectures.
 
 At runtime, data paths are relative to the process working directory. Distribute
 the complete `data/` directory beside the directory from which the JAR is
@@ -640,7 +657,8 @@ payment-provider calls, or review policy directly in JavaFX pages.
 | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
 | `No compiler is provided in this environment`.                    | Maven is using a JRE or an older Java installation.                                  | Select JDK 25, verify `mvn --version`, and rerun.                                                |
 | JavaFX reports `Screen.getMainScreen` or hangs before assertions. | No usable display is available to the JavaFX toolkit.                                | Run on a desktop or configure a virtual display with the CI command.                             |
-| The build selects the wrong JavaFX binaries.                      | The build ran on a different OS/architecture or the expected profile was not active. | Build on the target platform and inspect the active classifier/profile.                          |
+| The build selects the wrong JavaFX binaries.                      | The build ran on a different OS/architecture or the expected classifier was not selected. | Set `-Djavafx.platform` to the target classifier, rebuild, and use the matching distribution asset. |
+| A release JAR fails during JavaFX startup.                         | The JAR was downloaded for another operating system or architecture.                 | Download the asset whose filename matches the current computer.                                   |
 | A repository reports that the root must be a JSON array.          | A data file is not an array, often after manual editing or corruption.               | Preserve a copy, repair or restore the file, then rerun; do not silently replace evidence.       |
 | Records disappear after loading.                                  | Individual records are malformed or have duplicate IDs and were skipped.             | Inspect `data/malformed/malformed-records.json`, repair the source records, and reload.          |
 | A write fails but the old data remains.                           | The directory is not writable, disk space is unavailable, or replacement failed.     | Check permissions and free space; safe replacement is intended to preserve the old file.         |

@@ -37,8 +37,9 @@ reservations, fines, loans, and alerts.
 - A desktop display supported by JavaFX. JavaFX UI tests and the application do
   not run correctly in a display-less shell.
 
-The release JAR contains the application dependencies, but it still needs a JDK
-25 runtime and a writable working directory containing the `data/` directory.
+Each release JAR contains the application dependencies and one JavaFX native
+runtime. It still needs a JDK 25 runtime and a writable working directory
+containing the `data/` directory.
 
 Check the tools before starting:
 
@@ -61,24 +62,30 @@ mvn exec:java
 The LibConnect login window opens. All library actions are performed in the
 desktop window; LibConnect has no command-line command language.
 
-### Start the release JAR
+### Start a release JAR
 
-Build the release artifact from the repository root:
+JavaFX includes native libraries, so choose the release asset that matches the
+computer where LibConnect will run:
+
+| Operating system and architecture | Release asset |
+| --------------------------------- | ------------- |
+| Windows x64                       | `libconnect-1.0.0-windows-x64.jar` |
+| Linux x64                         | `libconnect-1.0.0-linux-x64.jar` |
+| Linux ARM64                       | `libconnect-1.0.0-linux-aarch64.jar` |
+| macOS Intel                       | `libconnect-1.0.0-macos-x64.jar` |
+| macOS Apple Silicon               | `libconnect-1.0.0-macos-aarch64.jar` |
+
+Do not use a JAR built for another operating system or architecture. Run the
+matching asset from a directory containing the application's writable `data/`
+directory:
 
 ```text
-mvn -Prelease clean package
+java -jar libconnect-1.0.0-windows-x64.jar
 ```
 
-The executable JAR is created at `target/libconnect-1.0.0.jar` and copied to
-`release/libconnect-1.0.0.jar`. Run it from a directory that contains the
-application's writable `data/` directory:
-
-```text
-java -jar target/libconnect-1.0.0.jar
-```
-
-The JavaFX native libraries in a release are platform-specific. Build the JAR on
-the operating system and architecture where it will be used.
+Replace the filename in the command with the asset for the current computer.
+The repository's `release/` folder uses these filenames. The official GitHub
+release should use the same names so that users can select the correct bundle.
 
 ### Set up a repeatable manual test
 

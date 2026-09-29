@@ -29,6 +29,21 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - classifier: win
+            asset: libconnect-1.0.0-windows-x64.jar
+          - classifier: linux
+            asset: libconnect-1.0.0-linux-x64.jar
+          - classifier: linux-aarch64
+            asset: libconnect-1.0.0-linux-aarch64.jar
+          - classifier: mac
+            asset: libconnect-1.0.0-macos-x64.jar
+          - classifier: mac-aarch64
+            asset: libconnect-1.0.0-macos-aarch64.jar
+
     steps:
       - name: Check out source
         uses: actions/checkout@v6
@@ -40,11 +55,17 @@ jobs:
           java-version: '25'
 
       - name: Build release JAR
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" mvn --batch-mode -Prelease clean package
+        run: >-
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24"
+          mvn --batch-mode -DskipTests -Prelease
+          -Djavafx.platform=${{ matrix.classifier }} clean package
+
+      - name: Rename platform release asset
+        run: mv release/libconnect-1.0.0.jar release/${{ matrix.asset }}
 
       - name: Upload release JAR
         uses: actions/upload-artifact@v4
         with:
-          name: libconnect-${{ github.ref_name }}
-          path: target/libconnect-*.jar
+          name: libconnect-${{ github.ref_name }}-${{ matrix.classifier }}
+          path: release/${{ matrix.asset }}
           if-no-files-found: error
