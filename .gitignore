@@ -18,5 +18,4 @@ Thumbs.db
 # Data files
 data/**
 !data/*.json
-release/*.jar
 test_summary.md
